@@ -1,6 +1,6 @@
 # PythonLinqPad
 
-A LinqPad like tool with Roslyn like Pythoni 3.12 Interpreter, that will visualy show parse tree with nodes, symbols and trivia.
+A LinqPad like tool with Roslyn like Python 3.12 Interpreter, that will visually show parse tree with nodes, symbols and trivia.
 
 ## Building and testing
 
