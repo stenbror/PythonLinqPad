@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestPythonCore", "TestPythonCore\TestPythonCore.csproj", "{4A3E34B2-AE2D-43AA-B08B-E78B56D5CDC6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PythonCore", "PythonCore\PythonCore.csproj", "{5FCCA5BE-A788-4FEA-9419-94977D6FFBFE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4A3E34B2-AE2D-43AA-B08B-E78B56D5CDC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A3E34B2-AE2D-43AA-B08B-E78B56D5CDC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A3E34B2-AE2D-43AA-B08B-E78B56D5CDC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A3E34B2-AE2D-43AA-B08B-E78B56D5CDC6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5FCCA5BE-A788-4FEA-9419-94977D6FFBFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5FCCA5BE-A788-4FEA-9419-94977D6FFBFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5FCCA5BE-A788-4FEA-9419-94977D6FFBFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5FCCA5BE-A788-4FEA-9419-94977D6FFBFE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
