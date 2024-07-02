@@ -8,5 +8,9 @@ public class UnitTest1
     public void Test1()
     {
         var parser = new PythonCoreParser();
+
+        var tst = new ExpressionNode(1, 2);
+        Assert.Equal(1u, tst.StartPos);
+
     }
 }
