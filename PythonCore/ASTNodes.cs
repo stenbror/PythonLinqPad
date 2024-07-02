@@ -1,3 +1,6 @@
+using System.Runtime.InteropServices;
+using System.Security.Cryptography;
+
 namespace PythonCore;
 
 public record Node(uint StartPos, uint EndPos);
@@ -12,3 +15,8 @@ public sealed record NoneLiteralNode(uint StartPos, uint EndPos, Symbol Element)
 public sealed record FalseLiteralNode(uint StartPos, uint EndPos, Symbol Element) : ExpressionNode(StartPos, EndPos);
 public sealed record TrueLiteralNode(uint StartPos, uint EndPos, Symbol Element) : ExpressionNode(StartPos, EndPos);
 public sealed record ElipsisLiteralNode(uint StartPos, uint EndPos, Symbol Element) : ExpressionNode(StartPos, EndPos);
+public sealed record TupleLiteralNode(uint StartPos, uint EndPos, Symbol Symbol1, ExpressionNode[] Elements, Symbol[] Separators, Node? Generator, Symbol Symbol2) : ExpressionNode(StartPos, EndPos);
+public sealed record ListLiteralNode(uint StartPos, uint EndPos, Symbol Symbol1, ExpressionNode[] Elements, Symbol[] Separators, Node? Generator, Symbol Symbol2) : ExpressionNode(StartPos, EndPos);
+public sealed record SetLiteralNode(uint StartPos, uint EndPos, Symbol Symbol1, ExpressionNode[] Elements, Symbol[] Separators, Node? Generator, Symbol Symbol2) : ExpressionNode(StartPos, EndPos);
+public sealed record DictionaryLiteralNode(uint StartPos, uint EndPos, Symbol Symbol1, ExpressionNode[] Elements, Symbol[] Separators, Node? Generator, Symbol Symbol2) : ExpressionNode(StartPos, EndPos);
+public sealed record DictionaryElementNode(uint StartPos, uint EndPos, ExpressionNode Key, Symbol Separator, ExpressionNode Value) : ExpressionNode(StartPos, EndPos);
