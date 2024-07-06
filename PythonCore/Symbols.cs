@@ -56,20 +56,39 @@ public sealed record PyBitAnd(uint StartPos, uint EndPos) : Symbol(StartPos, End
 public sealed record PyBitOr(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
 public sealed record PyBitXor(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
 public sealed record PyBitInvert(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
-public sealed record PyAssign(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos); // ':='
+public sealed record PyColonAssign(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos); // ':='
 public sealed record PyLess(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
 public sealed record PyGreater(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
 public sealed record PyLessEqual(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
 public sealed record PyGreaterEqual(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
 public sealed record PyEqual(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
 public sealed record PyNotEqual(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyLeftParen(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyLeftBracket(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyLeftCurly(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyRightParen(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyRightBracket(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyRightCurly(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyComma(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyColon(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyDot(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyElipsis(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyAssign(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyArrow(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyPlusAssign(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyMinusAssign(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyMulAssign(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyDivAssign(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyFloorDivAssign(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyModuloAssign(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyMatriceAssign(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyBitAndAssign(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyBitOrAssign(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyBitXorAssign(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyShiftLeftAssign(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyShiftRightassign(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyPowerAssign(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
 
-
-
-/*
-   (       )       [       ]       {       }
-   ,       :       .       ;       @       =       ->
-   +=      -=      *=      /=      //=     %=      @=
-   &=      |=      ^=      >>=     <<=     **=
- 
- */
+public sealed record PyName(uint StartPos, uint EndPos, string Id) : Symbol(StartPos, EndPos);
+public sealed record PyNumber(uint StartPos, uint EndPos, string Number) : Symbol(StartPos, EndPos);
+public sealed record PyString(uint StartPos, uint EndPos, string Text) : Symbol(StartPos, EndPos);
