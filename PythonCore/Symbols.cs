@@ -42,13 +42,31 @@ public sealed record PyCase(uint StartPos, uint EndPos) : Symbol(StartPos, EndPo
 public sealed record PyType(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
 public sealed record PyDefault(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos); // '_'
 
+public sealed record PyPlus(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyMinus(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyMul(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyPower(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyDiv(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyFloorDiv(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyModulo(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyMatrice(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyShiftLeft(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyShiftRight(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyBitAnd(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyBitOr(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyBitXor(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyBitInvert(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyAssign(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos); // ':='
+public sealed record PyLess(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyGreater(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyLessEqual(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyGreaterEqual(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyEqual(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyNotEqual(uint StartPos, uint EndPos) : Symbol(StartPos, EndPos);
+
+
 
 /*
-   +       -       *       **      /       //      %      @
-   <<      >>      &       |       ^       ~       :=
-   <       >       <=      >=      ==      !=
-   
-   
    (       )       [       ]       {       }
    ,       :       .       ;       @       =       ->
    +=      -=      *=      /=      //=     %=      @=
