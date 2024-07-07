@@ -5,7 +5,7 @@ public sealed class PythonCoreParser(string sourceBuffer)
 
     public Symbol Symbol { get; private set; } = new PyEOF(0);
 
-    private String _buffer = sourceBuffer;
+    private readonly String _buffer = sourceBuffer;
     private int _index = 0;
     private int _symbolStartPos = 0;
 
@@ -176,6 +176,49 @@ public sealed class PythonCoreParser(string sourceBuffer)
                 }
 
                 return;
+
+            case ':':
+                _index++;
+                if (_buffer[_index] == '=')
+                {
+                    _index++;
+                    Symbol = new PyColonAssign(_symbolStartPos, _index);
+                }
+                else
+                {
+                    Symbol = new PyColon(_symbolStartPos, _index);
+                }
+
+                return;
+
+            case '=':
+                _index++;
+                if (_buffer[_index] == '=')
+                {
+                    _index++;
+                    Symbol = new PyEqual(_symbolStartPos, _index);
+                }
+                else
+                {
+                    Symbol = new PyAssign(_symbolStartPos, _index);
+                }
+
+                return;
+
+            case '!':
+                _index++;
+                if (_buffer[_index] == '=')
+                {
+                    _index++;
+                    Symbol = new PyNotEqual(_symbolStartPos, _index);
+                }
+                else
+                {
+                    throw new Exception();
+                }
+
+                return;
+
 
         }
 

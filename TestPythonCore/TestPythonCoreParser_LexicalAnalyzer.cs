@@ -245,4 +245,59 @@ public class TestPythonCoreParserLexicalAnalyzer
         Assert.Equal(0, parser.Symbol.StartPos);
         Assert.Equal(1, parser.Symbol.EndPos);
     }
+
+    [Fact]
+    public void TestLexicalAnalyzerColonAssign()
+    {
+        var parser = new PythonCoreParser(":=");
+        parser.Advance();
+
+        Assert.IsType<PyColonAssign>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(2, parser.Symbol.EndPos);
+    }
+
+    [Fact]
+    public void TestLexicalAnalyzerColon()
+    {
+        var parser = new PythonCoreParser(": ");
+        parser.Advance();
+
+        Assert.IsType<PyColon>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(1, parser.Symbol.EndPos);
+    }
+
+    [Fact]
+    public void TestLexicalAnalyzerEqual()
+    {
+        var parser = new PythonCoreParser("==");
+        parser.Advance();
+
+        Assert.IsType<PyEqual>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(2, parser.Symbol.EndPos);
+    }
+
+    [Fact]
+    public void TestLexicalAnalyzerAssign()
+    {
+        var parser = new PythonCoreParser("= ");
+        parser.Advance();
+
+        Assert.IsType<PyAssign>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(1, parser.Symbol.EndPos);
+    }
+
+    [Fact]
+    public void TestLexicalAnalyzerNotEqual()
+    {
+        var parser = new PythonCoreParser("!=");
+        parser.Advance();
+
+        Assert.IsType<PyNotEqual>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(2, parser.Symbol.EndPos);
+    }
 }
