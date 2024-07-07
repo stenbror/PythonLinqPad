@@ -225,7 +225,32 @@ public sealed class PythonCoreParser(string sourceBuffer)
 
                 return;
 
+            case '<':
+                _index++;
+                if (_buffer[_index] == '<')
+                {
+                    _index++;
+                    if (_buffer[_index] == '=')
+                    {
+                        _index++;
+                        Symbol = new PyShiftLeftAssign(_symbolStartPos, _index);
+                    }
+                    else
+                    {
+                        Symbol = new PyShiftLeft(_symbolStartPos, _index);
+                    }
+                }
+                else if (_buffer[_index] == '=')
+                {
+                    _index++;
+                    Symbol = new PyLessEqual(_symbolStartPos, _index);
+                }
+                else
+                {
+                    Symbol = new PyLess(_symbolStartPos, _index);
+                }
 
+                return;
         }
 
         
