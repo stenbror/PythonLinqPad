@@ -1,6 +1,6 @@
 ﻿namespace PythonCore;
 
-public sealed class PythonCoreParserLexicalAnalyzer(string sourceBuffer)
+public sealed class PythonCoreParser(string sourceBuffer)
 {
 
     public Symbol Symbol { get; private set; } = new PyEOF(0);
@@ -31,7 +31,9 @@ public sealed class PythonCoreParserLexicalAnalyzer(string sourceBuffer)
                 {
                     Symbol = new PyPlus(_symbolStartPos, _index);
                 }
+
                 return;
+
             case '-':
                 _index++;
                 if (_buffer[_index] == '=')
@@ -48,6 +50,61 @@ public sealed class PythonCoreParserLexicalAnalyzer(string sourceBuffer)
                 {
                     Symbol = new PyMinus(_symbolStartPos, _index);
                 }
+
+                return;
+
+            case '*':
+                _index++;
+                if (_buffer[_index] == '*')
+                {
+                    _index++;
+                    if (_buffer[_index] == '=')
+                    {
+                        _index++;
+                        Symbol = new PyPowerAssign(_symbolStartPos, _index);
+                    }
+                    else
+                    {
+                        Symbol = new PyPower(_symbolStartPos, _index);
+                    }
+                }
+                else if (_buffer[_index] == '=')
+                {
+                    _index++;
+                    Symbol = new PyMulAssign(_symbolStartPos, _index);
+                }
+                else
+                {
+                    Symbol = new PyMul(_symbolStartPos, _index);
+                }
+
+                return;
+
+            case '/':
+                _index++;
+                if (_buffer[_index] == '/')
+                {
+                    _index++;
+                    if (_buffer[_index] == '=')
+                    {
+                        _index++;
+                        Symbol = new PyFloorDivAssign(_symbolStartPos, _index);
+                    }
+                    else
+                    {
+                        Symbol = new PyFloorDiv(_symbolStartPos, _index);
+                    }
+                }
+                else if (_buffer[_index] == '=')
+                {
+                    _index++;
+                    Symbol = new PyDivAssign(_symbolStartPos, _index);
+                }
+                else
+                {
+                    Symbol = new PyDiv(_symbolStartPos, _index);
+                }
+
                 return;
 
         }
