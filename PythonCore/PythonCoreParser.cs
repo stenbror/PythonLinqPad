@@ -1,16 +1,43 @@
 ﻿namespace PythonCore;
+
 public sealed class PythonCoreParser(string sourceBuffer)
 {
 
-    private Symbol _symbol = new PyEOF(0);
+    public Symbol Symbol { get; private set; } = new PyEOF(0);
 
-    public Tuple<int, int> CurrentSymbolPosition { get; private set; } = new(0, 0);
     private String _buffer = sourceBuffer;
     private int _index = 0;
     private int _symbolStartPos = 0;
 
 
-    private void Advance() { }
+    private Tuple<int, int> Position => new Tuple<int, int>(_symbolStartPos, _index);
+    
+
+    public void Advance()
+    {
+        _again:
+        _symbolStartPos = _index; // Save current position as start of next symbol to analyze
+
+        switch (_buffer[_index])
+        {
+            case '+':
+                _index++;
+                if (_buffer[_index] == '=')
+                {
+                    _index++;
+                    Symbol = new PyPlusAssign(_symbolStartPos, _index);
+                }
+                else
+                {
+                    Symbol = new PyPlus(_symbolStartPos, _index);
+                }
+                return;
+
+                
+        }
+
+        
+    }
 
     private Symbol IsReservedKeyword() =>
     
@@ -59,7 +86,7 @@ public sealed class PythonCoreParser(string sourceBuffer)
     // Grammar rule: Atom //////////////////////////////////////////////////////////////////////////////////////////////
     public ExpressionNode ParseAtom() => 
     
-        _symbol switch
+        Symbol switch
         {
             PyNone => ParseAtomNone(),
             PyFalse => ParseAtomFalse(),
@@ -76,80 +103,80 @@ public sealed class PythonCoreParser(string sourceBuffer)
 
     private NoneLiteralNode ParseAtomNone()
     {
-        var pos = CurrentSymbolPosition;
-        var res = new NoneLiteralNode(pos.Item1, pos.Item2, _symbol);
+        var pos = Position;
+        var res = new NoneLiteralNode(pos.Item1, pos.Item2, Symbol);
         Advance();
         return res;
     }
 
     private FalseLiteralNode ParseAtomFalse()
     {
-        var pos = CurrentSymbolPosition;
-        var res = new FalseLiteralNode(pos.Item1, pos.Item2, _symbol);
+        var pos = Position;
+        var res = new FalseLiteralNode(pos.Item1, pos.Item2, Symbol);
         Advance();
         return res;
     }
 
     private TrueLiteralNode ParseAtomTrue()
     {
-        var pos = CurrentSymbolPosition;
-        var res = new TrueLiteralNode(pos.Item1, pos.Item2, _symbol);
+        var pos = Position;
+        var res = new TrueLiteralNode(pos.Item1, pos.Item2, Symbol);
         Advance();
         return res;
     }
 
     private ElipsisLiteralNode ParseAtomElipsis()
     {
-        var pos = CurrentSymbolPosition;
-        var res = new ElipsisLiteralNode(pos.Item1, pos.Item2, _symbol);
+        var pos = Position;
+        var res = new ElipsisLiteralNode(pos.Item1, pos.Item2, Symbol);
         Advance();
         return res;
     }
 
     private NameLiteralNode ParseAtomName()
     {
-        var pos = CurrentSymbolPosition;
-        var res = new NameLiteralNode(pos.Item1, pos.Item2, _symbol);
+        var pos = Position;
+        var res = new NameLiteralNode(pos.Item1, pos.Item2, Symbol);
         Advance();
         return res;
     }
 
     private NumberLiteralNode ParseAtomNumber()
     {
-        var pos = CurrentSymbolPosition;
-        var res = new NumberLiteralNode(pos.Item1, pos.Item2, _symbol);
+        var pos = Position;
+        var res = new NumberLiteralNode(pos.Item1, pos.Item2, Symbol);
         Advance();
         return res;
     }
 
     private StringLiteralNode ParseAtomString()
     {
-        var pos = CurrentSymbolPosition;
-        var res = new StringLiteralNode(pos.Item1, pos.Item2, _symbol);
+        var pos = Position;
+        var res = new StringLiteralNode(pos.Item1, pos.Item2, Symbol);
         Advance();
         return res;
     }
 
     private ElipsisLiteralNode ParseAtomTuple()
     {
-        var pos = CurrentSymbolPosition;
-        var res = new ElipsisLiteralNode(pos.Item1, pos.Item2, _symbol);
+        var pos = Position;
+        var res = new ElipsisLiteralNode(pos.Item1, pos.Item2, Symbol);
         Advance();
         return res;
     }
 
     private ElipsisLiteralNode ParseAtomList()
     {
-        var pos = CurrentSymbolPosition;
-        var res = new ElipsisLiteralNode(pos.Item1, pos.Item2, _symbol);
+        var pos = Position;
+        var res = new ElipsisLiteralNode(pos.Item1, pos.Item2, Symbol);
         Advance();
         return res;
     }
 
     private ElipsisLiteralNode ParseAtomSetOrDictionary()
     {
-        var pos = CurrentSymbolPosition;
-        var res = new ElipsisLiteralNode(pos.Item1, pos.Item2, _symbol);
+        var pos = Position;
+        var res = new ElipsisLiteralNode(pos.Item1, pos.Item2, Symbol);
         Advance();
         return res;
     }

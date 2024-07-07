@@ -5,16 +5,24 @@ namespace TestPythonCore;
 public class UnitTest1
 {
     [Fact]
-    public void Test1()
+    public void TestLexicalAnalyzerPlusAssign()
     {
-        var parser = new PythonCoreParser("def __init__(): pass");
+        var parser = new PythonCoreParser("+=");
+        parser.Advance();
 
-        var text = "def __init__(): pass";
-        var y = text.Substring(4, 12 - 4);
+        Assert.IsType<PyPlusAssign>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(2, parser.Symbol.EndPos);
+    }
 
+    [Fact]
+    public void TestLexicalAnalyzerPlus()
+    {
+        var parser = new PythonCoreParser("+ ");
+        parser.Advance();
 
-        var tst = new ExpressionNode(1, 2);
-        Assert.Equal(1, tst.StartPos);
-
+        Assert.IsType<PyPlus>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(1, parser.Symbol.EndPos);
     }
 }
