@@ -427,4 +427,26 @@ public class TestPythonCoreParserLexicalAnalyzer
         Assert.Equal(0, parser.Symbol.StartPos);
         Assert.Equal(1, parser.Symbol.EndPos);
     }
+
+    [Fact]
+    public void TestLexicalAnalyzerDot()
+    {
+        var parser = new PythonCoreParser(". ");
+        parser.Advance();
+
+        Assert.IsType<PyDot>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(1, parser.Symbol.EndPos);
+    }
+
+    [Fact]
+    public void TestLexicalAnalyzerElipsis()
+    {
+        var parser = new PythonCoreParser("...");
+        parser.Advance();
+
+        Assert.IsType<PyElipsis>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(3, parser.Symbol.EndPos);
+    }
 }

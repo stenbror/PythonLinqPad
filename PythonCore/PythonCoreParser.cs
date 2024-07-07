@@ -15,284 +15,317 @@ public sealed class PythonCoreParser(string sourceBuffer)
 
     public void Advance()
     {
-        _again:
-        _symbolStartPos = _index; // Save current position as start of next symbol to analyze
-
-        switch (_buffer[_index])
+        try
         {
-            case '+':
-                _index++;
-                if (_buffer[_index] == '=')
-                {
-                    _index++;
-                    Symbol = new PyPlusAssign(_symbolStartPos, _index);
-                }
-                else
-                {
-                    Symbol = new PyPlus(_symbolStartPos, _index);
-                }
+_again:
+            _symbolStartPos = _index; // Save current position as start of next symbol to analyze
 
-                return;
-
-            case '-':
-                _index++;
-                if (_buffer[_index] == '=')
-                {
-                    _index++;
-                    Symbol = new PyMinusAssign(_symbolStartPos, _index);
-                }
-                else if (_buffer[_index] == '>')
-                {
-                    _index++;
-                    Symbol = new PyArrow(_symbolStartPos, _index);
-                }
-                else
-                {
-                    Symbol = new PyMinus(_symbolStartPos, _index);
-                }
-
-                return;
-
-            case '*':
-                _index++;
-                if (_buffer[_index] == '*')
-                {
+            switch (_buffer[_index])
+            {
+                case '+':
                     _index++;
                     if (_buffer[_index] == '=')
                     {
                         _index++;
-                        Symbol = new PyPowerAssign(_symbolStartPos, _index);
+                        Symbol = new PyPlusAssign(_symbolStartPos, _index);
                     }
                     else
                     {
-                        Symbol = new PyPower(_symbolStartPos, _index);
+                        Symbol = new PyPlus(_symbolStartPos, _index);
                     }
-                }
-                else if (_buffer[_index] == '=')
-                {
-                    _index++;
-                    Symbol = new PyMulAssign(_symbolStartPos, _index);
-                }
-                else
-                {
-                    Symbol = new PyMul(_symbolStartPos, _index);
-                }
 
-                return;
+                    return;
 
-            case '/':
-                _index++;
-                if (_buffer[_index] == '/')
-                {
+                case '-':
                     _index++;
                     if (_buffer[_index] == '=')
                     {
                         _index++;
-                        Symbol = new PyFloorDivAssign(_symbolStartPos, _index);
+                        Symbol = new PyMinusAssign(_symbolStartPos, _index);
+                    }
+                    else if (_buffer[_index] == '>')
+                    {
+                        _index++;
+                        Symbol = new PyArrow(_symbolStartPos, _index);
                     }
                     else
                     {
-                        Symbol = new PyFloorDiv(_symbolStartPos, _index);
+                        Symbol = new PyMinus(_symbolStartPos, _index);
                     }
-                }
-                else if (_buffer[_index] == '=')
-                {
+
+                    return;
+
+                case '*':
                     _index++;
-                    Symbol = new PyDivAssign(_symbolStartPos, _index);
-                }
-                else
-                {
-                    Symbol = new PyDiv(_symbolStartPos, _index);
-                }
+                    if (_buffer[_index] == '*')
+                    {
+                        _index++;
+                        if (_buffer[_index] == '=')
+                        {
+                            _index++;
+                            Symbol = new PyPowerAssign(_symbolStartPos, _index);
+                        }
+                        else
+                        {
+                            Symbol = new PyPower(_symbolStartPos, _index);
+                        }
+                    }
+                    else if (_buffer[_index] == '=')
+                    {
+                        _index++;
+                        Symbol = new PyMulAssign(_symbolStartPos, _index);
+                    }
+                    else
+                    {
+                        Symbol = new PyMul(_symbolStartPos, _index);
+                    }
 
-                return;
+                    return;
 
-            case '%':
-                _index++;
-                if (_buffer[_index] == '=')
-                {
+                case '/':
                     _index++;
-                    Symbol = new PyModuloAssign(_symbolStartPos, _index);
-                }
-                else
-                {
-                    Symbol = new PyModulo(_symbolStartPos, _index);
-                }
+                    if (_buffer[_index] == '/')
+                    {
+                        _index++;
+                        if (_buffer[_index] == '=')
+                        {
+                            _index++;
+                            Symbol = new PyFloorDivAssign(_symbolStartPos, _index);
+                        }
+                        else
+                        {
+                            Symbol = new PyFloorDiv(_symbolStartPos, _index);
+                        }
+                    }
+                    else if (_buffer[_index] == '=')
+                    {
+                        _index++;
+                        Symbol = new PyDivAssign(_symbolStartPos, _index);
+                    }
+                    else
+                    {
+                        Symbol = new PyDiv(_symbolStartPos, _index);
+                    }
 
-                return;
+                    return;
 
-            case '@':
-                _index++;
-                if (_buffer[_index] == '=')
-                {
-                    _index++;
-                    Symbol = new PyMatriceAssign(_symbolStartPos, _index);
-                }
-                else
-                {
-                    Symbol = new PyMatrice(_symbolStartPos, _index);
-                }
-
-                return;
-
-            case '&':
-                _index++;
-                if (_buffer[_index] == '=')
-                {
-                    _index++;
-                    Symbol = new PyBitAndAssign(_symbolStartPos, _index);
-                }
-                else
-                {
-                    Symbol = new PyBitAnd(_symbolStartPos, _index);
-                }
-
-                return;
-
-            case '|':
-                _index++;
-                if (_buffer[_index] == '=')
-                {
-                    _index++;
-                    Symbol = new PyBitOrAssign(_symbolStartPos, _index);
-                }
-                else
-                {
-                    Symbol = new PyBitOr(_symbolStartPos, _index);
-                }
-
-                return;
-
-            case '^':
-                _index++;
-                if (_buffer[_index] == '=')
-                {
-                    _index++;
-                    Symbol = new PyBitXorAssign(_symbolStartPos, _index);
-                }
-                else
-                {
-                    Symbol = new PyBitXor(_symbolStartPos, _index);
-                }
-
-                return;
-
-            case ':':
-                _index++;
-                if (_buffer[_index] == '=')
-                {
-                    _index++;
-                    Symbol = new PyColonAssign(_symbolStartPos, _index);
-                }
-                else
-                {
-                    Symbol = new PyColon(_symbolStartPos, _index);
-                }
-
-                return;
-
-            case '=':
-                _index++;
-                if (_buffer[_index] == '=')
-                {
-                    _index++;
-                    Symbol = new PyEqual(_symbolStartPos, _index);
-                }
-                else
-                {
-                    Symbol = new PyAssign(_symbolStartPos, _index);
-                }
-
-                return;
-
-            case '!':
-                _index++;
-                if (_buffer[_index] == '=')
-                {
-                    _index++;
-                    Symbol = new PyNotEqual(_symbolStartPos, _index);
-                }
-                else
-                {
-                    throw new Exception();
-                }
-
-                return;
-
-            case '~':
-                _index++;
-                Symbol = new PyBitInvert(_symbolStartPos, _index);
-
-                return;
-
-            case '<':
-                _index++;
-                if (_buffer[_index] == '<')
-                {
+                case '%':
                     _index++;
                     if (_buffer[_index] == '=')
                     {
                         _index++;
-                        Symbol = new PyShiftLeftAssign(_symbolStartPos, _index);
+                        Symbol = new PyModuloAssign(_symbolStartPos, _index);
                     }
                     else
                     {
-                        Symbol = new PyShiftLeft(_symbolStartPos, _index);
+                        Symbol = new PyModulo(_symbolStartPos, _index);
                     }
-                }
-                else if (_buffer[_index] == '=')
-                {
-                    _index++;
-                    Symbol = new PyLessEqual(_symbolStartPos, _index);
-                }
-                else
-                {
-                    Symbol = new PyLess(_symbolStartPos, _index);
-                }
 
-                return;
+                    return;
 
-            case '>':
-                _index++;
-                if (_buffer[_index] == '>')
-                {
+                case '@':
                     _index++;
                     if (_buffer[_index] == '=')
                     {
                         _index++;
-                        Symbol = new PyShiftRightAssign(_symbolStartPos, _index);
+                        Symbol = new PyMatriceAssign(_symbolStartPos, _index);
                     }
                     else
                     {
-                        Symbol = new PyShiftRight(_symbolStartPos, _index);
+                        Symbol = new PyMatrice(_symbolStartPos, _index);
                     }
-                }
-                else if (_buffer[_index] == '=')
-                {
+
+                    return;
+
+                case '&':
                     _index++;
-                    Symbol = new PyGreaterEqual(_symbolStartPos, _index);
-                }
-                else
-                {
-                    Symbol = new PyGreater(_symbolStartPos, _index);
-                }
+                    if (_buffer[_index] == '=')
+                    {
+                        _index++;
+                        Symbol = new PyBitAndAssign(_symbolStartPos, _index);
+                    }
+                    else
+                    {
+                        Symbol = new PyBitAnd(_symbolStartPos, _index);
+                    }
 
-                return;
+                    return;
 
-            case ',':
-                _index++;
-                Symbol = new PyComma(_symbolStartPos, _index);
+                case '|':
+                    _index++;
+                    if (_buffer[_index] == '=')
+                    {
+                        _index++;
+                        Symbol = new PyBitOrAssign(_symbolStartPos, _index);
+                    }
+                    else
+                    {
+                        Symbol = new PyBitOr(_symbolStartPos, _index);
+                    }
 
-                return;
+                    return;
 
-            case ';':
-                _index++;
-                Symbol = new PySemiColon(_symbolStartPos, _index);
+                case '^':
+                    _index++;
+                    if (_buffer[_index] == '=')
+                    {
+                        _index++;
+                        Symbol = new PyBitXorAssign(_symbolStartPos, _index);
+                    }
+                    else
+                    {
+                        Symbol = new PyBitXor(_symbolStartPos, _index);
+                    }
 
-                return;
+                    return;
+
+                case ':':
+                    _index++;
+                    if (_buffer[_index] == '=')
+                    {
+                        _index++;
+                        Symbol = new PyColonAssign(_symbolStartPos, _index);
+                    }
+                    else
+                    {
+                        Symbol = new PyColon(_symbolStartPos, _index);
+                    }
+
+                    return;
+
+                case '=':
+                    _index++;
+                    if (_buffer[_index] == '=')
+                    {
+                        _index++;
+                        Symbol = new PyEqual(_symbolStartPos, _index);
+                    }
+                    else
+                    {
+                        Symbol = new PyAssign(_symbolStartPos, _index);
+                    }
+
+                    return;
+
+                case '!':
+                    _index++;
+                    if (_buffer[_index] == '=')
+                    {
+                        _index++;
+                        Symbol = new PyNotEqual(_symbolStartPos, _index);
+                    }
+                    else
+                    {
+                        throw new Exception();
+                    }
+
+                    return;
+
+                case '~':
+                    _index++;
+                    Symbol = new PyBitInvert(_symbolStartPos, _index);
+
+                    return;
+
+                case '<':
+                    _index++;
+                    if (_buffer[_index] == '<')
+                    {
+                        _index++;
+                        if (_buffer[_index] == '=')
+                        {
+                            _index++;
+                            Symbol = new PyShiftLeftAssign(_symbolStartPos, _index);
+                        }
+                        else
+                        {
+                            Symbol = new PyShiftLeft(_symbolStartPos, _index);
+                        }
+                    }
+                    else if (_buffer[_index] == '=')
+                    {
+                        _index++;
+                        Symbol = new PyLessEqual(_symbolStartPos, _index);
+                    }
+                    else
+                    {
+                        Symbol = new PyLess(_symbolStartPos, _index);
+                    }
+
+                    return;
+
+                case '>':
+                    _index++;
+                    if (_buffer[_index] == '>')
+                    {
+                        _index++;
+                        if (_buffer[_index] == '=')
+                        {
+                            _index++;
+                            Symbol = new PyShiftRightAssign(_symbolStartPos, _index);
+                        }
+                        else
+                        {
+                            Symbol = new PyShiftRight(_symbolStartPos, _index);
+                        }
+                    }
+                    else if (_buffer[_index] == '=')
+                    {
+                        _index++;
+                        Symbol = new PyGreaterEqual(_symbolStartPos, _index);
+                    }
+                    else
+                    {
+                        Symbol = new PyGreater(_symbolStartPos, _index);
+                    }
+
+                    return;
+
+                case ',':
+                    _index++;
+                    Symbol = new PyComma(_symbolStartPos, _index);
+
+                    return;
+
+                case ';':
+                    _index++;
+                    Symbol = new PySemiColon(_symbolStartPos, _index);
+
+                    return;
+
+                case '.':
+                    _index++;
+                    if (_buffer[_index] == '.')
+                    {
+                        _index++;
+                        if (_buffer[_index] == '.')
+                        {
+                            _index++;
+                            Symbol = new PyElipsis(_symbolStartPos, _index);
+                        }
+                        else
+                        {
+                            throw new Exception();
+                        }
+                    }
+                    else if (Char.IsAsciiDigit(_buffer[_index])) goto _fraction;
+                    else
+                    {
+                        Symbol = new PyDot(_symbolStartPos, _index);
+                    }
+
+                    return;
+            }
+
+        _fraction:
+            return;
+
+        }
+        catch (Exception e)
+        {
+            Symbol = new PyEOF(_index);
         }
 
-        
     }
 
     private Symbol IsReservedKeyword() =>
