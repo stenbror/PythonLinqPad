@@ -1,11 +1,11 @@
 ﻿namespace PythonCore;
-public sealed class PythonCoreParser
+public sealed class PythonCoreParser(string sourceBuffer)
 {
 
     private Symbol _symbol = new Symbol(0, 0);
 
-    public Tuple<uint, uint> CurrentSymbolPosition { get; private set; } = new(0, 0); 
-
+    public Tuple<uint, uint> CurrentSymbolPosition { get; private set; } = new(0, 0);
+    private String _buffer = sourceBuffer;
 
 
     private void Advance() { }
@@ -61,26 +61,26 @@ public sealed class PythonCoreParser
         return res;
     }
 
-    private ElipsisLiteralNode ParseAtomName()
+    private NameLiteralNode ParseAtomName()
     {
         var pos = CurrentSymbolPosition;
-        var res = new ElipsisLiteralNode(pos.Item1, pos.Item2, _symbol);
+        var res = new NameLiteralNode(pos.Item1, pos.Item2, _symbol);
         Advance();
         return res;
     }
 
-    private ElipsisLiteralNode ParseAtomNumber()
+    private NumberLiteralNode ParseAtomNumber()
     {
         var pos = CurrentSymbolPosition;
-        var res = new ElipsisLiteralNode(pos.Item1, pos.Item2, _symbol);
+        var res = new NumberLiteralNode(pos.Item1, pos.Item2, _symbol);
         Advance();
         return res;
     }
 
-    private ElipsisLiteralNode ParseAtomString()
+    private StringLiteralNode ParseAtomString()
     {
         var pos = CurrentSymbolPosition;
-        var res = new ElipsisLiteralNode(pos.Item1, pos.Item2, _symbol);
+        var res = new StringLiteralNode(pos.Item1, pos.Item2, _symbol);
         Advance();
         return res;
     }
