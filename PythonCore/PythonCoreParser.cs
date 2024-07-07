@@ -9,6 +9,8 @@ public sealed class PythonCoreParser(string sourceBuffer)
     private int _index = 0;
     private int _symbolStartPos = 0;
 
+    private Stack<char> _parenthsiStack = new Stack<char>();
+
 
     private Tuple<int, int> Position => new Tuple<int, int>(_symbolStartPos, _index);
     
@@ -313,6 +315,51 @@ _again:
                     {
                         Symbol = new PyDot(_symbolStartPos, _index);
                     }
+
+                    return;
+
+                case '(':
+                    _index++;
+                    _parenthsiStack.Push('(');
+                    Symbol = new PyLeftParen(_symbolStartPos, _index);
+
+                    return;
+
+                case '[':
+                    _index++;
+                    _parenthsiStack.Push('[');
+                    Symbol = new PyLeftBracket(_symbolStartPos, _index);
+
+                    return;
+
+                case '{':
+                    _index++;
+                    _parenthsiStack.Push('{');
+                    Symbol = new PyLeftCurly(_symbolStartPos, _index);
+
+                    return;
+
+                case ')':
+                    _index++;
+                    if (_parenthsiStack.Peek() != '(') throw new Exception();
+                    _parenthsiStack.Pop();
+                    Symbol = new PyRightParen(_symbolStartPos, _index);
+
+                    return;
+
+                case ']':
+                    _index++;
+                    if (_parenthsiStack.Peek() != '[') throw new Exception();
+                    _parenthsiStack.Pop();
+                    Symbol = new PyRightBracket(_symbolStartPos, _index);
+
+                    return;
+
+                case '}':
+                    _index++;
+                    if (_parenthsiStack.Peek() != '{') throw new Exception();
+                    _parenthsiStack.Pop();
+                    Symbol = new PyRightCurly(_symbolStartPos, _index);
 
                     return;
             }

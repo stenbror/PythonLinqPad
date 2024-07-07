@@ -449,4 +449,73 @@ public class TestPythonCoreParserLexicalAnalyzer
         Assert.Equal(0, parser.Symbol.StartPos);
         Assert.Equal(3, parser.Symbol.EndPos);
     }
+
+    [Fact]
+    public void TestLexicalAnalyzerLeftParen()
+    {
+        var parser = new PythonCoreParser("(");
+        parser.Advance();
+
+        Assert.IsType<PyLeftParen>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(1, parser.Symbol.EndPos);
+    }
+
+    [Fact]
+    public void TestLexicalAnalyzerLeftBracket()
+    {
+        var parser = new PythonCoreParser("[");
+        parser.Advance();
+
+        Assert.IsType<PyLeftBracket>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(1, parser.Symbol.EndPos);
+    }
+
+    [Fact]
+    public void TestLexicalAnalyzerLeftCurly()
+    {
+        var parser = new PythonCoreParser("{");
+        parser.Advance();
+
+        Assert.IsType<PyLeftCurly>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(1, parser.Symbol.EndPos);
+    }
+
+    [Fact]
+    public void TestLexicalAnalyzerRightParen()
+    {
+        var parser = new PythonCoreParser("()");
+        parser.Advance();
+        parser.Advance();
+
+        Assert.IsType<PyRightParen>(parser.Symbol);
+        Assert.Equal(1, parser.Symbol.StartPos);
+        Assert.Equal(2, parser.Symbol.EndPos);
+    }
+
+    [Fact]
+    public void TestLexicalAnalyzerRightBracket()
+    {
+        var parser = new PythonCoreParser("[]");
+        parser.Advance();
+        parser.Advance();
+
+        Assert.IsType<PyRightBracket>(parser.Symbol);
+        Assert.Equal(1, parser.Symbol.StartPos);
+        Assert.Equal(2, parser.Symbol.EndPos);
+    }
+
+    [Fact]
+    public void TestLexicalAnalyzerRightCurly()
+    {
+        var parser = new PythonCoreParser("{}");
+        parser.Advance();
+        parser.Advance();
+
+        Assert.IsType<PyRightCurly>(parser.Symbol);
+        Assert.Equal(1, parser.Symbol.StartPos);
+        Assert.Equal(2, parser.Symbol.EndPos);
+    }
 }
