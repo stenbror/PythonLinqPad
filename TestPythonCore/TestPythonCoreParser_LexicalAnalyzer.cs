@@ -355,4 +355,54 @@ public class TestPythonCoreParserLexicalAnalyzer
         Assert.Equal(0, parser.Symbol.StartPos);
         Assert.Equal(1, parser.Symbol.EndPos);
     }
+
+
+
+
+
+
+
+    [Fact]
+    public void TestLexicalAnalyzerShiftRightAssign()
+    {
+        var parser = new PythonCoreParser(">>=");
+        parser.Advance();
+
+        Assert.IsType<PyShiftRightAssign>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(3, parser.Symbol.EndPos);
+    }
+
+    [Fact]
+    public void TestLexicalAnalyzerShiftRight()
+    {
+        var parser = new PythonCoreParser(">> ");
+        parser.Advance();
+
+        Assert.IsType<PyShiftRight>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(2, parser.Symbol.EndPos);
+    }
+
+    [Fact]
+    public void TestLexicalAnalyzerGreaterEqual()
+    {
+        var parser = new PythonCoreParser(">=");
+        parser.Advance();
+
+        Assert.IsType<PyGreaterEqual>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(2, parser.Symbol.EndPos);
+    }
+
+    [Fact]
+    public void TestLexicalAnalyzerGreater()
+    {
+        var parser = new PythonCoreParser("> ");
+        parser.Advance();
+
+        Assert.IsType<PyGreater>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(1, parser.Symbol.EndPos);
+    }
 }

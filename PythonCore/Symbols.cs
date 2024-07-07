@@ -86,7 +86,7 @@ public sealed record PyBitAndAssign(int StartPos, int EndPos) : Symbol(StartPos,
 public sealed record PyBitOrAssign(int StartPos, int EndPos) : Symbol(StartPos, EndPos);
 public sealed record PyBitXorAssign(int StartPos, int EndPos) : Symbol(StartPos, EndPos);
 public sealed record PyShiftLeftAssign(int StartPos, int EndPos) : Symbol(StartPos, EndPos);
-public sealed record PyShiftRightassign(int StartPos, int EndPos) : Symbol(StartPos, EndPos);
+public sealed record PyShiftRightAssign(int StartPos, int EndPos) : Symbol(StartPos, EndPos);
 public sealed record PyPowerAssign(int StartPos, int EndPos) : Symbol(StartPos, EndPos);
 
 public sealed record PyName(int StartPos, int EndPos, string Id) : Symbol(StartPos, EndPos);

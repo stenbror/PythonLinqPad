@@ -251,6 +251,33 @@ public sealed class PythonCoreParser(string sourceBuffer)
                 }
 
                 return;
+
+            case '>':
+                _index++;
+                if (_buffer[_index] == '>')
+                {
+                    _index++;
+                    if (_buffer[_index] == '=')
+                    {
+                        _index++;
+                        Symbol = new PyShiftRightAssign(_symbolStartPos, _index);
+                    }
+                    else
+                    {
+                        Symbol = new PyShiftRight(_symbolStartPos, _index);
+                    }
+                }
+                else if (_buffer[_index] == '=')
+                {
+                    _index++;
+                    Symbol = new PyGreaterEqual(_symbolStartPos, _index);
+                }
+                else
+                {
+                    Symbol = new PyGreater(_symbolStartPos, _index);
+                }
+
+                return;
         }
 
         
