@@ -300,4 +300,15 @@ public class TestPythonCoreParserLexicalAnalyzer
         Assert.Equal(0, parser.Symbol.StartPos);
         Assert.Equal(2, parser.Symbol.EndPos);
     }
+
+    [Fact]
+    public void TestLexicalAnalyzerBitInvert()
+    {
+        var parser = new PythonCoreParser("~");
+        parser.Advance();
+
+        Assert.IsType<PyBitInvert>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(1, parser.Symbol.EndPos);
+    }
 }

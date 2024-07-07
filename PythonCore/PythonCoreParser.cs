@@ -219,6 +219,12 @@ public sealed class PythonCoreParser(string sourceBuffer)
 
                 return;
 
+            case '~':
+                _index++;
+                Symbol = new PyBitInvert(_symbolStartPos, _index);
+
+                return;
+
 
         }
 
