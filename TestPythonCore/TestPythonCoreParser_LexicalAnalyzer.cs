@@ -135,4 +135,26 @@ public class TestPythonCoreParserLexicalAnalyzer
         Assert.Equal(0, parser.Symbol.StartPos);
         Assert.Equal(1, parser.Symbol.EndPos);
     }
+
+    [Fact]
+    public void TestLexicalAnalyzerModuloAssign()
+    {
+        var parser = new PythonCoreParser("%=");
+        parser.Advance();
+
+        Assert.IsType<PyModuloAssign>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(2, parser.Symbol.EndPos);
+    }
+
+    [Fact]
+    public void TestLexicalAnalyzerModulo()
+    {
+        var parser = new PythonCoreParser("% ");
+        parser.Advance();
+
+        Assert.IsType<PyModulo>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(1, parser.Symbol.EndPos);
+    }
 }
