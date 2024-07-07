@@ -2,13 +2,34 @@
 public sealed class PythonCoreParser(string sourceBuffer)
 {
 
-    private Symbol _symbol = new Symbol(0, 0);
+    private Symbol _symbol = new PyEOF(0);
 
-    public Tuple<uint, uint> CurrentSymbolPosition { get; private set; } = new(0, 0);
+    public Tuple<int, int> CurrentSymbolPosition { get; private set; } = new(0, 0);
     private String _buffer = sourceBuffer;
+    private int _index = 0;
+    private int _symbolStartPos = 0;
 
 
     private void Advance() { }
+
+    private Symbol IsReservedKeyword() =>
+    
+        _buffer.Substring(_symbolStartPos, _index - _symbolStartPos) switch
+        {
+            "False" => new PyFalse(_symbolStartPos, _index - _symbolStartPos),
+            "None" => new PyNone(_symbolStartPos, _index - _symbolStartPos),
+            "True" => new PyTrue(_symbolStartPos, _index - _symbolStartPos),
+            "and" => new PyAnd(_symbolStartPos, _index - _symbolStartPos),
+            "as" => new PyAs(_symbolStartPos, _index - _symbolStartPos),
+            "assert" => new PyAssert(_symbolStartPos, _index - _symbolStartPos),
+            "async" => new PyAsync(_symbolStartPos, _index - _symbolStartPos),
+            "await" => new PyAwait(_symbolStartPos, _index - _symbolStartPos),
+            "break" => new PyBreak(_symbolStartPos, _index - _symbolStartPos),
+            "class" => new PyClass(_symbolStartPos, _index - _symbolStartPos),
+            "continue" => new PyContinue(_symbolStartPos, _index - _symbolStartPos),
+            _ => new PyName(_symbolStartPos, _index - _symbolStartPos, _buffer.Substring(_symbolStartPos, _index - _symbolStartPos))
+        };
+    
 
 
     // Grammar rule: Atom //////////////////////////////////////////////////////////////////////////////////////////////
