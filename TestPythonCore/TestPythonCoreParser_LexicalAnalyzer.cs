@@ -179,4 +179,26 @@ public class TestPythonCoreParserLexicalAnalyzer
         Assert.Equal(0, parser.Symbol.StartPos);
         Assert.Equal(1, parser.Symbol.EndPos);
     }
+
+    [Fact]
+    public void TestLexicalAnalyzerBitAndAssign()
+    {
+        var parser = new PythonCoreParser("&=");
+        parser.Advance();
+
+        Assert.IsType<PyBitAndAssign>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(2, parser.Symbol.EndPos);
+    }
+
+    [Fact]
+    public void TestLexicalAnalyzerBitAnd()
+    {
+        var parser = new PythonCoreParser("& ");
+        parser.Advance();
+
+        Assert.IsType<PyBitAnd>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(1, parser.Symbol.EndPos);
+    }
 }

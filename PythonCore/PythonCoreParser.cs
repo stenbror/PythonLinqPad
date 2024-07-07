@@ -135,6 +135,20 @@ public sealed class PythonCoreParser(string sourceBuffer)
 
                 return;
 
+            case '&':
+                _index++;
+                if (_buffer[_index] == '=')
+                {
+                    _index++;
+                    Symbol = new PyBitAndAssign(_symbolStartPos, _index);
+                }
+                else
+                {
+                    Symbol = new PyBitAnd(_symbolStartPos, _index);
+                }
+
+                return;
+
         }
 
         
