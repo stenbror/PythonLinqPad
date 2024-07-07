@@ -1,6 +1,6 @@
 ﻿namespace PythonCore;
 
-public sealed class PythonCoreParser(string sourceBuffer)
+public sealed class PythonCoreParserLexicalAnalyzer(string sourceBuffer)
 {
 
     public Symbol Symbol { get; private set; } = new PyEOF(0);
@@ -32,8 +32,24 @@ public sealed class PythonCoreParser(string sourceBuffer)
                     Symbol = new PyPlus(_symbolStartPos, _index);
                 }
                 return;
+            case '-':
+                _index++;
+                if (_buffer[_index] == '=')
+                {
+                    _index++;
+                    Symbol = new PyMinusAssign(_symbolStartPos, _index);
+                }
+                else if (_buffer[_index] == '>')
+                {
+                    _index++;
+                    Symbol = new PyArrow(_symbolStartPos, _index);
+                }
+                else
+                {
+                    Symbol = new PyMinus(_symbolStartPos, _index);
+                }
+                return;
 
-                
         }
 
         
