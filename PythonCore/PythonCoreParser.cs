@@ -121,6 +121,20 @@ public sealed class PythonCoreParser(string sourceBuffer)
 
                 return;
 
+            case '@':
+                _index++;
+                if (_buffer[_index] == '=')
+                {
+                    _index++;
+                    Symbol = new PyMatriceAssign(_symbolStartPos, _index);
+                }
+                else
+                {
+                    Symbol = new PyMatrice(_symbolStartPos, _index);
+                }
+
+                return;
+
         }
 
         

@@ -157,4 +157,26 @@ public class TestPythonCoreParserLexicalAnalyzer
         Assert.Equal(0, parser.Symbol.StartPos);
         Assert.Equal(1, parser.Symbol.EndPos);
     }
+
+    [Fact]
+    public void TestLexicalAnalyzerMatriceAssign()
+    {
+        var parser = new PythonCoreParser("@=");
+        parser.Advance();
+
+        Assert.IsType<PyMatriceAssign>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(2, parser.Symbol.EndPos);
+    }
+
+    [Fact]
+    public void TestLexicalAnalyzerMatrice()
+    {
+        var parser = new PythonCoreParser("@ ");
+        parser.Advance();
+
+        Assert.IsType<PyMatrice>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(1, parser.Symbol.EndPos);
+    }
 }
