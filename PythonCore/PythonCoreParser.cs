@@ -149,6 +149,34 @@ public sealed class PythonCoreParser(string sourceBuffer)
 
                 return;
 
+            case '|':
+                _index++;
+                if (_buffer[_index] == '=')
+                {
+                    _index++;
+                    Symbol = new PyBitOrAssign(_symbolStartPos, _index);
+                }
+                else
+                {
+                    Symbol = new PyBitOr(_symbolStartPos, _index);
+                }
+
+                return;
+
+            case '^':
+                _index++;
+                if (_buffer[_index] == '=')
+                {
+                    _index++;
+                    Symbol = new PyBitXorAssign(_symbolStartPos, _index);
+                }
+                else
+                {
+                    Symbol = new PyBitXor(_symbolStartPos, _index);
+                }
+
+                return;
+
         }
 
         

@@ -201,4 +201,48 @@ public class TestPythonCoreParserLexicalAnalyzer
         Assert.Equal(0, parser.Symbol.StartPos);
         Assert.Equal(1, parser.Symbol.EndPos);
     }
+
+    [Fact]
+    public void TestLexicalAnalyzerBitOrAssign()
+    {
+        var parser = new PythonCoreParser("|=");
+        parser.Advance();
+
+        Assert.IsType<PyBitOrAssign>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(2, parser.Symbol.EndPos);
+    }
+
+    [Fact]
+    public void TestLexicalAnalyzerBitOr()
+    {
+        var parser = new PythonCoreParser("| ");
+        parser.Advance();
+
+        Assert.IsType<PyBitOr>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(1, parser.Symbol.EndPos);
+    }
+
+    [Fact]
+    public void TestLexicalAnalyzerBitXorAssign()
+    {
+        var parser = new PythonCoreParser("^=");
+        parser.Advance();
+
+        Assert.IsType<PyBitXorAssign>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(2, parser.Symbol.EndPos);
+    }
+
+    [Fact]
+    public void TestLexicalAnalyzerBitXor()
+    {
+        var parser = new PythonCoreParser("^ ");
+        parser.Advance();
+
+        Assert.IsType<PyBitXor>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(1, parser.Symbol.EndPos);
+    }
 }
