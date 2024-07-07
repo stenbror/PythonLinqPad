@@ -278,6 +278,18 @@ public sealed class PythonCoreParser(string sourceBuffer)
                 }
 
                 return;
+
+            case ',':
+                _index++;
+                Symbol = new PyComma(_symbolStartPos, _index);
+
+                return;
+
+            case ';':
+                _index++;
+                Symbol = new PySemiColon(_symbolStartPos, _index);
+
+                return;
         }
 
         

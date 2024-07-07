@@ -88,6 +88,7 @@ public sealed record PyBitXorAssign(int StartPos, int EndPos) : Symbol(StartPos,
 public sealed record PyShiftLeftAssign(int StartPos, int EndPos) : Symbol(StartPos, EndPos);
 public sealed record PyShiftRightAssign(int StartPos, int EndPos) : Symbol(StartPos, EndPos);
 public sealed record PyPowerAssign(int StartPos, int EndPos) : Symbol(StartPos, EndPos);
+public sealed record PySemiColon(int StartPos, int EndPos) : Symbol(StartPos, EndPos);
 
 public sealed record PyName(int StartPos, int EndPos, string Id) : Symbol(StartPos, EndPos);
 public sealed record PyNumber(int StartPos, int EndPos, string Number) : Symbol(StartPos, EndPos);
