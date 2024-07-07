@@ -364,7 +364,17 @@ _again:
                     return;
             }
 
-        _fraction:
+            if (_buffer[_index] == '_' || char.IsLetter(_buffer[_index]))
+            {
+                while (char.IsLetterOrDigit(_buffer[_index]) || _buffer[_index] == '_') _index++;
+
+                Symbol = IsReservedKeyword();
+                _index++;
+
+                return;
+            }
+
+_fraction:
             return;
 
         }
