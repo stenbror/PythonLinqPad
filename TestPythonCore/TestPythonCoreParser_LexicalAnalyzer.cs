@@ -1085,4 +1085,60 @@ public class TestPythonCoreParserLexicalAnalyzer
         var text = parser.Symbol as PyNumber;
         Assert.Equal("0.3_4_5e+4_5j", text?.Number);
     }
+
+    [Fact]
+    public void TestLexicalAnalyzerLiteralNonZero()
+    {
+        var parser = new PythonCoreParser("1_000_000 ");
+        parser.Advance();
+
+        Assert.IsType<PyNumber>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(9, parser.Symbol.EndPos);
+
+        var text = parser.Symbol as PyNumber;
+        Assert.Equal("1_000_000", text?.Number);
+    }
+
+    [Fact]
+    public void TestLexicalAnalyzerLiteralNonZero2()
+    {
+        var parser = new PythonCoreParser("1 ");
+        parser.Advance();
+
+        Assert.IsType<PyNumber>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(1, parser.Symbol.EndPos);
+
+        var text = parser.Symbol as PyNumber;
+        Assert.Equal("1", text?.Number);
+    }
+
+    [Fact]
+    public void TestLexicalAnalyzerLiteralNonZero3()
+    {
+        var parser = new PythonCoreParser("1.9 ");
+        parser.Advance();
+
+        Assert.IsType<PyNumber>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(3, parser.Symbol.EndPos);
+
+        var text = parser.Symbol as PyNumber;
+        Assert.Equal("1.9", text?.Number);
+    }
+
+    [Fact]
+    public void TestLexicalAnalyzerLiteralNonZero4()
+    {
+        var parser = new PythonCoreParser("1.9E-3_4J ");
+        parser.Advance();
+
+        Assert.IsType<PyNumber>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(9, parser.Symbol.EndPos);
+
+        var text = parser.Symbol as PyNumber;
+        Assert.Equal("1.9E-3_4J", text?.Number);
+    }
 }
