@@ -1141,4 +1141,88 @@ public class TestPythonCoreParserLexicalAnalyzer
         var text = parser.Symbol as PyNumber;
         Assert.Equal("1.9E-3_4J", text?.Number);
     }
+
+    [Fact]
+    public void TestLexicalAnalyzerLiteralEmptySingleQuote()
+    {
+        var parser = new PythonCoreParser("'' ");
+        parser.Advance();
+
+        Assert.IsType<PyString>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(2, parser.Symbol.EndPos);
+
+        var text = parser.Symbol as PyString;
+        Assert.Equal("''", text?.Text);
+    }
+
+    [Fact]
+    public void TestLexicalAnalyzerLiteralEmptyMultipleQuote()
+    {
+        var parser = new PythonCoreParser("\"\" ");
+        parser.Advance();
+
+        Assert.IsType<PyString>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(2, parser.Symbol.EndPos);
+
+        var text = parser.Symbol as PyString;
+        Assert.Equal("\"\"", text?.Text);
+    }
+
+    [Fact]
+    public void TestLexicalAnalyzerLiteralSingleQuote()
+    {
+        var parser = new PythonCoreParser("'Hello, World!' ");
+        parser.Advance();
+
+        Assert.IsType<PyString>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(15, parser.Symbol.EndPos);
+
+        var text = parser.Symbol as PyString;
+        Assert.Equal("'Hello, World!'", text?.Text);
+    }
+
+    [Fact]
+    public void TestLexicalAnalyzerLiteralMultipleQuote()
+    {
+        var parser = new PythonCoreParser("\"Hello, World!\" ");
+        parser.Advance();
+
+        Assert.IsType<PyString>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(15, parser.Symbol.EndPos);
+
+        var text = parser.Symbol as PyString;
+        Assert.Equal("\"Hello, World!\"", text?.Text);
+    }
+
+    [Fact]
+    public void TestLexicalAnalyzerLiteralTrippleSingleQuote()
+    {
+        var parser = new PythonCoreParser("'''Hello, 'W'orld!''' ");
+        parser.Advance();
+
+        Assert.IsType<PyString>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(21, parser.Symbol.EndPos);
+
+        var text = parser.Symbol as PyString;
+        Assert.Equal("'''Hello, 'W'orld!'''", text?.Text);
+    }
+
+    [Fact]
+    public void TestLexicalAnalyzerLiteralTrippleMultipleQuote()
+    {
+        var parser = new PythonCoreParser("\"\"\"Hello, \"W\"orld!\"\"\" ");
+        parser.Advance();
+
+        Assert.IsType<PyString>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(21, parser.Symbol.EndPos);
+
+        var text = parser.Symbol as PyString;
+        Assert.Equal("\"\"\"Hello, \"W\"orld!\"\"\"", text?.Text);
+    }
 }

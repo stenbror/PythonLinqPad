@@ -529,6 +529,63 @@ _again:
             /* String */
             if (_buffer[_index] == '"' || _buffer[_index] == '\'')
             {
+                var quote = _buffer[_index++];
+                var isTripple = false;
+                var isEmpty = false;
+
+                if (_buffer[_index] == quote)
+                {
+                    _index++;
+                    if (_buffer[_index] == quote)
+                    {
+                        _index++;
+                        isTripple = true;
+                    }
+                    else
+                    {
+                        isEmpty = true;
+                    }
+                }
+
+                if (!isEmpty)
+                {
+                    while (true)
+                    {
+                        if (isTripple)
+                        {
+                            if (_buffer[_index] == quote)
+                            {
+                                _index++;
+                                if (_buffer[_index] == quote)
+                                {
+                                    _index++;
+                                    if (_buffer[_index] == quote)
+                                    {
+                                        _index++;
+                                        break;
+                                    }
+                                    else _index++;
+                                }
+                                else _index++;
+                            }
+                            else _index++;
+                        }
+                        else
+                        {
+                            if (_buffer[_index] == quote)
+                            {
+                                _index++;
+                                break;
+                            }
+                            if (_buffer[_index] == '\r' || _buffer[_index] == '\n')
+                            {
+                                throw new Exception();
+                            }
+
+                            _index++;
+                        }
+                    }
+                }
 
                 Symbol = new PyString(_symbolStartPos, _index, _buffer.Substring(_symbolStartPos, _index - _symbolStartPos));
 
