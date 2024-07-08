@@ -477,7 +477,48 @@ _again:
                 }
                 else
                 {
+                    if (_buffer[_index] != '.')
+                    {
+                        while (true)
+                        {
+                            while (char.IsAsciiDigit(_buffer[_index])) _index++;
+                            if (_buffer[_index] != '_') break;
+                            _index++;
+                            if (!char.IsAsciiDigit(_buffer[_index])) throw new Exception();
+                        }
+                    }
 
+                    if (_buffer[_index] == '.')
+                    {
+                        _index++;
+                        while (true)
+                        {
+                            while (char.IsAsciiDigit(_buffer[_index])) _index++;
+                            if (_buffer[_index] != '_') break;
+                            _index++;
+                            if (!char.IsAsciiDigit(_buffer[_index])) throw new Exception();
+                        }
+                    }
+
+                    if (_buffer[_index] == 'e' || _buffer[_index] == 'E')
+                    {
+                        _index++;
+                        if (_buffer[_index] == '+' || _buffer[_index] == '-')
+                        {
+                            _index++;
+                            if (!char.IsAsciiDigit(_buffer[_index])) throw new Exception();
+                        }
+                        if (!char.IsAsciiDigit(_buffer[_index])) throw new Exception();
+                        while (true)
+                        {
+                            while (char.IsAsciiDigit(_buffer[_index])) _index++;
+                            if (_buffer[_index] != '_') break;
+                            _index++;
+                            if (!char.IsAsciiDigit(_buffer[_index])) throw new Exception();
+                        }
+                    }
+
+                    if (_buffer[_index] == 'j' || _buffer[_index] == 'J') _index++;
                 }
 
                 Symbol = new PyNumber(_symbolStartPos, _index, _buffer.Substring(_symbolStartPos, _index - _symbolStartPos));
