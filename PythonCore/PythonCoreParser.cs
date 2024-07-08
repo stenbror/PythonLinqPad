@@ -405,6 +405,17 @@ _again:
                             break;
                         case 'x':
                         case 'X':
+                            _index++;
+                            while (true)
+                            {
+                                if (_buffer[_index] == '_') _index++;
+                                if (!char.IsAsciiHexDigit(_buffer[_index])) throw new Exception();
+
+                                while (char.IsAsciiHexDigit(_buffer[_index])) _index++;
+
+                                if (_buffer[_index] != '_') break;
+                            }
+                            if (char.IsAsciiDigit(_buffer[_index])) throw new Exception();
                             break;
                         default:
                             break;

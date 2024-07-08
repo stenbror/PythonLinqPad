@@ -987,4 +987,32 @@ public class TestPythonCoreParserLexicalAnalyzer
         var text = parser.Symbol as PyNumber;
         Assert.Equal("0O7117", text?.Number);
     }
+
+    [Fact]
+    public void TestLexicalAnalyzerLiteralHexNumber1()
+    {
+        var parser = new PythonCoreParser("0x_7f_1F ");
+        parser.Advance();
+
+        Assert.IsType<PyNumber>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(8, parser.Symbol.EndPos);
+
+        var text = parser.Symbol as PyNumber;
+        Assert.Equal("0x_7f_1F", text?.Number);
+    }
+
+    [Fact]
+    public void TestLexicalAnalyzerLiteralHexNumber2()
+    {
+        var parser = new PythonCoreParser("0X7Fff ");
+        parser.Advance();
+
+        Assert.IsType<PyNumber>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(6, parser.Symbol.EndPos);
+
+        var text = parser.Symbol as PyNumber;
+        Assert.Equal("0X7Fff", text?.Number);
+    }
 }
