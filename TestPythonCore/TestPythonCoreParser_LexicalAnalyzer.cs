@@ -1015,4 +1015,74 @@ public class TestPythonCoreParserLexicalAnalyzer
         var text = parser.Symbol as PyNumber;
         Assert.Equal("0X7Fff", text?.Number);
     }
+
+    [Fact]
+    public void TestLexicalAnalyzerLiteralDotNumber()
+    {
+        var parser = new PythonCoreParser(".5 ");
+        parser.Advance();
+
+        Assert.IsType<PyNumber>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(2, parser.Symbol.EndPos);
+
+        var text = parser.Symbol as PyNumber;
+        Assert.Equal(".5", text?.Number);
+    }
+
+    [Fact]
+    public void TestLexicalAnalyzerLiteralDotNumberWithExponent()
+    {
+        var parser = new PythonCoreParser(".5e-34J ");
+        parser.Advance();
+
+        Assert.IsType<PyNumber>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(7, parser.Symbol.EndPos);
+
+        var text = parser.Symbol as PyNumber;
+        Assert.Equal(".5e-34J", text?.Number);
+    }
+
+    [Fact]
+    public void TestLexicalAnalyzerLiteralDotNumberWithExponentAndSeparators()
+    {
+        var parser = new PythonCoreParser(".5e-3_4J ");
+        parser.Advance();
+
+        Assert.IsType<PyNumber>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(8, parser.Symbol.EndPos);
+
+        var text = parser.Symbol as PyNumber;
+        Assert.Equal(".5e-3_4J", text?.Number);
+    }
+
+    [Fact]
+    public void TestLexicalAnalyzerLiteralZeroDotZero()
+    {
+        var parser = new PythonCoreParser("0.0 ");
+        parser.Advance();
+
+        Assert.IsType<PyNumber>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(3, parser.Symbol.EndPos);
+
+        var text = parser.Symbol as PyNumber;
+        Assert.Equal("0.0", text?.Number);
+    }
+
+    [Fact]
+    public void TestLexicalAnalyzerLiteralZeroDotNonZero()
+    {
+        var parser = new PythonCoreParser("0.3_4_5e+4_5j ");
+        parser.Advance();
+
+        Assert.IsType<PyNumber>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(13, parser.Symbol.EndPos);
+
+        var text = parser.Symbol as PyNumber;
+        Assert.Equal("0.3_4_5e+4_5j", text?.Number);
+    }
 }

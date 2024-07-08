@@ -313,7 +313,11 @@ _again:
                             throw new Exception();
                         }
                     }
-                    else if (Char.IsAsciiDigit(_buffer[_index])) break;
+                    else if (Char.IsAsciiDigit(_buffer[_index]))
+                    {
+                        _index--;
+                        break;
+                    }
                     else
                     {
                         Symbol = new PyDot(_symbolStartPos, _index);
@@ -370,7 +374,7 @@ _again:
             /* Number */
             if (char.IsAsciiDigit(_buffer[_index]) || _buffer[_index] == '.')
             {
-                if (_buffer[_index] == '0')
+                if (_buffer[_index] == '0' || _buffer[_index] == '.')
                 {
                     _index++;
                     switch (_buffer[_index])
@@ -457,9 +461,9 @@ _again:
                                     if (!char.IsAsciiDigit(_buffer[_index])) throw new Exception();
                                 }
                                 if (!char.IsAsciiDigit(_buffer[_index])) throw new Exception();
-                                while (char.IsAsciiDigit(_buffer[_index]))
+                                while (true)
                                 {
-                                    _index++;
+                                    while (char.IsAsciiDigit(_buffer[_index])) _index++;
                                     if (_buffer[_index] != '_') break;
                                     _index++;
                                     if (!char.IsAsciiDigit(_buffer[_index])) throw new Exception();
@@ -470,7 +474,6 @@ _again:
                             
                             break;
                     }
-
                 }
                 else
                 {
