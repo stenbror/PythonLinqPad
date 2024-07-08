@@ -931,4 +931,32 @@ public class TestPythonCoreParserLexicalAnalyzer
         var text = parser.Symbol as PyName;
         Assert.Equal("KeyValue1", text?.Id);
     }
+
+    [Fact]
+    public void TestLexicalAnalyzerLiteralBinaryNumber1()
+    {
+        var parser = new PythonCoreParser("0b_01_01 ");
+        parser.Advance();
+
+        Assert.IsType<PyNumber>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(8, parser.Symbol.EndPos);
+
+        var text = parser.Symbol as PyNumber;
+        Assert.Equal("0b_01_01", text?.Number);
+    }
+
+    [Fact]
+    public void TestLexicalAnalyzerLiteralBinaryNumber2()
+    {
+        var parser = new PythonCoreParser("0B0101 ");
+        parser.Advance();
+
+        Assert.IsType<PyNumber>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(6, parser.Symbol.EndPos);
+
+        var text = parser.Symbol as PyNumber;
+        Assert.Equal("0B0101", text?.Number);
+    }
 }

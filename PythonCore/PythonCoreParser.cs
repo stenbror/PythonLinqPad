@@ -370,7 +370,43 @@ _again:
             /* Number */
             if (char.IsAsciiDigit(_buffer[_index]) || _buffer[_index] == '.')
             {
-                _fraction: ;
+                if (_buffer[_index] == '0')
+                {
+                    _index++;
+                    switch (_buffer[_index])
+                    {
+                        case 'b':
+                        case 'B':
+                            _index++;
+                            while (true)
+                            {
+                                if (_buffer[_index] == '_') _index++;
+                                if (_buffer[_index] != '0' && _buffer[_index] != '1') throw new Exception();
+                                while (true)
+                                {
+                                    _index++;
+                                    if (_buffer[_index] != '0' && _buffer[_index] != '1') break;
+                                }
+
+                                if (_buffer[_index] != '_') break;
+                            }
+                            if (char.IsAsciiDigit(_buffer[_index])) throw new Exception();
+                            break;
+                        case 'o':
+                        case 'O':
+                            break;
+                        case 'x':
+                        case 'X':
+                            break;
+                        default:
+                            break;
+                    }
+
+                }
+                else
+                {
+
+                }
 
                 Symbol = new PyNumber(_symbolStartPos, _index, _buffer.Substring(_symbolStartPos, _index - _symbolStartPos));
 
