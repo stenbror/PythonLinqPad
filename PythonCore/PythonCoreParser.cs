@@ -382,11 +382,8 @@ _again:
                             {
                                 if (_buffer[_index] == '_') _index++;
                                 if (_buffer[_index] != '0' && _buffer[_index] != '1') throw new Exception();
-                                while (true)
-                                {
-                                    _index++;
-                                    if (_buffer[_index] != '0' && _buffer[_index] != '1') break;
-                                }
+                                
+                                while (_buffer[_index] == '0' || _buffer[_index] == '1') _index++;
 
                                 if (_buffer[_index] != '_') break;
                             }
@@ -394,6 +391,17 @@ _again:
                             break;
                         case 'o':
                         case 'O':
+                            _index++;
+                            while (true)
+                            {
+                                if (_buffer[_index] == '_') _index++;
+                                if (_buffer[_index] < '0' && _buffer[_index] > '7') throw new Exception();
+
+                                while (_buffer[_index] >= '0' && _buffer[_index] <= '7') _index++;
+
+                                if (_buffer[_index] != '_') break;
+                            }
+                            if (char.IsAsciiDigit(_buffer[_index])) throw new Exception();
                             break;
                         case 'x':
                         case 'X':

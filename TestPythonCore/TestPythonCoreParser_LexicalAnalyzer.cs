@@ -959,4 +959,32 @@ public class TestPythonCoreParserLexicalAnalyzer
         var text = parser.Symbol as PyNumber;
         Assert.Equal("0B0101", text?.Number);
     }
+
+    [Fact]
+    public void TestLexicalAnalyzerLiteralOctetNumber1()
+    {
+        var parser = new PythonCoreParser("0o_71_17 ");
+        parser.Advance();
+
+        Assert.IsType<PyNumber>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(8, parser.Symbol.EndPos);
+
+        var text = parser.Symbol as PyNumber;
+        Assert.Equal("0o_71_17", text?.Number);
+    }
+
+    [Fact]
+    public void TestLexicalAnalyzerLiteralOctetNumber2()
+    {
+        var parser = new PythonCoreParser("0O7117 ");
+        parser.Advance();
+
+        Assert.IsType<PyNumber>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(6, parser.Symbol.EndPos);
+
+        var text = parser.Symbol as PyNumber;
+        Assert.Equal("0O7117", text?.Number);
+    }
 }
