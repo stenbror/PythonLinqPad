@@ -526,6 +526,44 @@ _again:
                 return;
             }
 
+            /* Reserved keyword or name literal */
+            if (_buffer[_index] == '_' || char.IsLetter(_buffer[_index]))
+            {
+                while (char.IsLetterOrDigit(_buffer[_index]) || _buffer[_index] == '_') _index++;
+
+                Symbol = IsReservedKeyword();
+                _index++;
+
+                if (Symbol is PyName)
+                {
+                    var text = Symbol as PyName;
+
+                    switch (text?.Id)
+                    {
+                        case "r":
+                        case "u":
+                        case "R":
+                        case "U":
+                        case "f":
+                        case "F":
+                        case "fr":
+                        case "Fr":
+                        case "fR":
+                        case "FR":
+                        case "rf":
+                        case "rF":
+                        case "Rf":
+                        case "RF":
+                            if (_buffer[_index - 1] != '"' && _buffer[_index - 1] != '\'') return;
+                            _index--;
+                            break;
+                        default:
+                            return;
+                    }
+                }
+                else return;
+            }
+
             /* String */
             if (_buffer[_index] == '"' || _buffer[_index] == '\'')
             {
@@ -588,17 +626,6 @@ _again:
                 }
 
                 Symbol = new PyString(_symbolStartPos, _index, _buffer.Substring(_symbolStartPos, _index - _symbolStartPos));
-
-                return;
-            }
-
-            /* Reserved keyword or name literal */
-            if (_buffer[_index] == '_' || char.IsLetter(_buffer[_index]))
-            {
-                while (char.IsLetterOrDigit(_buffer[_index]) || _buffer[_index] == '_') _index++;
-
-                Symbol = IsReservedKeyword();
-                _index++;
 
                 return;
             }

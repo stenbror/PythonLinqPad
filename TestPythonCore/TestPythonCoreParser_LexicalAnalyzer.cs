@@ -1225,4 +1225,18 @@ public class TestPythonCoreParserLexicalAnalyzer
         var text = parser.Symbol as PyString;
         Assert.Equal("\"\"\"Hello, \"W\"orld!\"\"\"", text?.Text);
     }
+
+    [Fact]
+    public void TestLexicalAnalyzerLiteralQuoteWithPrefix()
+    {
+        var parser = new PythonCoreParser("Fr'Hello, World!' ");
+        parser.Advance();
+
+        Assert.IsType<PyString>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(17, parser.Symbol.EndPos);
+
+        var text = parser.Symbol as PyString;
+        Assert.Equal("Fr'Hello, World!'", text?.Text);
+    }
 }
