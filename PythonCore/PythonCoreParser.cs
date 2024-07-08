@@ -1,4 +1,6 @@
-﻿namespace PythonCore;
+﻿using System;
+
+namespace PythonCore;
 
 public sealed class PythonCoreParser(string sourceBuffer)
 {
@@ -22,6 +24,7 @@ public sealed class PythonCoreParser(string sourceBuffer)
 _again:
             _symbolStartPos = _index; // Save current position as start of next symbol to analyze
 
+            /* Operator or delimiter */
             switch (_buffer[_index])
             {
                 case '+':
@@ -310,7 +313,7 @@ _again:
                             throw new Exception();
                         }
                     }
-                    else if (Char.IsAsciiDigit(_buffer[_index])) goto _fraction;
+                    else if (Char.IsAsciiDigit(_buffer[_index])) break;
                     else
                     {
                         Symbol = new PyDot(_symbolStartPos, _index);
@@ -364,6 +367,26 @@ _again:
                     return;
             }
 
+            /* Number */
+            if (char.IsAsciiDigit(_buffer[_index]) || _buffer[_index] == '.')
+            {
+                _fraction: ;
+
+                Symbol = new PyNumber(_symbolStartPos, _index, _buffer.Substring(_symbolStartPos, _index - _symbolStartPos));
+
+                return;
+            }
+
+            /* String */
+            if (_buffer[_index] == '"' || _buffer[_index] == '\'')
+            {
+
+                Symbol = new PyString(_symbolStartPos, _index, _buffer.Substring(_symbolStartPos, _index - _symbolStartPos));
+
+                return;
+            }
+
+            /* Reserved keyword or name literal */
             if (_buffer[_index] == '_' || char.IsLetter(_buffer[_index]))
             {
                 while (char.IsLetterOrDigit(_buffer[_index]) || _buffer[_index] == '_') _index++;
@@ -374,8 +397,8 @@ _again:
                 return;
             }
 
-_fraction:
-            return;
+            /* Unknow character that is not a symbol */
+            throw new Exception();
 
         }
         catch (Exception e)
