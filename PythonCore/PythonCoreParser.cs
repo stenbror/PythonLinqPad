@@ -4,7 +4,7 @@ using System.Text.Unicode;
 
 namespace PythonCore;
 
-public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8)
+public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool isInteractive = false)
 {
     private readonly String _buffer = sourceBuffer;
     private int _index = 0;
@@ -12,6 +12,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8)
 
     private Stack<char> _parenthsiStack = new Stack<char>();
     private Stack<int> _indentStack = new Stack<int>();
+    
     private int _pending = 0;
     private bool _atBOL = true;
     private bool _isBlankLine = false;
@@ -22,9 +23,90 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8)
     public Symbol Symbol { get; private set; } = new PyEOF(0);
 
     
+    // Lexical analyzer - Get next valid symbol for parser rules ///////////////////////////////////////////////////////
     public void Advance()
     {
+_again:
+        if (_atBOL) /* Check if we are at beginning of line and need to check for indentation level */
+        {
+            _atBOL = _isBlankLine = false;
+            var col = 0;
 
+            /* Calculate indentation in form of whitespace */
+            while (_buffer[_index] == ' ' || _buffer[_index] == '\t' || _buffer[_index] == '\v')
+            {
+                if (_buffer[_index] == ' ')
+                {
+                    col++;
+                    _index++;
+                }
+                else if (_buffer[_index] == '\t')
+                {
+                    col = col + (tabSize / tabSize + 1);
+                    _index++;
+                }
+                else
+                {
+                    col = 0;
+                    _index++;
+                }
+            }
+
+            /* Handle empty lines with comments or just newline */
+            switch (_buffer[_index])
+            {
+                case '#':
+                    if (isInteractive)
+                    {
+                        col = 0;
+                        _isBlankLine = false;
+                    }
+                    else _isBlankLine = true;
+                    break;
+                case '\r':
+                case '\n':
+                    if (col == 0 && isInteractive)
+                    {
+                        _isBlankLine = false;
+                    }
+                    else if (isInteractive)
+                    {
+                        _isBlankLine = false;
+                        col = 0;
+                    }
+                    else _isBlankLine = true;
+                    break;
+            }
+
+            /* Analyze for indent or delimiter(s) */
+            if (!_isBlankLine && _parenthsiStack.Count == 0)
+            {
+                if (_indentStack.Count == 0) _indentStack.Push(0); /* Make sure the stack has atleast one element with value 0 */
+
+                if (col < _indentStack.Peek())
+                {
+                    while (true)
+                    {
+                        if (_indentStack.Count > 1 && col < _indentStack.Peek())
+                        {
+                            _pending--;
+                            _indentStack.Pop();
+                        }
+
+                        if (_indentStack.Count == 1 || col == _indentStack.Peek()) break;
+                    }
+
+                    if (col != _indentStack.Peek()) throw new Exception(); /* We have Indentation level mismatch */
+                }
+                else if (col > _indentStack.Peek())
+                {
+                    _indentStack.Push(col);
+                    _pending++;
+                }
+            }
+        }
+
+        /* Return any pending indent or dedent(s) */
         if (_pending < 0)
         {
             _pending++;
@@ -40,7 +122,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8)
             return;
         }
 
-        AdvanceNextSymbol();
+        AdvanceNextSymbol(); /* Analyze for all real symbols */
     }
 
     private void AdvanceNextSymbol()
