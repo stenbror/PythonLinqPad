@@ -1,27 +1,52 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
+using System.Text.Unicode;
 
 namespace PythonCore;
 
-public sealed class PythonCoreParser(string sourceBuffer)
+public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8)
 {
-
-    public Symbol Symbol { get; private set; } = new PyEOF(0);
-
     private readonly String _buffer = sourceBuffer;
     private int _index = 0;
     private int _symbolStartPos = 0;
 
     private Stack<char> _parenthsiStack = new Stack<char>();
+    private Stack<int> _indentStack = new Stack<int>();
+    private int _pending = 0;
+    private bool _atBOL = true;
+    private bool _isBlankLine = false;
 
 
     private Tuple<int, int> Position => new Tuple<int, int>(_symbolStartPos, _index);
-    
 
+    public Symbol Symbol { get; private set; } = new PyEOF(0);
+
+    
     public void Advance()
+    {
+
+        if (_pending < 0)
+        {
+            _pending++;
+            Symbol = new PyDedent();
+            return;
+        }
+
+        if (_pending > 0)
+        {
+            _pending--;
+            Symbol = new PyIndent();
+
+            return;
+        }
+
+        AdvanceNextSymbol();
+    }
+
+    private void AdvanceNextSymbol()
     {
         try
         {
-_again:
             _symbolStartPos = _index; // Save current position as start of next symbol to analyze
 
             /* Operator or delimiter */

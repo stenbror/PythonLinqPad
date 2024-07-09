@@ -96,3 +96,6 @@ public sealed record PyString(int StartPos, int EndPos, string Text) : Symbol(St
 
 public sealed record PyEOF(int Position) : Symbol(Position, Position);
 public sealed record PyNewline(int StartPos, int EndPos, char Ch1, char Ch2) : Symbol(StartPos, EndPos);
+public sealed record PyIndent() : Symbol(0, 0);
+public sealed record PyDedent() : Symbol(0, 0);
+public sealed record PyTypeString(int StartPos, int EndPos, string Comment) : Symbol(StartPos, EndPos);
