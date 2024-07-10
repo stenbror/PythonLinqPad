@@ -92,7 +92,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                         if (_indentStack.Count == 1 || col == _indentStack.Peek()) break;
                     }
 
-                    if (col != _indentStack.Peek()) throw new Exception(); /* We have Indentation level mismatch */
+                    if (col != _indentStack.Peek()) throw new SyntaxError(_index, "Inconsistant indentation levels!");
                 }
                 else if (col > _indentStack.Peek())
                 {
@@ -150,6 +150,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                         _atBOL = true;
                         return;
                     }
+
                     if (_isBlankLine) goto _again;
                     Symbol = new PyNewline(_symbolStartPos, _index, '\r', ' ');
                     _atBOL = true;
@@ -207,12 +208,12 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                 }
                 else
                 {
-                    throw new Exception();
+                    throw new SyntaxError(_index, "Expecting newline after '\\' in source code!");
                 }
 
                 goto _again;
             }
-            
+
             /* Operator or delimiter */
             switch (_buffer[_index])
             {
@@ -410,7 +411,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                     }
                     else
                     {
-                        throw new Exception();
+                        throw new SyntaxError(_index, "Expecting '!=', but found only '!'");
                     }
 
                     return;
@@ -574,13 +575,14 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                             while (true)
                             {
                                 if (_buffer[_index] == '_') _index++;
-                                if (_buffer[_index] != '0' && _buffer[_index] != '1') throw new Exception();
-                                
+                                if (_buffer[_index] != '0' && _buffer[_index] != '1') throw new SyntaxError(_index, "Expecting only '0' or '1' in binary number!");
+
                                 while (_buffer[_index] == '0' || _buffer[_index] == '1') _index++;
 
                                 if (_buffer[_index] != '_') break;
                             }
-                            if (char.IsAsciiDigit(_buffer[_index])) throw new Exception();
+
+                            if (char.IsAsciiDigit(_buffer[_index])) throw new SyntaxError(_index, "Expecting only '0' or '1' in binary number!");
                             break;
                         case 'o':
                         case 'O':
@@ -588,13 +590,14 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                             while (true)
                             {
                                 if (_buffer[_index] == '_') _index++;
-                                if (_buffer[_index] < '0' && _buffer[_index] > '7') throw new Exception();
+                                if (_buffer[_index] < '0' && _buffer[_index] > '7') throw new SyntaxError(_index, "Expecting digits between '0' and '7' in octet number!");
 
                                 while (_buffer[_index] >= '0' && _buffer[_index] <= '7') _index++;
 
                                 if (_buffer[_index] != '_') break;
                             }
-                            if (char.IsAsciiDigit(_buffer[_index])) throw new Exception();
+
+                            if (char.IsAsciiDigit(_buffer[_index])) throw new SyntaxError(_index, "Expecting digits between '0' and '7' in octet number!");
                             break;
                         case 'x':
                         case 'X':
@@ -602,13 +605,14 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                             while (true)
                             {
                                 if (_buffer[_index] == '_') _index++;
-                                if (!char.IsAsciiHexDigit(_buffer[_index])) throw new Exception();
+                                if (!char.IsAsciiHexDigit(_buffer[_index])) throw new SyntaxError(_index, "Expecting hexdigits!");
 
                                 while (char.IsAsciiHexDigit(_buffer[_index])) _index++;
 
                                 if (_buffer[_index] != '_') break;
                             }
-                            if (char.IsAsciiDigit(_buffer[_index])) throw new Exception();
+
+                            if (char.IsAsciiDigit(_buffer[_index])) throw new SyntaxError(_index, "Expecting hexdigits!");
                             break;
                         default:
                             var nonzero = false;
@@ -625,7 +629,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
 
                                     if (_buffer[_index] != '_') break;
                                     _index++;
-                                    if (!char.IsAsciiDigit(_buffer[_index])) throw new Exception();
+                                    if (!char.IsAsciiDigit(_buffer[_index])) throw new SyntaxError(_index, "Expecting digit in number!");
                                 }
                             }
 
@@ -637,7 +641,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                                     while (char.IsAsciiDigit(_buffer[_index])) _index++;
                                     if (_buffer[_index] != '_') break;
                                     _index++;
-                                    if (!char.IsAsciiDigit(_buffer[_index])) throw new Exception();
+                                    if (!char.IsAsciiDigit(_buffer[_index])) throw new SyntaxError(_index, "Expecting digit in number!");
                                 }
                             }
 
@@ -647,20 +651,21 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                                 if (_buffer[_index] == '+' || _buffer[_index] == '-')
                                 {
                                     _index++;
-                                    if (!char.IsAsciiDigit(_buffer[_index])) throw new Exception();
+                                    if (!char.IsAsciiDigit(_buffer[_index])) throw new SyntaxError(_index, "Expecting digit in number!");
                                 }
-                                if (!char.IsAsciiDigit(_buffer[_index])) throw new Exception();
+
+                                if (!char.IsAsciiDigit(_buffer[_index])) throw new SyntaxError(_index, "Expecting digit in number!");
                                 while (true)
                                 {
                                     while (char.IsAsciiDigit(_buffer[_index])) _index++;
                                     if (_buffer[_index] != '_') break;
                                     _index++;
-                                    if (!char.IsAsciiDigit(_buffer[_index])) throw new Exception();
+                                    if (!char.IsAsciiDigit(_buffer[_index])) throw new SyntaxError(_index, "Expecting digit in number!");
                                 }
                             }
 
                             if (_buffer[_index] == 'j' || _buffer[_index] == 'J') _index++;
-                            
+
                             break;
                     }
                 }
@@ -673,7 +678,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                             while (char.IsAsciiDigit(_buffer[_index])) _index++;
                             if (_buffer[_index] != '_') break;
                             _index++;
-                            if (!char.IsAsciiDigit(_buffer[_index])) throw new Exception();
+                            if (!char.IsAsciiDigit(_buffer[_index])) throw new SyntaxError(_index, "Expecting digit in number!");
                         }
                     }
 
@@ -685,7 +690,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                             while (char.IsAsciiDigit(_buffer[_index])) _index++;
                             if (_buffer[_index] != '_') break;
                             _index++;
-                            if (!char.IsAsciiDigit(_buffer[_index])) throw new Exception();
+                            if (!char.IsAsciiDigit(_buffer[_index])) throw new SyntaxError(_index, "Expecting digit in number!");
                         }
                     }
 
@@ -695,22 +700,24 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                         if (_buffer[_index] == '+' || _buffer[_index] == '-')
                         {
                             _index++;
-                            if (!char.IsAsciiDigit(_buffer[_index])) throw new Exception();
+                            if (!char.IsAsciiDigit(_buffer[_index])) throw new SyntaxError(_index, "Expecting digit in number!");
                         }
-                        if (!char.IsAsciiDigit(_buffer[_index])) throw new Exception();
+
+                        if (!char.IsAsciiDigit(_buffer[_index])) throw new SyntaxError(_index, "Expecting digit in number!");
                         while (true)
                         {
                             while (char.IsAsciiDigit(_buffer[_index])) _index++;
                             if (_buffer[_index] != '_') break;
                             _index++;
-                            if (!char.IsAsciiDigit(_buffer[_index])) throw new Exception();
+                            if (!char.IsAsciiDigit(_buffer[_index])) throw new SyntaxError(_index, "Expecting digit in number!");
                         }
                     }
 
                     if (_buffer[_index] == 'j' || _buffer[_index] == 'J') _index++;
                 }
 
-                Symbol = new PyNumber(_symbolStartPos, _index, _buffer.Substring(_symbolStartPos, _index - _symbolStartPos));
+                Symbol = new PyNumber(_symbolStartPos, _index,
+                    _buffer.Substring(_symbolStartPos, _index - _symbolStartPos));
 
                 return;
             }
@@ -721,7 +728,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                 while (char.IsLetterOrDigit(_buffer[_index]) || _buffer[_index] == '_') _index++;
 
                 Symbol = IsReservedKeyword();
-                
+
                 if (Symbol is PyName)
                 {
                     var text = Symbol as PyName;
@@ -802,9 +809,10 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                                 _index++;
                                 break;
                             }
+
                             if (_buffer[_index] == '\r' || _buffer[_index] == '\n')
                             {
-                                throw new Exception();
+                                throw new SyntaxError(_index, "No newline inside single quote strings allowed!");
                             }
 
                             _index++;
@@ -812,16 +820,21 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                     }
                 }
 
-                Symbol = new PyString(_symbolStartPos, _index, _buffer.Substring(_symbolStartPos, _index - _symbolStartPos));
+                Symbol = new PyString(_symbolStartPos, _index,
+                    _buffer.Substring(_symbolStartPos, _index - _symbolStartPos));
 
                 return;
             }
 
             /* Unknow character that is not a symbol */
-            throw new Exception();
+            throw new SyntaxError(_index, $"Illegal character '{_buffer[_index]}' found in source code!");
 
         }
-        catch (Exception e)
+        catch (SyntaxError e)
+        {
+            throw e;
+        }
+        catch 
         {
             Symbol = new PyEOF(_index);
         }
@@ -887,7 +900,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
             PyLeftParen => ParseAtomTuple(),
             PyLeftBracket => ParseAtomList(),
             PyLeftCurly => ParseAtomSetOrDictionary(),
-            _ => throw new NotImplementedException()
+            _ => throw new SyntaxError(_symbolStartPos, "Unknown or missing literal!")
         };
 
     private NoneLiteralNode ParseAtomNone()
