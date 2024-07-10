@@ -1327,4 +1327,88 @@ public class TestPythonCoreParserLexicalAnalyzer
         Assert.Equal(29, parser.Symbol.StartPos);
         Assert.Equal(33, parser.Symbol.EndPos);
     }
+
+    [Fact]
+    public void TestLexicalAnalyzerNewline1()
+    {
+        var parser = new PythonCoreParser("pass\r\npass ");
+
+        parser.Advance();
+
+        Assert.IsType<PyPass>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(4, parser.Symbol.EndPos);
+
+        parser.Advance();
+
+        Assert.IsType<PyNewline>(parser.Symbol);
+        Assert.Equal(4, parser.Symbol.StartPos);
+        Assert.Equal(6, parser.Symbol.EndPos);
+
+        var symb = parser.Symbol as PyNewline;
+        Assert.Equal('\r', symb?.Ch1);
+        Assert.Equal('\n', symb?.Ch2);
+
+        parser.Advance();
+
+        Assert.IsType<PyPass>(parser.Symbol);
+        Assert.Equal(6, parser.Symbol.StartPos);
+        Assert.Equal(10, parser.Symbol.EndPos);
+    }
+
+    [Fact]
+    public void TestLexicalAnalyzerNewline2()
+    {
+        var parser = new PythonCoreParser("pass\rpass ");
+
+        parser.Advance();
+
+        Assert.IsType<PyPass>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(4, parser.Symbol.EndPos);
+
+        parser.Advance();
+
+        Assert.IsType<PyNewline>(parser.Symbol);
+        Assert.Equal(4, parser.Symbol.StartPos);
+        Assert.Equal(5, parser.Symbol.EndPos);
+
+        var symb = parser.Symbol as PyNewline;
+        Assert.Equal('\r', symb?.Ch1);
+        Assert.Equal(' ', symb?.Ch2);
+
+        parser.Advance();
+
+        Assert.IsType<PyPass>(parser.Symbol);
+        Assert.Equal(5, parser.Symbol.StartPos);
+        Assert.Equal(9, parser.Symbol.EndPos);
+    }
+
+    [Fact]
+    public void TestLexicalAnalyzerNewline3()
+    {
+        var parser = new PythonCoreParser("pass\npass ");
+
+        parser.Advance();
+
+        Assert.IsType<PyPass>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(4, parser.Symbol.EndPos);
+
+        parser.Advance();
+
+        Assert.IsType<PyNewline>(parser.Symbol);
+        Assert.Equal(4, parser.Symbol.StartPos);
+        Assert.Equal(5, parser.Symbol.EndPos);
+
+        var symb = parser.Symbol as PyNewline;
+        Assert.Equal(' ', symb?.Ch1);
+        Assert.Equal('\n', symb?.Ch2);
+
+        parser.Advance();
+
+        Assert.IsType<PyPass>(parser.Symbol);
+        Assert.Equal(5, parser.Symbol.StartPos);
+        Assert.Equal(9, parser.Symbol.EndPos);
+    }
 }
