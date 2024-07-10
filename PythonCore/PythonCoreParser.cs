@@ -169,7 +169,27 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
             /* Handle comment or type comment */
             if (_buffer[_index] == '#')
             {
+                while (_buffer[_index] != '\r' && _buffer[_index] != '\n') _index++;
 
+                if (_buffer[_index] == '\r')
+                {
+                    _index++;
+                    if (_buffer[_index] == '\n')
+                    {
+                        _index++;
+                    }
+                }
+                else _index++;
+
+                var text = _buffer.Substring(_symbolStartPos, _index - _symbolStartPos);
+
+                if (text.StartsWith("# type:"))
+                {
+                    Symbol = new PyTypeString(_symbolStartPos, _index, text);
+                    return;
+                }
+
+                goto _again;
             }
 
             /* Handle line continuation */

@@ -3,3 +3,5 @@ PythonCore/obj
 TestPythonCore/bin
 TestPythonCore/obj
 .vs
+.idea
+PythonLinqPad.sln.DotSettings.user
