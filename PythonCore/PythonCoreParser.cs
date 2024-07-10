@@ -142,7 +142,28 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
             /* Handle newline */
             if (_buffer[_index] == '\r' || _buffer[_index] == '\n')
             {
+                if (_buffer[_index] == '\r')
+                {
+                    _index++;
+                    if (_buffer[_index] == '\n')
+                    {
+                        _index++;
+                        if (_isBlankLine) goto _again;
+                        Symbol = new PyNewline(_symbolStartPos, _index, '\r', '\n');
+                        _atBOL = true;
+                        return;
+                    }
+                    if (_isBlankLine) goto _again;
+                    Symbol = new PyNewline(_symbolStartPos, _index, '\r', ' ');
+                    _atBOL = true;
+                    return;
+                }
 
+                _index++;
+                if (_isBlankLine) goto _again;
+                Symbol = new PyNewline(_symbolStartPos, _index, ' ', '\n');
+                _atBOL = true;
+                return;
             }
 
             /* Handle comment or type comment */
