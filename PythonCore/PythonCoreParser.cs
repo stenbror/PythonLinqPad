@@ -1,7 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Text.Unicode;
-
+﻿
 namespace PythonCore;
 
 public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool isInteractive = false)

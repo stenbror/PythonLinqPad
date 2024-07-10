@@ -1299,4 +1299,32 @@ public class TestPythonCoreParserLexicalAnalyzer
         Assert.Equal(6, parser.Symbol.StartPos);
         Assert.Equal(7, parser.Symbol.EndPos);
     }
+
+    [Fact]
+    public void TestLexicalAnalyzerTypeComment()
+    {
+        var parser = new PythonCoreParser("# type: int -> int * int\r\n ");
+
+        parser.Advance();
+
+        Assert.IsType<PyTypeString>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(26, parser.Symbol.EndPos);
+
+        var text = parser.Symbol as PyTypeString;
+
+        Assert.Equal("# type: int -> int * int\r\n", text?.Comment);
+    }
+
+    [Fact]
+    public void TestLexicalAnalyzerComment()
+    {
+        var parser = new PythonCoreParser("# This is a simple comment!\r\npass ");
+
+        parser.Advance();
+
+        Assert.IsType<PyPass>(parser.Symbol);
+        Assert.Equal(29, parser.Symbol.StartPos);
+        Assert.Equal(33, parser.Symbol.EndPos);
+    }
 }
