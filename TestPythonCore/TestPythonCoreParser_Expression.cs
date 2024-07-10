@@ -27,7 +27,7 @@ public class TestPythonCoreParserExpression
 
         Assert.IsType<FalseLiteralNode>(res);
         Assert.Equal(0, res.StartPos);
-        Assert.Equal(6, res.EndPos);
+        Assert.Equal(5, res.EndPos);
         Assert.IsType<PyFalse>((res as FalseLiteralNode)?.Element);
     }
 
@@ -40,7 +40,7 @@ public class TestPythonCoreParserExpression
 
         Assert.IsType<NoneLiteralNode>(res);
         Assert.Equal(0, res.StartPos);
-        Assert.Equal(5, res.EndPos);
+        Assert.Equal(4, res.EndPos);
         Assert.IsType<PyNone>((res as NoneLiteralNode)?.Element);
     }
 
@@ -53,7 +53,7 @@ public class TestPythonCoreParserExpression
 
         Assert.IsType<TrueLiteralNode>(res);
         Assert.Equal(0, res.StartPos);
-        Assert.Equal(5, res.EndPos);
+        Assert.Equal(4, res.EndPos);
         Assert.IsType<PyTrue>((res as TrueLiteralNode)?.Element);
     }
 
@@ -66,7 +66,7 @@ public class TestPythonCoreParserExpression
 
         Assert.IsType<NameLiteralNode>(res);
         Assert.Equal(0, res.StartPos);
-        Assert.Equal(9, res.EndPos);
+        Assert.Equal(8, res.EndPos);
         Assert.IsType<PyName>((res as NameLiteralNode)?.Element);
     }
 }

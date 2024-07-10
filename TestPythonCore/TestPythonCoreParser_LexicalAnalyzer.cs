@@ -1257,4 +1257,22 @@ public class TestPythonCoreParserLexicalAnalyzer
         Assert.Equal(4, parser.Symbol.StartPos);
         Assert.Equal(6, parser.Symbol.EndPos);
     }
+
+    [Fact]
+    public void TestLexicalAnalyzerLineContinuation()
+    {
+        var parser = new PythonCoreParser("not\\\r\nin ");
+
+        parser.Advance();
+
+        Assert.IsType<PyNot>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(3, parser.Symbol.EndPos);
+
+        parser.Advance();
+
+        Assert.IsType<PyIn>(parser.Symbol);
+        Assert.Equal(6, parser.Symbol.StartPos);
+        Assert.Equal(8, parser.Symbol.EndPos);
+    }
 }

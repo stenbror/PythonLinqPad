@@ -126,10 +126,10 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
 
     private void AdvanceNextSymbol()
     {
+
+        _again:
         try
         {
-_again:
-
             /* Remove whitespace and later add as trivia */
             while (_buffer[_index] == ' ' || _buffer[_index] == '\t')
             {
@@ -139,6 +139,42 @@ _again:
 
             _symbolStartPos = _index; // Save current position as start of next symbol to analyze
 
+            /* Handle newline */
+            if (_buffer[_index] == '\r' || _buffer[_index] == '\n')
+            {
+
+            }
+
+            /* Handle comment or type comment */
+            if (_buffer[_index] == '#')
+            {
+
+            }
+
+            /* Handle line continuation */
+            if (_buffer[_index] == '\\')
+            {
+                _index++;
+                if (_buffer[_index] == '\r')
+                {
+                    _index++;
+                    if (_buffer[_index] == '\n')
+                    {
+                        _index++;
+                    }
+                }
+                else if (_buffer[_index] == '\n')
+                {
+                    _index++;
+                }
+                else
+                {
+                    throw new Exception();
+                }
+
+                goto _again;
+            }
+            
             /* Operator or delimiter */
             switch (_buffer[_index])
             {
@@ -647,8 +683,7 @@ _again:
                 while (char.IsLetterOrDigit(_buffer[_index]) || _buffer[_index] == '_') _index++;
 
                 Symbol = IsReservedKeyword();
-                _index++;
-
+                
                 if (Symbol is PyName)
                 {
                     var text = Symbol as PyName;
@@ -669,8 +704,7 @@ _again:
                         case "rF":
                         case "Rf":
                         case "RF":
-                            if (_buffer[_index - 1] != '"' && _buffer[_index - 1] != '\'') return;
-                            _index--;
+                            if (_buffer[_index] != '"' && _buffer[_index] != '\'') return;
                             break;
                         default:
                             return;
