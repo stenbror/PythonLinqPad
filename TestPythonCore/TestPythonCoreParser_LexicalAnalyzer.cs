@@ -1275,4 +1275,28 @@ public class TestPythonCoreParserLexicalAnalyzer
         Assert.Equal(6, parser.Symbol.StartPos);
         Assert.Equal(8, parser.Symbol.EndPos);
     }
+
+    [Fact]
+    public void TestLexicalAnalyzerLineContinuationWithOperator()
+    {
+        var parser = new PythonCoreParser("5 +\\\r\n6 ");
+
+        parser.Advance();
+
+        Assert.IsType<PyNumber>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(1, parser.Symbol.EndPos);
+
+        parser.Advance();
+
+        Assert.IsType<PyPlus>(parser.Symbol);
+        Assert.Equal(2, parser.Symbol.StartPos);
+        Assert.Equal(3, parser.Symbol.EndPos);
+
+        parser.Advance();
+
+        Assert.IsType<PyNumber>(parser.Symbol);
+        Assert.Equal(6, parser.Symbol.StartPos);
+        Assert.Equal(7, parser.Symbol.EndPos);
+    }
 }
