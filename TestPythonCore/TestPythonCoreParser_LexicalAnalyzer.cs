@@ -1239,4 +1239,22 @@ public class TestPythonCoreParserLexicalAnalyzer
         var text = parser.Symbol as PyString;
         Assert.Equal("Fr'Hello, World!'", text?.Text);
     }
+
+    [Fact]
+    public void TestLexicalAnalyzerWhitespace()
+    {
+        var parser = new PythonCoreParser("not in ");
+
+        parser.Advance();
+
+        Assert.IsType<PyNot>(parser.Symbol);
+        Assert.Equal(0, parser.Symbol.StartPos);
+        Assert.Equal(3, parser.Symbol.EndPos);
+
+        parser.Advance();
+
+        Assert.IsType<PyIn>(parser.Symbol);
+        Assert.Equal(4, parser.Symbol.StartPos);
+        Assert.Equal(6, parser.Symbol.EndPos);
+    }
 }

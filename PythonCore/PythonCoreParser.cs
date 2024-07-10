@@ -26,7 +26,6 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
     // Lexical analyzer - Get next valid symbol for parser rules ///////////////////////////////////////////////////////
     public void Advance()
     {
-_again:
         if (_atBOL) /* Check if we are at beginning of line and need to check for indentation level */
         {
             _atBOL = _isBlankLine = false;
@@ -129,6 +128,15 @@ _again:
     {
         try
         {
+_again:
+
+            /* Remove whitespace and later add as trivia */
+            while (_buffer[_index] == ' ' || _buffer[_index] == '\t')
+            {
+                // Add code to save trivia for whitespace  later!
+                _index++;
+            }
+
             _symbolStartPos = _index; // Save current position as start of next symbol to analyze
 
             /* Operator or delimiter */
@@ -752,42 +760,42 @@ _again:
     
         _buffer.Substring(_symbolStartPos, _index - _symbolStartPos) switch
         {
-            "False" => new PyFalse(_symbolStartPos, _index - _symbolStartPos),
-            "None" => new PyNone(_symbolStartPos, _index - _symbolStartPos),
-            "True" => new PyTrue(_symbolStartPos, _index - _symbolStartPos),
-            "and" => new PyAnd(_symbolStartPos, _index - _symbolStartPos),
-            "as" => new PyAs(_symbolStartPos, _index - _symbolStartPos),
-            "assert" => new PyAssert(_symbolStartPos, _index - _symbolStartPos),
-            "async" => new PyAsync(_symbolStartPos, _index - _symbolStartPos),
-            "await" => new PyAwait(_symbolStartPos, _index - _symbolStartPos),
-            "break" => new PyBreak(_symbolStartPos, _index - _symbolStartPos),
-            "class" => new PyClass(_symbolStartPos, _index - _symbolStartPos),
-            "continue" => new PyContinue(_symbolStartPos, _index - _symbolStartPos),
-            "def" => new PyDef(_symbolStartPos, _index - _symbolStartPos),
-            "del" => new PyDel(_symbolStartPos, _index - _symbolStartPos),
-            "elif" => new PyElif(_symbolStartPos, _index - _symbolStartPos),
-            "else" => new PyElse(_symbolStartPos, _index - _symbolStartPos),
-            "except" => new PyExcept(_symbolStartPos, _index - _symbolStartPos),
-            "finally" => new PyFinally(_symbolStartPos, _index - _symbolStartPos),
-            "for" => new PyFor(_symbolStartPos, _index - _symbolStartPos),
-            "from" => new PyFrom(_symbolStartPos, _index - _symbolStartPos),
-            "global" => new PyGlobal(_symbolStartPos, _index - _symbolStartPos),
-            "if" => new PyIf(_symbolStartPos, _index - _symbolStartPos),
-            "import" => new PyImport(_symbolStartPos, _index - _symbolStartPos),
-            "in" => new PyIn(_symbolStartPos, _index - _symbolStartPos),
-            "is" => new PyIs(_symbolStartPos, _index - _symbolStartPos),
-            "lambda" => new PyLambda(_symbolStartPos, _index - _symbolStartPos),
-            "nonlocal" => new PyNonlocal(_symbolStartPos, _index - _symbolStartPos),
-            "not" => new PyNot(_symbolStartPos, _index - _symbolStartPos),
-            "or" => new PyOr(_symbolStartPos, _index - _symbolStartPos),
-            "pass" => new PyPass(_symbolStartPos, _index - _symbolStartPos),
-            "raise" => new PyRaise(_symbolStartPos, _index - _symbolStartPos),
-            "return" => new PyReturn(_symbolStartPos, _index - _symbolStartPos),
-            "try" => new PyTry(_symbolStartPos, _index - _symbolStartPos),
-            "with" => new PyWith(_symbolStartPos, _index - _symbolStartPos),
-            "while" => new PyWhile(_symbolStartPos, _index - _symbolStartPos),
-            "yield" => new PyYield(_symbolStartPos, _index - _symbolStartPos),
-            _ => new PyName(_symbolStartPos, _index - _symbolStartPos, _buffer.Substring(_symbolStartPos, _index - _symbolStartPos))
+            "False" => new PyFalse(_symbolStartPos, _index),
+            "None" => new PyNone(_symbolStartPos, _index),
+            "True" => new PyTrue(_symbolStartPos, _index),
+            "and" => new PyAnd(_symbolStartPos, _index),
+            "as" => new PyAs(_symbolStartPos, _index),
+            "assert" => new PyAssert(_symbolStartPos, _index),
+            "async" => new PyAsync(_symbolStartPos, _index),
+            "await" => new PyAwait(_symbolStartPos, _index),
+            "break" => new PyBreak(_symbolStartPos, _index),
+            "class" => new PyClass(_symbolStartPos, _index),
+            "continue" => new PyContinue(_symbolStartPos, _index),
+            "def" => new PyDef(_symbolStartPos, _index),
+            "del" => new PyDel(_symbolStartPos, _index),
+            "elif" => new PyElif(_symbolStartPos, _index),
+            "else" => new PyElse(_symbolStartPos, _index),
+            "except" => new PyExcept(_symbolStartPos, _index),
+            "finally" => new PyFinally(_symbolStartPos, _index),
+            "for" => new PyFor(_symbolStartPos, _index),
+            "from" => new PyFrom(_symbolStartPos, _index),
+            "global" => new PyGlobal(_symbolStartPos, _index),
+            "if" => new PyIf(_symbolStartPos, _index),
+            "import" => new PyImport(_symbolStartPos, _index),
+            "in" => new PyIn(_symbolStartPos, _index),
+            "is" => new PyIs(_symbolStartPos, _index),
+            "lambda" => new PyLambda(_symbolStartPos, _index),
+            "nonlocal" => new PyNonlocal(_symbolStartPos, _index),
+            "not" => new PyNot(_symbolStartPos, _index),
+            "or" => new PyOr(_symbolStartPos, _index),
+            "pass" => new PyPass(_symbolStartPos, _index),
+            "raise" => new PyRaise(_symbolStartPos, _index),
+            "return" => new PyReturn(_symbolStartPos, _index),
+            "try" => new PyTry(_symbolStartPos, _index),
+            "with" => new PyWith(_symbolStartPos, _index),
+            "while" => new PyWhile(_symbolStartPos, _index),
+            "yield" => new PyYield(_symbolStartPos, _index),
+            _ => new PyName(_symbolStartPos, _index, _buffer.Substring(_symbolStartPos, _index - _symbolStartPos))
         };
     
 
