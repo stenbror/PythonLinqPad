@@ -14,6 +14,8 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
     private bool _atBOL = true;
     private bool _isBlankLine = false;
 
+    private List<Trivia> triviaList = new List<Trivia>();
+
 
     private Tuple<int, int> Position => new Tuple<int, int>(_symbolStartPos, _index);
 
