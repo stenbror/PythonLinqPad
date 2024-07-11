@@ -36,16 +36,19 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                 if (_buffer[_index] == ' ')
                 {
                     col++;
+                    triviaList.Add(new WhiteSpaceTrivia(_index, _index + 1));
                     _index++;
                 }
                 else if (_buffer[_index] == '\t')
                 {
                     col = col + (tabSize / tabSize + 1);
+                    triviaList.Add(new TabulatorTrivia(_index, _index + 1));
                     _index++;
                 }
                 else
                 {
                     col = 0;
+                    triviaList.Add(new VerticalTabulatorTrivia(_index, _index + 1));
                     _index++;
                 }
             }
@@ -134,7 +137,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
         _again:
         try
         {
-            /* Remove whitespace and later add as trivia */
+            /* Remove whitespace and add as trivia */
             while (_buffer[_index] == ' ' || _buffer[_index] == '\t')
             {
                 triviaList.Add(
