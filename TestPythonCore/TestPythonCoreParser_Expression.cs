@@ -85,9 +85,9 @@ public class TestPythonCoreParserExpression
 
         var required = new PrimaryExpressionNode(
             0, 10, 
-            new NameLiteralNode(0, 1, new PyName(0, 1, "x")),
+            new NameLiteralNode(0, 1, new PyName(0, 1, "x", [])),
             [
-                new DotNameNode(1, 10, new PyDot(1, 2), new PyName(2, 10, "__init__"))
+                new DotNameNode(1, 10, new PyDot(1, 2, []), new PyName(2, 10, "__init__", []))
             ]
             );
 
@@ -103,10 +103,10 @@ public class TestPythonCoreParserExpression
 
         var required = new PrimaryExpressionNode(
             0, 13,
-            new NameLiteralNode(0, 1, new PyName(0, 1, "x")),
+            new NameLiteralNode(0, 1, new PyName(0, 1, "x", [])),
             [
-                new DotNameNode(1, 10, new PyDot(1, 2), new PyName(2, 10, "__init__")),
-                new DotNameNode(10, 13, new PyDot(10, 11), new PyName(11, 13, "ax"))
+                new DotNameNode(1, 10, new PyDot(1, 2, []), new PyName(2, 10, "__init__", [])),
+                new DotNameNode(10, 13, new PyDot(10, 11, []), new PyName(11, 13, "ax", []))
             ]
         );
 
