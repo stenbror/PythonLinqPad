@@ -93,4 +93,23 @@ public class TestPythonCoreParserExpression
 
         Assert.Equivalent(required, res, strict: true);
     }
+
+    [Fact]
+    public void TestExpressionRulePrimaryDotNameTwice()
+    {
+        var parser = new PythonCoreParser("x.__init__.ax\r\n");
+        parser.Advance();
+        var res = parser.ParsePrimaryExpression();
+
+        var required = new PrimaryExpressionNode(
+            0, 13,
+            new NameLiteralNode(0, 1, new PyName(0, 1, "x")),
+            [
+                new DotNameNode(1, 10, new PyDot(1, 2), new PyName(2, 10, "__init__")),
+                new DotNameNode(10, 13, new PyDot(10, 11), new PyName(11, 13, "ax"))
+            ]
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
 }
