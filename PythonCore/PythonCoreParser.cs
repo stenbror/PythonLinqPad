@@ -983,4 +983,37 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
         return res;
     }
 
+    // Grammar rule: primary ///////////////////////////////////////////////////////////////////////////////////////////
+
+    public ExpressionNode ParsePrimaryExpression()
+    {
+        var pos = Position;
+        var left = ParseAtom();
+        var nodes = new List<ExpressionNode>();
+
+        while (true)
+        {
+            switch (Symbol)
+            {
+                case PyDot:
+                    var symbol = Symbol;
+                    var pos2 = Position;
+                    Advance();
+                    var name = Symbol switch
+                    {
+                        PyName => Symbol,
+                        _ => throw new SyntaxError(Position.Item1, "Expecting literal name after '.' in expression!")
+                    };
+                    Advance();
+                    nodes.Add(new DotNameNode(pos2.Item1, Position.Item1, symbol, name));
+                    break;
+                case PyLeftParen:
+                    break;
+                case PyLeftBracket:
+                    break;
+                default:
+                    return nodes.Count == 0 ? left : new PrimaryExpressionNode(pos.Item1, Position.Item1, left, nodes.ToArray());
+            }
+        }
+    }
 }

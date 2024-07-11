@@ -69,4 +69,28 @@ public class TestPythonCoreParserExpression
         Assert.Equal(8, res.EndPos);
         Assert.IsType<PyName>((res as NameLiteralNode)?.Element);
     }
+
+
+
+
+
+
+
+    [Fact]
+    public void TestExpressionRulePrimaryDotName()
+    {
+        var parser = new PythonCoreParser("x.__init__\r\n");
+        parser.Advance();
+        var res = parser.ParsePrimaryExpression();
+
+        var required = new PrimaryExpressionNode(
+            0, 10, 
+            new NameLiteralNode(0, 1, new PyName(0, 1, "x")),
+            [
+                new DotNameNode(1, 10, new PyDot(1, 2), new PyName(2, 10, "__init__"))
+            ]
+            );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
 }
