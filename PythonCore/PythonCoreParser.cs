@@ -137,7 +137,12 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
             /* Remove whitespace and later add as trivia */
             while (_buffer[_index] == ' ' || _buffer[_index] == '\t')
             {
-                // Add code to save trivia for whitespace  later!
+                triviaList.Add(
+                    _buffer[_index] switch
+                    {
+                        ' ' => new WhiteSpaceTrivia(_index, _index + 1),
+                        _ => new TabulatorTrivia(_index, _index + 1)
+                    } );
                 _index++;
             }
 
@@ -152,20 +157,32 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                     if (_buffer[_index] == '\n')
                     {
                         _index++;
-                        if (_isBlankLine) goto _again;
+                        if (_isBlankLine)
+                        {
+                            triviaList.Add(new NewlineTrivia(_symbolStartPos, _index, '\r', '\n'));
+                            goto _again;
+                        }
                         Symbol = new PyNewline(_symbolStartPos, _index, '\r', '\n', triviaList.ToArray());
                         _atBOL = true;
                         return;
                     }
 
-                    if (_isBlankLine) goto _again;
+                    if (_isBlankLine)
+                    {
+                        triviaList.Add(new NewlineTrivia(_symbolStartPos, _index, '\r', ' '));
+                        goto _again;
+                    }
                     Symbol = new PyNewline(_symbolStartPos, _index, '\r', ' ', triviaList.ToArray());
                     _atBOL = true;
                     return;
                 }
 
                 _index++;
-                if (_isBlankLine) goto _again;
+                if (_isBlankLine)
+                {
+                    triviaList.Add(new NewlineTrivia(_symbolStartPos, _index, ' ', '\n'));
+                    goto _again;
+                }
                 Symbol = new PyNewline(_symbolStartPos, _index, ' ', '\n', triviaList.ToArray());
                 _atBOL = true;
                 return;
@@ -194,6 +211,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                     return;
                 }
 
+                triviaList.Add(new CommentTrivia(_symbolStartPos, _index, text));
                 goto _again;
             }
 
@@ -201,17 +219,22 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
             if (_buffer[_index] == '\\')
             {
                 _index++;
+                triviaList.Add(new LineContinuationTrivia(_symbolStartPos, _index));
+                
                 if (_buffer[_index] == '\r')
                 {
                     _index++;
                     if (_buffer[_index] == '\n')
                     {
                         _index++;
+                        triviaList.Add(new NewlineTrivia(_symbolStartPos + 1, _index, '\r', '\n'));
                     }
+                    else triviaList.Add(new NewlineTrivia(_symbolStartPos + 1, _index, '\r', ' '));
                 }
                 else if (_buffer[_index] == '\n')
                 {
                     _index++;
+                    triviaList.Add(new NewlineTrivia(_symbolStartPos + 1, _index, ' ', '\n'));
                 }
                 else
                 {
