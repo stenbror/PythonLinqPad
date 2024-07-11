@@ -14,10 +14,12 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
     private bool _atBOL = true;
     private bool _isBlankLine = false;
 
+    private List<Trivia> triviaList = new List<Trivia>();
+
 
     private Tuple<int, int> Position => new Tuple<int, int>(_symbolStartPos, _index);
 
-    public Symbol Symbol { get; private set; } = new PyEOF(0);
+    public Symbol Symbol { get; private set; }
 
     
     // Lexical analyzer - Get next valid symbol for parser rules ///////////////////////////////////////////////////////
@@ -34,16 +36,19 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                 if (_buffer[_index] == ' ')
                 {
                     col++;
+                    triviaList.Add(new WhiteSpaceTrivia(_index, _index + 1));
                     _index++;
                 }
                 else if (_buffer[_index] == '\t')
                 {
                     col = col + (tabSize / tabSize + 1);
+                    triviaList.Add(new TabulatorTrivia(_index, _index + 1));
                     _index++;
                 }
                 else
                 {
                     col = 0;
+                    triviaList.Add(new VerticalTabulatorTrivia(_index, _index + 1));
                     _index++;
                 }
             }
@@ -106,19 +111,24 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
         if (_pending < 0)
         {
             _pending++;
-            Symbol = new PyDedent();
+            Symbol = new PyDedent(triviaList.ToArray());
+
+            triviaList = new List<Trivia>(); /* Clear after added to symbol */
             return;
         }
 
         if (_pending > 0)
         {
             _pending--;
-            Symbol = new PyIndent();
+            Symbol = new PyIndent(triviaList.ToArray());
 
+            triviaList = new List<Trivia>(); /* Clear after added to symbol */
             return;
         }
 
         AdvanceNextSymbol(); /* Analyze for all real symbols */
+        
+        triviaList = new List<Trivia>(); /* Clear after added to symbol */
     }
 
     private void AdvanceNextSymbol()
@@ -127,10 +137,15 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
         _again:
         try
         {
-            /* Remove whitespace and later add as trivia */
+            /* Remove whitespace and add as trivia */
             while (_buffer[_index] == ' ' || _buffer[_index] == '\t')
             {
-                // Add code to save trivia for whitespace  later!
+                triviaList.Add(
+                    _buffer[_index] switch
+                    {
+                        ' ' => new WhiteSpaceTrivia(_index, _index + 1),
+                        _ => new TabulatorTrivia(_index, _index + 1)
+                    } );
                 _index++;
             }
 
@@ -145,21 +160,33 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                     if (_buffer[_index] == '\n')
                     {
                         _index++;
-                        if (_isBlankLine) goto _again;
-                        Symbol = new PyNewline(_symbolStartPos, _index, '\r', '\n');
+                        if (_isBlankLine)
+                        {
+                            triviaList.Add(new NewlineTrivia(_symbolStartPos, _index, '\r', '\n'));
+                            goto _again;
+                        }
+                        Symbol = new PyNewline(_symbolStartPos, _index, '\r', '\n', triviaList.ToArray());
                         _atBOL = true;
                         return;
                     }
 
-                    if (_isBlankLine) goto _again;
-                    Symbol = new PyNewline(_symbolStartPos, _index, '\r', ' ');
+                    if (_isBlankLine)
+                    {
+                        triviaList.Add(new NewlineTrivia(_symbolStartPos, _index, '\r', ' '));
+                        goto _again;
+                    }
+                    Symbol = new PyNewline(_symbolStartPos, _index, '\r', ' ', triviaList.ToArray());
                     _atBOL = true;
                     return;
                 }
 
                 _index++;
-                if (_isBlankLine) goto _again;
-                Symbol = new PyNewline(_symbolStartPos, _index, ' ', '\n');
+                if (_isBlankLine)
+                {
+                    triviaList.Add(new NewlineTrivia(_symbolStartPos, _index, ' ', '\n'));
+                    goto _again;
+                }
+                Symbol = new PyNewline(_symbolStartPos, _index, ' ', '\n', triviaList.ToArray());
                 _atBOL = true;
                 return;
             }
@@ -183,10 +210,11 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
 
                 if (text.StartsWith("# type:"))
                 {
-                    Symbol = new PyTypeString(_symbolStartPos, _index, text);
+                    Symbol = new PyTypeString(_symbolStartPos, _index, text, triviaList.ToArray());
                     return;
                 }
 
+                triviaList.Add(new CommentTrivia(_symbolStartPos, _index, text));
                 goto _again;
             }
 
@@ -194,17 +222,22 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
             if (_buffer[_index] == '\\')
             {
                 _index++;
+                triviaList.Add(new LineContinuationTrivia(_symbolStartPos, _index));
+                
                 if (_buffer[_index] == '\r')
                 {
                     _index++;
                     if (_buffer[_index] == '\n')
                     {
                         _index++;
+                        triviaList.Add(new NewlineTrivia(_symbolStartPos + 1, _index, '\r', '\n'));
                     }
+                    else triviaList.Add(new NewlineTrivia(_symbolStartPos + 1, _index, '\r', ' '));
                 }
                 else if (_buffer[_index] == '\n')
                 {
                     _index++;
+                    triviaList.Add(new NewlineTrivia(_symbolStartPos + 1, _index, ' ', '\n'));
                 }
                 else
                 {
@@ -222,11 +255,11 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                     if (_buffer[_index] == '=')
                     {
                         _index++;
-                        Symbol = new PyPlusAssign(_symbolStartPos, _index);
+                        Symbol = new PyPlusAssign(_symbolStartPos, _index, triviaList.ToArray());
                     }
                     else
                     {
-                        Symbol = new PyPlus(_symbolStartPos, _index);
+                        Symbol = new PyPlus(_symbolStartPos, _index, triviaList.ToArray());
                     }
 
                     return;
@@ -236,16 +269,16 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                     if (_buffer[_index] == '=')
                     {
                         _index++;
-                        Symbol = new PyMinusAssign(_symbolStartPos, _index);
+                        Symbol = new PyMinusAssign(_symbolStartPos, _index, triviaList.ToArray());
                     }
                     else if (_buffer[_index] == '>')
                     {
                         _index++;
-                        Symbol = new PyArrow(_symbolStartPos, _index);
+                        Symbol = new PyArrow(_symbolStartPos, _index, triviaList.ToArray());
                     }
                     else
                     {
-                        Symbol = new PyMinus(_symbolStartPos, _index);
+                        Symbol = new PyMinus(_symbolStartPos, _index, triviaList.ToArray());
                     }
 
                     return;
@@ -258,21 +291,21 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                         if (_buffer[_index] == '=')
                         {
                             _index++;
-                            Symbol = new PyPowerAssign(_symbolStartPos, _index);
+                            Symbol = new PyPowerAssign(_symbolStartPos, _index, triviaList.ToArray());
                         }
                         else
                         {
-                            Symbol = new PyPower(_symbolStartPos, _index);
+                            Symbol = new PyPower(_symbolStartPos, _index, triviaList.ToArray());
                         }
                     }
                     else if (_buffer[_index] == '=')
                     {
                         _index++;
-                        Symbol = new PyMulAssign(_symbolStartPos, _index);
+                        Symbol = new PyMulAssign(_symbolStartPos, _index, triviaList.ToArray());
                     }
                     else
                     {
-                        Symbol = new PyMul(_symbolStartPos, _index);
+                        Symbol = new PyMul(_symbolStartPos, _index, triviaList.ToArray());
                     }
 
                     return;
@@ -285,21 +318,21 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                         if (_buffer[_index] == '=')
                         {
                             _index++;
-                            Symbol = new PyFloorDivAssign(_symbolStartPos, _index);
+                            Symbol = new PyFloorDivAssign(_symbolStartPos, _index, triviaList.ToArray());
                         }
                         else
                         {
-                            Symbol = new PyFloorDiv(_symbolStartPos, _index);
+                            Symbol = new PyFloorDiv(_symbolStartPos, _index, triviaList.ToArray());
                         }
                     }
                     else if (_buffer[_index] == '=')
                     {
                         _index++;
-                        Symbol = new PyDivAssign(_symbolStartPos, _index);
+                        Symbol = new PyDivAssign(_symbolStartPos, _index, triviaList.ToArray());
                     }
                     else
                     {
-                        Symbol = new PyDiv(_symbolStartPos, _index);
+                        Symbol = new PyDiv(_symbolStartPos, _index, triviaList.ToArray());
                     }
 
                     return;
@@ -309,11 +342,11 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                     if (_buffer[_index] == '=')
                     {
                         _index++;
-                        Symbol = new PyModuloAssign(_symbolStartPos, _index);
+                        Symbol = new PyModuloAssign(_symbolStartPos, _index, triviaList.ToArray());
                     }
                     else
                     {
-                        Symbol = new PyModulo(_symbolStartPos, _index);
+                        Symbol = new PyModulo(_symbolStartPos, _index, triviaList.ToArray());
                     }
 
                     return;
@@ -323,11 +356,11 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                     if (_buffer[_index] == '=')
                     {
                         _index++;
-                        Symbol = new PyMatriceAssign(_symbolStartPos, _index);
+                        Symbol = new PyMatriceAssign(_symbolStartPos, _index, triviaList.ToArray());
                     }
                     else
                     {
-                        Symbol = new PyMatrice(_symbolStartPos, _index);
+                        Symbol = new PyMatrice(_symbolStartPos, _index, triviaList.ToArray());
                     }
 
                     return;
@@ -337,11 +370,11 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                     if (_buffer[_index] == '=')
                     {
                         _index++;
-                        Symbol = new PyBitAndAssign(_symbolStartPos, _index);
+                        Symbol = new PyBitAndAssign(_symbolStartPos, _index, triviaList.ToArray());
                     }
                     else
                     {
-                        Symbol = new PyBitAnd(_symbolStartPos, _index);
+                        Symbol = new PyBitAnd(_symbolStartPos, _index, triviaList.ToArray());
                     }
 
                     return;
@@ -351,11 +384,11 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                     if (_buffer[_index] == '=')
                     {
                         _index++;
-                        Symbol = new PyBitOrAssign(_symbolStartPos, _index);
+                        Symbol = new PyBitOrAssign(_symbolStartPos, _index, triviaList.ToArray());
                     }
                     else
                     {
-                        Symbol = new PyBitOr(_symbolStartPos, _index);
+                        Symbol = new PyBitOr(_symbolStartPos, _index, triviaList.ToArray());
                     }
 
                     return;
@@ -365,11 +398,11 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                     if (_buffer[_index] == '=')
                     {
                         _index++;
-                        Symbol = new PyBitXorAssign(_symbolStartPos, _index);
+                        Symbol = new PyBitXorAssign(_symbolStartPos, _index, triviaList.ToArray());
                     }
                     else
                     {
-                        Symbol = new PyBitXor(_symbolStartPos, _index);
+                        Symbol = new PyBitXor(_symbolStartPos, _index, triviaList.ToArray());
                     }
 
                     return;
@@ -379,11 +412,11 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                     if (_buffer[_index] == '=')
                     {
                         _index++;
-                        Symbol = new PyColonAssign(_symbolStartPos, _index);
+                        Symbol = new PyColonAssign(_symbolStartPos, _index, triviaList.ToArray());
                     }
                     else
                     {
-                        Symbol = new PyColon(_symbolStartPos, _index);
+                        Symbol = new PyColon(_symbolStartPos, _index, triviaList.ToArray());
                     }
 
                     return;
@@ -393,11 +426,11 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                     if (_buffer[_index] == '=')
                     {
                         _index++;
-                        Symbol = new PyEqual(_symbolStartPos, _index);
+                        Symbol = new PyEqual(_symbolStartPos, _index, triviaList.ToArray());
                     }
                     else
                     {
-                        Symbol = new PyAssign(_symbolStartPos, _index);
+                        Symbol = new PyAssign(_symbolStartPos, _index, triviaList.ToArray());
                     }
 
                     return;
@@ -407,7 +440,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                     if (_buffer[_index] == '=')
                     {
                         _index++;
-                        Symbol = new PyNotEqual(_symbolStartPos, _index);
+                        Symbol = new PyNotEqual(_symbolStartPos, _index, triviaList.ToArray());
                     }
                     else
                     {
@@ -418,7 +451,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
 
                 case '~':
                     _index++;
-                    Symbol = new PyBitInvert(_symbolStartPos, _index);
+                    Symbol = new PyBitInvert(_symbolStartPos, _index, triviaList.ToArray());
 
                     return;
 
@@ -430,21 +463,21 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                         if (_buffer[_index] == '=')
                         {
                             _index++;
-                            Symbol = new PyShiftLeftAssign(_symbolStartPos, _index);
+                            Symbol = new PyShiftLeftAssign(_symbolStartPos, _index, triviaList.ToArray());
                         }
                         else
                         {
-                            Symbol = new PyShiftLeft(_symbolStartPos, _index);
+                            Symbol = new PyShiftLeft(_symbolStartPos, _index, triviaList.ToArray());
                         }
                     }
                     else if (_buffer[_index] == '=')
                     {
                         _index++;
-                        Symbol = new PyLessEqual(_symbolStartPos, _index);
+                        Symbol = new PyLessEqual(_symbolStartPos, _index, triviaList.ToArray());
                     }
                     else
                     {
-                        Symbol = new PyLess(_symbolStartPos, _index);
+                        Symbol = new PyLess(_symbolStartPos, _index, triviaList.ToArray());
                     }
 
                     return;
@@ -457,34 +490,34 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                         if (_buffer[_index] == '=')
                         {
                             _index++;
-                            Symbol = new PyShiftRightAssign(_symbolStartPos, _index);
+                            Symbol = new PyShiftRightAssign(_symbolStartPos, _index, triviaList.ToArray());
                         }
                         else
                         {
-                            Symbol = new PyShiftRight(_symbolStartPos, _index);
+                            Symbol = new PyShiftRight(_symbolStartPos, _index, triviaList.ToArray());
                         }
                     }
                     else if (_buffer[_index] == '=')
                     {
                         _index++;
-                        Symbol = new PyGreaterEqual(_symbolStartPos, _index);
+                        Symbol = new PyGreaterEqual(_symbolStartPos, _index, triviaList.ToArray());
                     }
                     else
                     {
-                        Symbol = new PyGreater(_symbolStartPos, _index);
+                        Symbol = new PyGreater(_symbolStartPos, _index, triviaList.ToArray());
                     }
 
                     return;
 
                 case ',':
                     _index++;
-                    Symbol = new PyComma(_symbolStartPos, _index);
+                    Symbol = new PyComma(_symbolStartPos, _index, triviaList.ToArray());
 
                     return;
 
                 case ';':
                     _index++;
-                    Symbol = new PySemiColon(_symbolStartPos, _index);
+                    Symbol = new PySemiColon(_symbolStartPos, _index, triviaList.ToArray());
 
                     return;
 
@@ -496,7 +529,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                         if (_buffer[_index] == '.')
                         {
                             _index++;
-                            Symbol = new PyElipsis(_symbolStartPos, _index);
+                            Symbol = new PyElipsis(_symbolStartPos, _index, triviaList.ToArray());
                         }
                         else
                         {
@@ -510,7 +543,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                     }
                     else
                     {
-                        Symbol = new PyDot(_symbolStartPos, _index);
+                        Symbol = new PyDot(_symbolStartPos, _index, triviaList.ToArray());
                     }
 
                     return;
@@ -518,21 +551,21 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                 case '(':
                     _index++;
                     _parenthsiStack.Push('(');
-                    Symbol = new PyLeftParen(_symbolStartPos, _index);
+                    Symbol = new PyLeftParen(_symbolStartPos, _index, triviaList.ToArray());
 
                     return;
 
                 case '[':
                     _index++;
                     _parenthsiStack.Push('[');
-                    Symbol = new PyLeftBracket(_symbolStartPos, _index);
+                    Symbol = new PyLeftBracket(_symbolStartPos, _index, triviaList.ToArray());
 
                     return;
 
                 case '{':
                     _index++;
                     _parenthsiStack.Push('{');
-                    Symbol = new PyLeftCurly(_symbolStartPos, _index);
+                    Symbol = new PyLeftCurly(_symbolStartPos, _index, triviaList.ToArray());
 
                     return;
 
@@ -540,7 +573,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                     _index++;
                     if (_parenthsiStack.Peek() != '(') throw new Exception();
                     _parenthsiStack.Pop();
-                    Symbol = new PyRightParen(_symbolStartPos, _index);
+                    Symbol = new PyRightParen(_symbolStartPos, _index, triviaList.ToArray());
 
                     return;
 
@@ -548,7 +581,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                     _index++;
                     if (_parenthsiStack.Peek() != '[') throw new Exception();
                     _parenthsiStack.Pop();
-                    Symbol = new PyRightBracket(_symbolStartPos, _index);
+                    Symbol = new PyRightBracket(_symbolStartPos, _index, triviaList.ToArray());
 
                     return;
 
@@ -556,7 +589,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                     _index++;
                     if (_parenthsiStack.Peek() != '{') throw new Exception();
                     _parenthsiStack.Pop();
-                    Symbol = new PyRightCurly(_symbolStartPos, _index);
+                    Symbol = new PyRightCurly(_symbolStartPos, _index, triviaList.ToArray());
 
                     return;
             }
@@ -717,7 +750,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                 }
 
                 Symbol = new PyNumber(_symbolStartPos, _index,
-                    _buffer.Substring(_symbolStartPos, _index - _symbolStartPos));
+                    _buffer.Substring(_symbolStartPos, _index - _symbolStartPos), triviaList.ToArray());
 
                 return;
             }
@@ -821,7 +854,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                 }
 
                 Symbol = new PyString(_symbolStartPos, _index,
-                    _buffer.Substring(_symbolStartPos, _index - _symbolStartPos));
+                    _buffer.Substring(_symbolStartPos, _index - _symbolStartPos), triviaList.ToArray());
 
                 return;
             }
@@ -836,7 +869,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
         }
         catch 
         {
-            Symbol = new PyEOF(_index);
+            Symbol = new PyEOF(_index, triviaList.ToArray());
         }
 
     }
@@ -845,42 +878,42 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
     
         _buffer.Substring(_symbolStartPos, _index - _symbolStartPos) switch
         {
-            "False" => new PyFalse(_symbolStartPos, _index),
-            "None" => new PyNone(_symbolStartPos, _index),
-            "True" => new PyTrue(_symbolStartPos, _index),
-            "and" => new PyAnd(_symbolStartPos, _index),
-            "as" => new PyAs(_symbolStartPos, _index),
-            "assert" => new PyAssert(_symbolStartPos, _index),
-            "async" => new PyAsync(_symbolStartPos, _index),
-            "await" => new PyAwait(_symbolStartPos, _index),
-            "break" => new PyBreak(_symbolStartPos, _index),
-            "class" => new PyClass(_symbolStartPos, _index),
-            "continue" => new PyContinue(_symbolStartPos, _index),
-            "def" => new PyDef(_symbolStartPos, _index),
-            "del" => new PyDel(_symbolStartPos, _index),
-            "elif" => new PyElif(_symbolStartPos, _index),
-            "else" => new PyElse(_symbolStartPos, _index),
-            "except" => new PyExcept(_symbolStartPos, _index),
-            "finally" => new PyFinally(_symbolStartPos, _index),
-            "for" => new PyFor(_symbolStartPos, _index),
-            "from" => new PyFrom(_symbolStartPos, _index),
-            "global" => new PyGlobal(_symbolStartPos, _index),
-            "if" => new PyIf(_symbolStartPos, _index),
-            "import" => new PyImport(_symbolStartPos, _index),
-            "in" => new PyIn(_symbolStartPos, _index),
-            "is" => new PyIs(_symbolStartPos, _index),
-            "lambda" => new PyLambda(_symbolStartPos, _index),
-            "nonlocal" => new PyNonlocal(_symbolStartPos, _index),
-            "not" => new PyNot(_symbolStartPos, _index),
-            "or" => new PyOr(_symbolStartPos, _index),
-            "pass" => new PyPass(_symbolStartPos, _index),
-            "raise" => new PyRaise(_symbolStartPos, _index),
-            "return" => new PyReturn(_symbolStartPos, _index),
-            "try" => new PyTry(_symbolStartPos, _index),
-            "with" => new PyWith(_symbolStartPos, _index),
-            "while" => new PyWhile(_symbolStartPos, _index),
-            "yield" => new PyYield(_symbolStartPos, _index),
-            _ => new PyName(_symbolStartPos, _index, _buffer.Substring(_symbolStartPos, _index - _symbolStartPos))
+            "False" => new PyFalse(_symbolStartPos, _index, triviaList.ToArray()),
+            "None" => new PyNone(_symbolStartPos, _index, triviaList.ToArray()),
+            "True" => new PyTrue(_symbolStartPos, _index, triviaList.ToArray()),
+            "and" => new PyAnd(_symbolStartPos, _index, triviaList.ToArray()),
+            "as" => new PyAs(_symbolStartPos, _index, triviaList.ToArray()),
+            "assert" => new PyAssert(_symbolStartPos, _index, triviaList.ToArray()),
+            "async" => new PyAsync(_symbolStartPos, _index, triviaList.ToArray()),
+            "await" => new PyAwait(_symbolStartPos, _index, triviaList.ToArray()),
+            "break" => new PyBreak(_symbolStartPos, _index, triviaList.ToArray()),
+            "class" => new PyClass(_symbolStartPos, _index, triviaList.ToArray()),
+            "continue" => new PyContinue(_symbolStartPos, _index, triviaList.ToArray()),
+            "def" => new PyDef(_symbolStartPos, _index, triviaList.ToArray()),
+            "del" => new PyDel(_symbolStartPos, _index, triviaList.ToArray()),
+            "elif" => new PyElif(_symbolStartPos, _index, triviaList.ToArray()),
+            "else" => new PyElse(_symbolStartPos, _index, triviaList.ToArray()),
+            "except" => new PyExcept(_symbolStartPos, _index, triviaList.ToArray()),
+            "finally" => new PyFinally(_symbolStartPos, _index, triviaList.ToArray()),
+            "for" => new PyFor(_symbolStartPos, _index, triviaList.ToArray()),
+            "from" => new PyFrom(_symbolStartPos, _index, triviaList.ToArray()),
+            "global" => new PyGlobal(_symbolStartPos, _index, triviaList.ToArray()),
+            "if" => new PyIf(_symbolStartPos, _index, triviaList.ToArray()),
+            "import" => new PyImport(_symbolStartPos, _index, triviaList.ToArray()),
+            "in" => new PyIn(_symbolStartPos, _index, triviaList.ToArray()),
+            "is" => new PyIs(_symbolStartPos, _index, triviaList.ToArray()),
+            "lambda" => new PyLambda(_symbolStartPos, _index, triviaList.ToArray()),
+            "nonlocal" => new PyNonlocal(_symbolStartPos, _index, triviaList.ToArray()),
+            "not" => new PyNot(_symbolStartPos, _index, triviaList.ToArray()),
+            "or" => new PyOr(_symbolStartPos, _index, triviaList.ToArray()),
+            "pass" => new PyPass(_symbolStartPos, _index, triviaList.ToArray()),
+            "raise" => new PyRaise(_symbolStartPos, _index, triviaList.ToArray()),
+            "return" => new PyReturn(_symbolStartPos, _index, triviaList.ToArray()),
+            "try" => new PyTry(_symbolStartPos, _index, triviaList.ToArray()),
+            "with" => new PyWith(_symbolStartPos, _index, triviaList.ToArray()),
+            "while" => new PyWhile(_symbolStartPos, _index, triviaList.ToArray()),
+            "yield" => new PyYield(_symbolStartPos, _index, triviaList.ToArray()),
+            _ => new PyName(_symbolStartPos, _index, _buffer.Substring(_symbolStartPos, _index - _symbolStartPos), triviaList.ToArray())
         };
     
 
