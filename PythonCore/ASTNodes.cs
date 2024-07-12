@@ -23,3 +23,10 @@ public sealed record DotNameNode(int StartPos, int EndPos, Symbol Dot, Symbol Na
 public sealed record CallNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode? Right, Symbol Symbol2) : ExpressionNode(StartPos, EndPos);
 public sealed record IndexNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode? Right, Symbol Symbol2) : ExpressionNode(StartPos, EndPos);
 public sealed record AwaitExpressionNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode? Right) : ExpressionNode(StartPos, EndPos);
+public sealed record SlicesNode(int StartPos, int EndPos, ExpressionNode[] Elements, Symbol[] Separators) : ExpressionNode(StartPos, EndPos);
+public sealed record SliceNode(int StartPos, int EndPos, ExpressionNode? Left, Symbol? Symbol1, ExpressionNode? Right, Symbol? Symbol2, ExpressionNode? Next) : ExpressionNode(StartPos, EndPos);
+
+
+
+
+public sealed record NamedExpression(int StartPos, int EndPos, NameLiteralNode Left, Symbol Symbol1, ExpressionNode Right) : ExpressionNode(StartPos, EndPos);

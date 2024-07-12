@@ -1068,11 +1068,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                         var symbol1 = Symbol;
                         var pos2 = Position;
                         Advance();
-                        var right = Symbol switch
-                        {
-                            PyRightBracket => ParseSlices(),
-                            _ => null
-                        };
+                        var right = ParseSlices();
                         var symbol2 = Symbol switch
                         {
                             PyRightBracket => Symbol,
@@ -1088,9 +1084,64 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
         }
     }
 
-    private ExpressionNode? ParseSlices()
+    private ExpressionNode ParseSlices()
     {
-        return null;
+        var pos = Position;
+        var nodes = new List<ExpressionNode>();
+        var separators = new List<Symbol>();
+        nodes.Add(ParseSlice());
+        while (Symbol is PyComma)
+        {
+            separators.Add(Symbol);
+            Advance();
+            if (Symbol is PyRightBracket) break;
+            nodes.Add( Symbol is PyMul ? ParseStaredExpression() : ParseSlice() );
+        }
+
+        return new SlicesNode(pos.Item1, Position.Item1, nodes.ToArray(), separators.ToArray());
+    }
+
+    private ExpressionNode ParseSlice()
+    {
+        var pos = Position;
+        ExpressionNode? left = null, right = null, next = null;
+        Symbol? symbol1 = null, symbol2 = null;
+        left = Symbol switch
+                        {
+                            PyColon => null,
+                            _ => ParseExpression()
+                        };
+        if (left is NameLiteralNode) /* Check for nammed expression */
+        {
+            var named = left as NameLiteralNode;
+            if (Symbol is PyColonAssign)
+            {
+                var symbol3 = Symbol;
+                Advance();
+                var right2 = ParseExpression();
+
+                return new NamedExpression(pos.Item1, Position.Item1, named, symbol3, right2);
+            }
+        }
+
+        if (Symbol is PyColon)
+        {
+            symbol1 = Symbol;
+            Advance();
+        }
+        else if (left == null) throw new SyntaxError(Position.Item1, "Missing ':' in index!");
+
+        if (Symbol is not PyColon && Symbol is not PyComma && Symbol is not PyRightBracket) right = ParseExpression();
+
+        if (Symbol is PyColon)
+        {
+            symbol2 = Symbol;
+            Advance();
+
+            if (Symbol is not PyComma && Symbol is not PyRightBracket) next = ParseExpression();
+        }
+
+        return new SliceNode(pos.Item1, Position.Item1, left, symbol1, right, symbol2, next);
     }
 
 
@@ -1112,10 +1163,25 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
 
 
 
-    // Later!
+    // Later! //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public ExpressionNode? ParseArguments()
     {
         return null;
+    }
+
+    public ExpressionNode ParseStaredExpression()
+    {
+        return null;
+    }
+
+
+
+
+
+    // Grammar Rule: Expression ////////////////////////////////////////////////////////////////////////////////////////
+    public ExpressionNode ParseExpression()
+    {
+        throw new NotImplementedException();
     }
 }

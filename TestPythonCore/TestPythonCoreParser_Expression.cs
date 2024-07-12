@@ -140,20 +140,48 @@ public class TestPythonCoreParserExpression
     [Fact]
     public void TestExpressionRulePrimaryEmptyIndex()
     {
-        var parser = new PythonCoreParser("x.__init__[]\r\n");
+        var parser = new PythonCoreParser("x.__init__[:]\r\n");
         parser.Advance();
         var res = parser.ParsePrimaryExpression();
 
         var required = new PrimaryExpressionNode(
-            0, 12,
+            0, 13,
             new NameLiteralNode(0, 1, new PyName(0, 1, "x", [])),
             [
                 new DotNameNode(1, 10, new PyDot(1, 2, []), new PyName(2, 10, "__init__", [])),
                 new IndexNode(
-                    10, 12,
+                    10, 13,
                     new PyLeftBracket(10, 11, []),
-                    null,
-                    new PyRightBracket(11, 12, [])
+                    new SlicesNode(11, 12, [
+                        new SliceNode(11, 12, null, new PyColon(11, 12, []), null, null, null)
+                    ], []),
+                    new PyRightBracket(12, 13, [])
+                )
+            ]
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
+
+    [Fact]
+    public void TestExpressionRulePrimaryEmptyTrippleIndex()
+    {
+        var parser = new PythonCoreParser("x.__init__[::]\r\n");
+        parser.Advance();
+        var res = parser.ParsePrimaryExpression();
+
+        var required = new PrimaryExpressionNode(
+            0, 14,
+            new NameLiteralNode(0, 1, new PyName(0, 1, "x", [])),
+            [
+                new DotNameNode(1, 10, new PyDot(1, 2, []), new PyName(2, 10, "__init__", [])),
+                new IndexNode(
+                    10, 14,
+                    new PyLeftBracket(10, 11, []),
+                    new SlicesNode(11, 13, [
+                        new SliceNode(11, 13, null, new PyColon(11, 12, []), null, new PyColon(12, 13, []), null)
+                    ], []),
+                    new PyRightBracket(13, 14, [])
                 )
             ]
         );
