@@ -1031,35 +1031,56 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
             switch (Symbol)
             {
                 case PyDot:
-                    var symbol = Symbol;
-                    var pos2 = Position;
-                    Advance();
-                    var name = Symbol switch
                     {
-                        PyName => Symbol,
-                        _ => throw new SyntaxError(Position.Item1, "Expecting literal name after '.' in expression!")
-                    };
-                    Advance();
-                    nodes.Add(new DotNameNode(pos2.Item1, Position.Item1, symbol, name));
+                        var symbol = Symbol;
+                        var pos2 = Position;
+                        Advance();
+                        var name = Symbol switch
+                        {
+                            PyName => Symbol,
+                            _ => throw new SyntaxError(Position.Item1, "Expecting literal name after '.' in expression!")
+                        };
+                        Advance();
+                        nodes.Add(new DotNameNode(pos2.Item1, Position.Item1, symbol, name));
+                    }
                     break;
                 case PyLeftParen:
-                    var symbol1 = Symbol;
-                    var pos3 = Position;
-                    Advance();
-                    var right = Symbol switch
                     {
-                        PyRightParen => ParseArguments(),
-                        _ => null
-                    };
-                    var symbol2 = Symbol switch
-                    {
-                        PyRightParen => Symbol,
-                        _ => throw new SyntaxError(Position.Item1, "Missing ')' in primnary expression!")
-                    };
-                    Advance();
-                    nodes.Add(new CallNode(pos3.Item1, Position.Item1, symbol1, right, symbol2));
+                        var symbol1 = Symbol;
+                        var pos2 = Position;
+                        Advance();
+                        var right = Symbol switch
+                        {
+                            PyRightParen => ParseArguments(),
+                            _ => null
+                        };
+                        var symbol2 = Symbol switch
+                        {
+                            PyRightParen => Symbol,
+                            _ => throw new SyntaxError(Position.Item1, "Missing ')' in primnary expression!")
+                        };
+                        Advance();
+                        nodes.Add(new CallNode(pos2.Item1, Position.Item1, symbol1, right, symbol2));
+                    }
                     break;
                 case PyLeftBracket:
+                    {
+                        var symbol1 = Symbol;
+                        var pos2 = Position;
+                        Advance();
+                        var right = Symbol switch
+                        {
+                            PyRightBracket => ParseSlices(),
+                            _ => null
+                        };
+                        var symbol2 = Symbol switch
+                        {
+                            PyRightBracket => Symbol,
+                            _ => throw new SyntaxError(Position.Item1, "Missing ']' in primnary expression!")
+                        };
+                        Advance();
+                        nodes.Add(new IndexNode(pos2.Item1, Position.Item1, symbol1, right, symbol2));
+                    }
                     break;
                 default:
                     return nodes.Count == 0 ? left : new PrimaryExpressionNode(pos.Item1, Position.Item1, left, nodes.ToArray());
@@ -1067,7 +1088,10 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
         }
     }
 
-
+    private ExpressionNode? ParseSlices()
+    {
+        return null;
+    }
 
 
 
