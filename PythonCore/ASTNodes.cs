@@ -25,8 +25,10 @@ public sealed record IndexNode(int StartPos, int EndPos, Symbol Symbol1, Express
 public sealed record AwaitExpressionNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode? Right) : ExpressionNode(StartPos, EndPos);
 public sealed record SlicesNode(int StartPos, int EndPos, ExpressionNode[] Elements, Symbol[] Separators) : ExpressionNode(StartPos, EndPos);
 public sealed record SliceNode(int StartPos, int EndPos, ExpressionNode? Left, Symbol? Symbol1, ExpressionNode? Right, Symbol? Symbol2, ExpressionNode? Next) : ExpressionNode(StartPos, EndPos);
-
-
+public sealed record PowerExpressionNode(int StartPos, int EndPos, ExpressionNode Left, Symbol Symbol1, ExpressionNode Right) : ExpressionNode(StartPos, EndPos);
+public sealed record UnaryPlusExpressionNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode Right) : ExpressionNode(StartPos, EndPos);
+public sealed record UnaryMinusExpressionNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode Right) : ExpressionNode(StartPos, EndPos);
+public sealed record UnaryBitInvertExpressionNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode Right) : ExpressionNode(StartPos, EndPos);
 
 
 public sealed record NamedExpression(int StartPos, int EndPos, NameLiteralNode Left, Symbol Symbol1, ExpressionNode Right) : ExpressionNode(StartPos, EndPos);

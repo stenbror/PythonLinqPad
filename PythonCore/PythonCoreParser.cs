@@ -1,6 +1,4 @@
 ﻿
-using System.Security.Cryptography.X509Certificates;
-
 namespace PythonCore;
 
 public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool isInteractive = false)
@@ -1145,7 +1143,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
     }
 
 
-    // Grammar rule: await express /////////////////////////////////////////////////////////////////////////////////////
+    // Grammar rule: await expression ////////////////////////////////////////////////////////////////////////////////
     public ExpressionNode ParseAwaitExpression()
     {
         if (Symbol is PyAwait)
@@ -1160,6 +1158,65 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
 
         return ParsePrimaryExpression();
     }
+
+    // Grammar rule: power expression //////////////////////////////////////////////////////////////////////////////////
+    public ExpressionNode ParsePowerExpression()
+    {
+        var pos = Position;
+        var left = ParseAwaitExpression();
+
+        if (Symbol is PyPower)
+        {
+            var symbol = Symbol;
+            Advance();
+            var right = ParseFactorExpression();
+
+            return new PowerExpressionNode(pos.Item1, Position.Item1, left, symbol, right);
+        }
+
+        return left;
+    }
+
+    // Grammar rule: factor expression /////////////////////////////////////////////////////////////////////////////////
+    public ExpressionNode ParseFactorExpression() =>
+        Symbol switch
+        {
+            PyPlus => ParseUnaryPlusExpression(),
+            PyMinus => ParseUnaryMinusExpression(),
+            PyBitInvert => ParseUnaryBitInvertExpression(),
+            _ => ParsePowerExpression()
+        };
+
+    private UnaryPlusExpressionNode ParseUnaryPlusExpression()
+    {
+        var pos = Position;
+        var symbol = Symbol;
+        Advance();
+        var right = ParseFactorExpression();
+
+        return new UnaryPlusExpressionNode(pos.Item1, Position.Item1, symbol, right);
+    }
+
+    private UnaryMinusExpressionNode ParseUnaryMinusExpression()
+    {
+        var pos = Position;
+        var symbol = Symbol;
+        Advance();
+        var right = ParseFactorExpression();
+
+        return new UnaryMinusExpressionNode(pos.Item1, Position.Item1, symbol, right);
+    }
+
+    private UnaryBitInvertExpressionNode ParseUnaryBitInvertExpression()
+    {
+        var pos = Position;
+        var symbol = Symbol;
+        Advance();
+        var right = ParseFactorExpression();
+
+        return new UnaryBitInvertExpressionNode(pos.Item1, Position.Item1, symbol, right);
+    }
+
 
 
 

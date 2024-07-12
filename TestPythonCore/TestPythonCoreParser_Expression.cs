@@ -204,4 +204,69 @@ public class TestPythonCoreParserExpression
 
         Assert.Equivalent(required, res, strict: true);
     }
+
+    [Fact]
+    public void TestExpressionRulePowerExpression()
+    {
+        var parser = new PythonCoreParser("a ** b\r\n");
+        parser.Advance();
+        var res = parser.ParsePowerExpression();
+
+        var required = new PowerExpressionNode(
+            0, 6,
+            new NameLiteralNode(0, 1, new PyName(0, 1, "a", [])),
+            new PyPower(2, 4, [ new WhiteSpaceTrivia(1, 2) ]),
+            new NameLiteralNode(5, 6, new PyName(5, 6, "b", [new WhiteSpaceTrivia(4, 5) ]))
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
+
+    [Fact]
+    public void TestExpressionRuleUnaryPlusExpression()
+    {
+        var parser = new PythonCoreParser("+a\r\n");
+        parser.Advance();
+        var res = parser.ParseFactorExpression();
+
+        var required = new UnaryPlusExpressionNode(
+            0, 2,
+            new PyPlus(0, 1, []),
+            new NameLiteralNode(1, 2, new PyName(1, 2, "a", []))
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
+
+    [Fact]
+    public void TestExpressionRuleUnaryMinusExpression()
+    {
+        var parser = new PythonCoreParser("-a\r\n");
+        parser.Advance();
+        var res = parser.ParseFactorExpression();
+
+        var required = new UnaryPlusExpressionNode(
+            0, 2,
+            new PyMinus(0, 1, []),
+            new NameLiteralNode(1, 2, new PyName(1, 2, "a", []))
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
+
+    [Fact]
+    public void TestExpressionRuleUnaryBitInvertExpression()
+    {
+        var parser = new PythonCoreParser("~a\r\n");
+        parser.Advance();
+        var res = parser.ParseFactorExpression();
+
+        var required = new UnaryPlusExpressionNode(
+            0, 2,
+            new PyBitInvert(0, 1, []),
+            new NameLiteralNode(1, 2, new PyName(1, 2, "a", []))
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
 }
