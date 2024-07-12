@@ -1094,9 +1094,25 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
     }
 
 
+    // Grammar rule: await express /////////////////////////////////////////////////////////////////////////////////////
+    public ExpressionNode ParseAwaitExpression()
+    {
+        if (Symbol is PyAwait)
+        {
+            var pos = Position;
+            var symbol = Symbol;
+            Advance();
+            var right = ParsePrimaryExpression();
+
+            return new AwaitExpressionNode(pos.Item1, Position.Item1, symbol, right);
+        }
+
+        return ParsePrimaryExpression();
+    }
 
 
 
+    // Later!
 
     public ExpressionNode? ParseArguments()
     {

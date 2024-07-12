@@ -160,4 +160,20 @@ public class TestPythonCoreParserExpression
 
         Assert.Equivalent(required, res, strict: true);
     }
+
+    [Fact]
+    public void TestExpressionRuleAwaitExpression()
+    {
+        var parser = new PythonCoreParser("await x\r\n");
+        parser.Advance();
+        var res = parser.ParseAwaitExpression();
+
+        var required = new AwaitExpressionNode(
+            0, 7,
+            new PyAwait(0, 5, []),
+            new NameLiteralNode(6, 7, new PyName(6,7, "x", [new WhiteSpaceTrivia(5, 6)]))
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
 }
