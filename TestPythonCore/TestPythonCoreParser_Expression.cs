@@ -112,4 +112,28 @@ public class TestPythonCoreParserExpression
 
         Assert.Equivalent(required, res, strict: true);
     }
+
+    [Fact]
+    public void TestExpressionRulePrimaryEmptyCall()
+    {
+        var parser = new PythonCoreParser("x.__init__()\r\n");
+        parser.Advance();
+        var res = parser.ParsePrimaryExpression();
+
+        var required = new PrimaryExpressionNode(
+            0, 12,
+            new NameLiteralNode(0, 1, new PyName(0, 1, "x", [])),
+            [
+                new DotNameNode(1, 10, new PyDot(1, 2, []), new PyName(2, 10, "__init__", [])),
+                new CallNode(
+                    10, 12,
+                    new PyLeftParen(10, 11, []),
+                    null,
+                    new PyRightParen(11, 12, [])
+                    )
+            ]
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
 }

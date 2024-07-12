@@ -20,3 +20,4 @@ public sealed record DictionaryLiteralNode(int StartPos, int EndPos, Symbol Symb
 public sealed record DictionaryElementNode(int StartPos, int EndPos, ExpressionNode Key, Symbol Separator, ExpressionNode Value) : ExpressionNode(StartPos, EndPos);
 public sealed record PrimaryExpressionNode(int StartPos, int EndPos, ExpressionNode Left, ExpressionNode[] Nodes) : ExpressionNode(StartPos, EndPos);
 public sealed record DotNameNode(int StartPos, int EndPos, Symbol Dot, Symbol Name) : ExpressionNode(StartPos, EndPos);
+public sealed record CallNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode? Right, Symbol Symbol2) : ExpressionNode(StartPos, EndPos);
