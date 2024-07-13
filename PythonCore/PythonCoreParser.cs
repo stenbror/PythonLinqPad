@@ -1217,6 +1217,54 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
         return new UnaryBitInvertExpressionNode(pos.Item1, Position.Item1, symbol, right);
     }
 
+    // Grammar rule: term expression ///////////////////////////////////////////////////////////////////////////////////
+    public ExpressionNode ParseTermExpression()
+    {
+        var pos = Position;
+        var res = ParseFactorExpression();
+
+        while (Symbol is PyMul || Symbol is PyDiv || Symbol is PyFloorDiv || Symbol is PyModulo || Symbol is PyMatrice)
+        {
+            if (Symbol is PyMul)
+            {
+                var symbol = Symbol;
+                Advance();
+                var right = ParseFactorExpression();
+                res = new MulExpressionNode(pos.Item1, Position.Item1, res, symbol, right);
+            } 
+            else if (Symbol is PyDiv)
+            {
+                var symbol = Symbol;
+                Advance();
+                var right = ParseFactorExpression();
+                res = new DivExpressionNode(pos.Item1, Position.Item1, res, symbol, right);
+            }
+            else if (Symbol is PyFloorDiv)
+            {
+                var symbol = Symbol;
+                Advance();
+                var right = ParseFactorExpression();
+                res = new FloorDivExpressionNode(pos.Item1, Position.Item1, res, symbol, right);
+            }
+            else if (Symbol is PyModulo)
+            {
+                var symbol = Symbol;
+                Advance();
+                var right = ParseFactorExpression();
+                res = new ModuloExpressionNode(pos.Item1, Position.Item1, res, symbol, right);
+            }
+            else
+            {
+                var symbol = Symbol;
+                Advance();
+                var right = ParseFactorExpression();
+                res = new MatriceExpressionNode(pos.Item1, Position.Item1, res, symbol, right);
+            }
+        }
+
+        return res;
+    }
+
 
 
 

@@ -269,4 +269,110 @@ public class TestPythonCoreParserExpression
 
         Assert.Equivalent(required, res, strict: true);
     }
+
+    [Fact]
+    public void TestExpressionRuleMulExpressionSingle()
+    {
+        var parser = new PythonCoreParser("a * b\r\n");
+        parser.Advance();
+        var res = parser.ParseTermExpression();
+
+        var required = new MulExpressionNode(
+            0, 5,
+            new NameLiteralNode(0, 1, new PyName(0, 1, "a", [])),
+            new PyMul(2, 3, [ new WhiteSpaceTrivia(1, 2) ]),
+            new NameLiteralNode(4, 5, new PyName(4, 5, "b", [new WhiteSpaceTrivia(3, 4)]))
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
+
+    [Fact]
+    public void TestExpressionRuleDivExpressionSingle()
+    {
+        var parser = new PythonCoreParser("a / b\r\n");
+        parser.Advance();
+        var res = parser.ParseTermExpression();
+
+        var required = new DivExpressionNode(
+            0, 5,
+            new NameLiteralNode(0, 1, new PyName(0, 1, "a", [])),
+            new PyDiv(2, 3, [new WhiteSpaceTrivia(1, 2)]),
+            new NameLiteralNode(4, 5, new PyName(4, 5, "b", [new WhiteSpaceTrivia(3, 4)]))
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
+
+    [Fact]
+    public void TestExpressionRuleModuloExpressionSingle()
+    {
+        var parser = new PythonCoreParser("a % b\r\n");
+        parser.Advance();
+        var res = parser.ParseTermExpression();
+
+        var required = new ModuloExpressionNode(
+            0, 5,
+            new NameLiteralNode(0, 1, new PyName(0, 1, "a", [])),
+            new PyModulo(2, 3, [new WhiteSpaceTrivia(1, 2)]),
+            new NameLiteralNode(4, 5, new PyName(4, 5, "b", [new WhiteSpaceTrivia(3, 4)]))
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
+
+    [Fact]
+    public void TestExpressionRuleMatriceExpressionSingle()
+    {
+        var parser = new PythonCoreParser("a @ b\r\n");
+        parser.Advance();
+        var res = parser.ParseTermExpression();
+
+        var required = new MatriceExpressionNode(
+            0, 5,
+            new NameLiteralNode(0, 1, new PyName(0, 1, "a", [])),
+            new PyMatrice(2, 3, [new WhiteSpaceTrivia(1, 2)]),
+            new NameLiteralNode(4, 5, new PyName(4, 5, "b", [new WhiteSpaceTrivia(3, 4)]))
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
+
+    [Fact]
+    public void TestExpressionRuleFloorDivExpressionSingle()
+    {
+        var parser = new PythonCoreParser("a // b\r\n");
+        parser.Advance();
+        var res = parser.ParseTermExpression();
+
+        var required = new FloorDivExpressionNode(
+            0, 6,
+            new NameLiteralNode(0, 1, new PyName(0, 1, "a", [])),
+            new PyFloorDiv(2, 4, [new WhiteSpaceTrivia(1, 2)]),
+            new NameLiteralNode(5, 6, new PyName(5, 6, "b", [new WhiteSpaceTrivia(4, 5)]))
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
+
+    [Fact]
+    public void TestExpressionRuleModuloMulExpression()
+    {
+        var parser = new PythonCoreParser("a % b * c\r\n");
+        parser.Advance();
+        var res = parser.ParseTermExpression();
+
+        var required = new MulExpressionNode(
+            0, 9,
+            new ModuloExpressionNode(0, 6,
+                    new NameLiteralNode(0, 1, new PyName(0, 1, "a", [] )),
+                    new PyModulo(2, 3, [ new WhiteSpaceTrivia(1, 2) ]),
+                    new NameLiteralNode(4, 5, new PyName(4, 5, "b", [new WhiteSpaceTrivia(3, 4)]))
+                ),
+            new PyMul(6, 7, [new WhiteSpaceTrivia(5, 6)]),
+            new NameLiteralNode(8, 9, new PyName(8, 9, "c", [new WhiteSpaceTrivia(7, 8)]))
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
 }
