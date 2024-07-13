@@ -1574,7 +1574,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
 
                 if (Symbol is PyComma) throw new SyntaxError(Position.Item1, "Missing element in expression list!");
 
-                if (Symbol is PyIn) continue;
+                if (Symbol is PySemiColon || Symbol is PyNewline) continue;
 
                 nodes.Add(ParseExpression());
             }

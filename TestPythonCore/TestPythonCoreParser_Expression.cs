@@ -893,7 +893,7 @@ public class TestPythonCoreParserExpression
     [Fact]
     public void TestExpressionRuleExpressionsSingleWithComma()
     {
-        var parser = new PythonCoreParser("a, in\r\n");
+        var parser = new PythonCoreParser("a, \r\n");
         parser.Advance();
         var res = parser.ParseExpressions();
 
