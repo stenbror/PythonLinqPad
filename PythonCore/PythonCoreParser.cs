@@ -1319,6 +1319,57 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
         return res;
     }
 
+    // Grammar rule: bitwise and expression ////////////////////////////////////////////////////////////////////////////
+    public ExpressionNode ParseBitwiseAndExpression()
+    {
+        var pos = Position;
+        var res = ParseShiftExpression();
+
+        while (Symbol is PyBitAnd)
+        {
+            var symbol = Symbol;
+            Advance();
+            var right = ParseShiftExpression();
+            res = new BitwiseAndExpressionNode(pos.Item1, Position.Item1, res, symbol, right);
+        }
+
+        return res;
+    }
+
+    // Grammar rule: bitwise xor expression ////////////////////////////////////////////////////////////////////////////
+    public ExpressionNode ParseBitwiseXorExpression()
+    {
+        var pos = Position;
+        var res = ParseBitwiseAndExpression();
+
+        while (Symbol is PyBitXor)
+        {
+            var symbol = Symbol;
+            Advance();
+            var right = ParseBitwiseAndExpression();
+            res = new BitwiseXorExpressionNode(pos.Item1, Position.Item1, res, symbol, right);
+        }
+
+        return res;
+    }
+
+    // Grammar rule: bitwise or expression /////////////////////////////////////////////////////////////////////////////
+    public ExpressionNode ParseBitwiseOrExpression()
+    {
+        var pos = Position;
+        var res = ParseBitwiseXorExpression();
+
+        while (Symbol is PyBitOr)
+        {
+            var symbol = Symbol;
+            Advance();
+            var right = ParseBitwiseXorExpression();
+            res = new BitwiseOrExpressionNode(pos.Item1, Position.Item1, res, symbol, right);
+        }
+
+        return res;
+    }
+
 
 
     // Later! //////////////////////////////////////////////////////////////////////////////////////////////////////////

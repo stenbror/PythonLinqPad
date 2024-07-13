@@ -485,4 +485,118 @@ public class TestPythonCoreParserExpression
 
         Assert.Equivalent(required, res, strict: true);
     }
+
+    [Fact]
+    public void TestExpressionRuleBitwiseAndExpressionSingle()
+    {
+        var parser = new PythonCoreParser("a & b\r\n");
+        parser.Advance();
+        var res = parser.ParseBitwiseAndExpression();
+
+        var required = new BitwiseAndExpressionNode(
+            0, 5,
+            new NameLiteralNode(0, 1, new PyName(0, 1, "a", [])),
+            new PyBitAnd(2, 3, [new WhiteSpaceTrivia(1, 2)]),
+            new NameLiteralNode(4, 5, new PyName(4, 5, "b", [new WhiteSpaceTrivia(3, 4)]))
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
+
+    [Fact]
+    public void TestExpressionRuleBitwiseAndAndExpression()
+    {
+        var parser = new PythonCoreParser("a & b & c\r\n");
+        parser.Advance();
+        var res = parser.ParseBitwiseAndExpression();
+
+        var required = new BitwiseAndExpressionNode(
+            0, 9,
+            new BitwiseAndExpressionNode(0, 6,
+                new NameLiteralNode(0, 1, new PyName(0, 1, "a", [])),
+                new PyBitAnd(2, 3, [new WhiteSpaceTrivia(1, 2)]),
+                new NameLiteralNode(4, 5, new PyName(4, 5, "b", [new WhiteSpaceTrivia(3, 4)]))
+            ),
+            new PyAnd(6, 7, [new WhiteSpaceTrivia(5, 6)]),
+            new NameLiteralNode(8, 9, new PyName(8, 9, "c", [new WhiteSpaceTrivia(7, 8)]))
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
+
+    [Fact]
+    public void TestExpressionRuleBitwiseXorExpressionSingle()
+    {
+        var parser = new PythonCoreParser("a ^ b\r\n");
+        parser.Advance();
+        var res = parser.ParseBitwiseXorExpression();
+
+        var required = new BitwiseXorExpressionNode(
+            0, 5,
+            new NameLiteralNode(0, 1, new PyName(0, 1, "a", [])),
+            new PyBitXor(2, 3, [new WhiteSpaceTrivia(1, 2)]),
+            new NameLiteralNode(4, 5, new PyName(4, 5, "b", [new WhiteSpaceTrivia(3, 4)]))
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
+
+    [Fact]
+    public void TestExpressionRuleBitwiseXorXorExpression()
+    {
+        var parser = new PythonCoreParser("a ^ b ^ c\r\n");
+        parser.Advance();
+        var res = parser.ParseBitwiseXorExpression();
+
+        var required = new BitwiseXorExpressionNode(
+            0, 9,
+            new BitwiseXorExpressionNode(0, 6,
+                new NameLiteralNode(0, 1, new PyName(0, 1, "a", [])),
+                new PyBitXor(2, 3, [new WhiteSpaceTrivia(1, 2)]),
+                new NameLiteralNode(4, 5, new PyName(4, 5, "b", [new WhiteSpaceTrivia(3, 4)]))
+            ),
+            new PyBitXor(6, 7, [new WhiteSpaceTrivia(5, 6)]),
+            new NameLiteralNode(8, 9, new PyName(8, 9, "c", [new WhiteSpaceTrivia(7, 8)]))
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
+
+    [Fact]
+    public void TestExpressionRuleBitwiseOrExpressionSingle()
+    {
+        var parser = new PythonCoreParser("a | b\r\n");
+        parser.Advance();
+        var res = parser.ParseBitwiseOrExpression();
+
+        var required = new BitwiseAndExpressionNode(
+            0, 5,
+            new NameLiteralNode(0, 1, new PyName(0, 1, "a", [])),
+            new PyBitOr(2, 3, [new WhiteSpaceTrivia(1, 2)]),
+            new NameLiteralNode(4, 5, new PyName(4, 5, "b", [new WhiteSpaceTrivia(3, 4)]))
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
+
+    [Fact]
+    public void TestExpressionRuleBitwiseOrOrExpression()
+    {
+        var parser = new PythonCoreParser("a | b | c\r\n");
+        parser.Advance();
+        var res = parser.ParseBitwiseOrExpression();
+
+        var required = new BitwiseOrExpressionNode(
+            0, 9,
+            new BitwiseOrExpressionNode(0, 6,
+                new NameLiteralNode(0, 1, new PyName(0, 1, "a", [])),
+                new PyBitOr(2, 3, [new WhiteSpaceTrivia(1, 2)]),
+                new NameLiteralNode(4, 5, new PyName(4, 5, "b", [new WhiteSpaceTrivia(3, 4)]))
+            ),
+            new PyBitOr(6, 7, [new WhiteSpaceTrivia(5, 6)]),
+            new NameLiteralNode(8, 9, new PyName(8, 9, "c", [new WhiteSpaceTrivia(7, 8)]))
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
 }
