@@ -775,4 +775,75 @@ public class TestPythonCoreParserExpression
 
         Assert.Equivalent(required, res, strict: true);
     }
+
+    [Fact]
+    public void TestExpressionRuleInversionExpressionSingle()
+    {
+        var parser = new PythonCoreParser("not a\r\n");
+        parser.Advance();
+        var res = parser.ParseInversionExpression();
+
+        var required = new NotExpressionNode(
+            0, 5,
+            new PyNot(0, 3, []),
+            new NameLiteralNode(4, 5, new PyName(4, 5, "a", [new WhiteSpaceTrivia(3, 4)]))
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
+
+    [Fact]
+    public void TestExpressionRuleAndExpressionSingle()
+    {
+        var parser = new PythonCoreParser("a and b\r\n");
+        parser.Advance();
+        var res = parser.ParseConjunctionExpression();
+
+        var required = new AndExpressionNode(
+            0, 7,
+            new NameLiteralNode(0, 1, new PyName(0, 1, "a", [])),
+            new PyAnd(2, 5, [new WhiteSpaceTrivia(1, 2)]),
+            new NameLiteralNode(6, 7, new PyName(6, 7, "b", [new WhiteSpaceTrivia(5, 6)]))
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
+
+    [Fact]
+    public void TestExpressionRuleOrExpressionSingle()
+    {
+        var parser = new PythonCoreParser("a or b\r\n");
+        parser.Advance();
+        var res = parser.ParseDisjunctionExpression();
+
+        var required = new OrExpressionNode(
+            0, 6,
+            new NameLiteralNode(0, 1, new PyName(0, 1, "a", [])),
+            new PyOr(2, 4, [new WhiteSpaceTrivia(1, 2)]),
+            new NameLiteralNode(5, 6, new PyName(5, 6, "b", [new WhiteSpaceTrivia(4, 5)]))
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
+
+    [Fact]
+    public void TestExpressionRuleConjunctionDisjunctionExpression()
+    {
+        var parser = new PythonCoreParser("a and b or c\r\n");
+        parser.Advance();
+        var res = parser.ParseDisjunctionExpression();
+
+        var required = new OrExpressionNode(
+            0, 12,
+            new AndExpressionNode(0, 8,
+                new NameLiteralNode(0, 1, new PyName(0, 1, "a", [])),
+                new PyAnd(2, 5, [new WhiteSpaceTrivia(1, 2)]),
+                new NameLiteralNode(6, 7, new PyName(6, 7, "b", [new WhiteSpaceTrivia(5, 6)]))
+            ),
+            new PyOr(8, 10, [new WhiteSpaceTrivia(7, 8)]),
+            new NameLiteralNode(11, 12, new PyName(11, 12, "c", [new WhiteSpaceTrivia(10, 11)]))
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
 }

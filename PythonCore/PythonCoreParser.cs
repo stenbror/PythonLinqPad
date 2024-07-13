@@ -1467,6 +1467,58 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
         return res;
     }
 
+    // Grammar rule: not expression ////////////////////////////////////////////////////////////////////////////////////
+    public ExpressionNode ParseInversionExpression()
+    {
+        if (Symbol is PyNot)
+        {
+            var pos = Position;
+            var symbol = Symbol;
+            Advance();
+            var right = ParseInversionExpression();
+
+            return new NotExpressionNode(pos.Item1, Position.Item1, symbol, right);
+        }
+
+        return ParseComparisonExpression();
+    }
+
+    // Grammar rule: and expression ////////////////////////////////////////////////////////////////////////////////////
+    public ExpressionNode ParseConjunctionExpression()
+    {
+        var pos = Position;
+        var res = ParseInversionExpression();
+
+        while (Symbol is PyAnd)
+        {
+            var symbol = Symbol;
+            Advance();
+            var right = ParseInversionExpression();
+
+            res = new AndExpressionNode(pos.Item1, Position.Item1, res, symbol, right);
+        }
+
+        return res;
+    }
+
+    // Grammar rule: or expression /////////////////////////////////////////////////////////////////////////////////////
+    public ExpressionNode ParseDisjunctionExpression()
+    {
+        var pos = Position;
+        var res = ParseConjunctionExpression();
+
+        while (Symbol is PyOr)
+        {
+            var symbol = Symbol;
+            Advance();
+            var right = ParseConjunctionExpression();
+
+            res = new OrExpressionNode(pos.Item1, Position.Item1, res, symbol, right);
+        }
+
+        return res;
+    }
+
 
 
     // Later! //////////////////////////////////////////////////////////////////////////////////////////////////////////
