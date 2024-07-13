@@ -1565,6 +1565,8 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
             var nodes = new List<ExpressionNode>();
             var separators = new List<Symbol>();
 
+            nodes.Add(element);
+
             while (Symbol is PyComma)
             {
                 separators.Add(Symbol);

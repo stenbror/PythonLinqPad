@@ -877,4 +877,49 @@ public class TestPythonCoreParserExpression
 
         Assert.Equivalent(required, res, strict: true);
     }
+
+    [Fact]
+    public void TestExpressionRuleExpressionsEmpty()
+    {
+        var parser = new PythonCoreParser("a\r\n");
+        parser.Advance();
+        var res = parser.ParseExpressions();
+
+        var required = new NameLiteralNode(0, 1, new PyName(0, 1, "a", []));
+
+        Assert.Equivalent(required, res, strict: true);
+    }
+
+    [Fact]
+    public void TestExpressionRuleExpressionsSingleWithComma()
+    {
+        var parser = new PythonCoreParser("a, in\r\n");
+        parser.Advance();
+        var res = parser.ParseExpressions();
+
+        var required = new ExpressionsNode(0, 3,
+                [ new NameLiteralNode(0, 1, new PyName(0, 1, "a", []))],
+                [ new PyComma(1, 2, []) ]
+            );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
+
+    [Fact]
+    public void TestExpressionRuleExpressionsMultipleWithComma()
+    {
+        var parser = new PythonCoreParser("a, b\r\n");
+        parser.Advance();
+        var res = parser.ParseExpressions();
+
+        var required = new ExpressionsNode(0, 4,
+            [
+                new NameLiteralNode(0, 1, new PyName(0, 1, "a", [])),
+                new NameLiteralNode(3, 4, new PyName(3, 4, "b", [ new WhiteSpaceTrivia(2, 3) ]))
+            ],
+            [ new PyComma(1, 2, []) ]
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
 }
