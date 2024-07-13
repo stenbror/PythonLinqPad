@@ -1521,6 +1521,78 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
 
 
 
+
+
+
+
+
+
+
+
+    // Grammar Rule: Expression ////////////////////////////////////////////////////////////////////////////////////////
+    public ExpressionNode ParseExpression()
+    {
+        if (Symbol is PyLambda) return ParseLambDefExpression();
+
+        var pos = Position;
+        var left = ParseDisjunctionExpression();
+
+        if (Symbol is PyIf)
+        {
+            var symbol1 = Symbol;
+            Advance();
+            var right = ParseDisjunctionExpression();
+            if (Symbol is not PyElse) throw new SyntaxError(Position.Item1, "Expecting 'else' in expression!");
+
+            var symbol2 = Symbol;
+            Advance();
+            var next = ParseExpression();
+
+            return new TestExpressionNode(pos.Item1, Position.Item1, left, symbol1, right, symbol2, next);
+        }
+
+        return left;
+    }
+
+    // Grammar Rule: Expressions ///////////////////////////////////////////////////////////////////////////////////////
+    public ExpressionNode ParseExpressions()
+    {
+        var pos = Position;
+        var element = ParseExpression();
+
+        if (Symbol is PyComma)
+        {
+            var nodes = new List<ExpressionNode>();
+            var separators = new List<Symbol>();
+
+            while (Symbol is PyComma)
+            {
+                separators.Add(Symbol);
+                Advance();
+
+                if (Symbol is PyComma) throw new SyntaxError(Position.Item1, "Missing element in expression list!");
+
+                if (Symbol is PyIn) continue;
+
+                nodes.Add(ParseExpression());
+            }
+
+            return new ExpressionsNode(pos.Item1, Position.Item1, nodes.ToArray(), separators.ToArray());
+        }
+
+        return element;
+    }
+
+
+
+
+
+
+
+
+
+
+
     // Later! //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public ExpressionNode? ParseArguments()
@@ -1533,13 +1605,9 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
         return null;
     }
 
-
-
-
-
-    // Grammar Rule: Expression ////////////////////////////////////////////////////////////////////////////////////////
-    public ExpressionNode ParseExpression()
+    public ExpressionNode ParseLambDefExpression()
     {
-        throw new NotImplementedException();
+        return null;
     }
+
 }

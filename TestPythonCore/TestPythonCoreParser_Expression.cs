@@ -846,4 +846,35 @@ public class TestPythonCoreParserExpression
 
         Assert.Equivalent(required, res, strict: true);
     }
+
+    [Fact]
+    public void TestExpressionRuleExpressionEmpty()
+    {
+        var parser = new PythonCoreParser("a\r\n");
+        parser.Advance();
+        var res = parser.ParseExpression();
+
+        var required = new NameLiteralNode(0, 1, new PyName(0, 1, "a", []));
+
+        Assert.Equivalent(required, res, strict: true);
+    }
+
+    [Fact]
+    public void TestExpressionRuleExpressionTest()
+    {
+        var parser = new PythonCoreParser("a if b else c\r\n");
+        parser.Advance();
+        var res = parser.ParseExpression();
+
+        var required = new TestExpressionNode(
+            0, 13,
+            new NameLiteralNode(0, 1, new PyName(0, 1, "a", [])),
+            new PyIf(2, 4, [new WhiteSpaceTrivia(1, 2)]),
+            new NameLiteralNode(5, 6, new PyName(5, 6, "b", [new WhiteSpaceTrivia(4, 5)])),
+            new PyElse(7, 11, [new WhiteSpaceTrivia(6, 7)]),
+            new NameLiteralNode(12, 13, new PyName(12, 13, "c", [new WhiteSpaceTrivia(11, 12)]))
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
 }

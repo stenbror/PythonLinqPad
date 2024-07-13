@@ -1,4 +1,6 @@
 
+using System.Linq.Expressions;
+
 namespace PythonCore;
 
 public record Node(int StartPos, int EndPos);
@@ -55,7 +57,7 @@ public sealed record AndExpressionNode(int StartPos, int EndPos, ExpressionNode 
 public sealed record OrExpressionNode(int StartPos, int EndPos, ExpressionNode Left, Symbol Symbol1, ExpressionNode Right) : ExpressionNode(StartPos, EndPos);
 
 
-
-
+public sealed record TestExpressionNode(int StartPos, int EndPos, ExpressionNode Left, Symbol Symbol1, ExpressionNode Right, Symbol Symbol2, ExpressionNode Next) : ExpressionNode(StartPos, EndPos);
+public sealed record ExpressionsNode(int StartPos, int EndPos, ExpressionNode[] Elements, Symbol[] Separators) : ExpressionNode(StartPos, EndPos);
 
 public sealed record NamedExpression(int StartPos, int EndPos, NameLiteralNode Left, Symbol Symbol1, ExpressionNode Right) : ExpressionNode(StartPos, EndPos);
