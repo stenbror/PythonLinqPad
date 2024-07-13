@@ -1292,6 +1292,33 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
         return res;
     }
 
+    // Grammar rule: shift expression //////////////////////////////////////////////////////////////////////////////////
+    public ExpressionNode ParseShiftExpression()
+    {
+        var pos = Position;
+        var res = ParseSumExpression();
+
+        while (Symbol is PyShiftLeft || Symbol is PyShiftRight)
+        {
+            if (Symbol is PyShiftLeft)
+            {
+                var symbol = Symbol;
+                Advance();
+                var right = ParseSumExpression();
+                res = new ShiftLeftExpressionNode(pos.Item1, Position.Item1, res, symbol, right);
+            }
+            else
+            {
+                var symbol = Symbol;
+                Advance();
+                var right = ParseSumExpression();
+                res = new ShiftRightExpressionNode(pos.Item1, Position.Item1, res, symbol, right);
+            }
+        }
+
+        return res;
+    }
+
 
 
     // Later! //////////////////////////////////////////////////////////////////////////////////////////////////////////

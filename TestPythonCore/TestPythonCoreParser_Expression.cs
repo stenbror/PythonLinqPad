@@ -430,4 +430,59 @@ public class TestPythonCoreParserExpression
 
         Assert.Equivalent(required, res, strict: true);
     }
+
+    [Fact]
+    public void TestExpressionRuleShiftLeftExpressionSingle()
+    {
+        var parser = new PythonCoreParser("a << b\r\n");
+        parser.Advance();
+        var res = parser.ParseShiftExpression();
+
+        var required = new ShiftLeftExpressionNode(
+            0, 6,
+            new NameLiteralNode(0, 1, new PyName(0, 1, "a", [])),
+            new PyShiftLeft(2, 4, [new WhiteSpaceTrivia(1, 2)]),
+            new NameLiteralNode(5, 6, new PyName(5, 6, "b", [new WhiteSpaceTrivia(4, 5)]))
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
+
+    [Fact]
+    public void TestExpressionRuleShiftRightExpressionSingle()
+    {
+        var parser = new PythonCoreParser("a >> b\r\n");
+        parser.Advance();
+        var res = parser.ParseShiftExpression();
+
+        var required = new ShiftLeftExpressionNode(
+            0, 6,
+            new NameLiteralNode(0, 1, new PyName(0, 1, "a", [])),
+            new PyShiftRight(2, 4, [new WhiteSpaceTrivia(1, 2)]),
+            new NameLiteralNode(5, 6, new PyName(5, 6, "b", [new WhiteSpaceTrivia(4, 5)]))
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
+
+    [Fact]
+    public void TestExpressionRuleShiftRightLeftsExpression()
+    {
+        var parser = new PythonCoreParser("a >> b << c\r\n");
+        parser.Advance();
+        var res = parser.ParseShiftExpression();
+
+        var required = new ShiftLeftExpressionNode(
+            0, 11,
+            new MinusExpressionNode(0, 7,
+                new NameLiteralNode(0, 1, new PyName(0, 1, "a", [])),
+                new PyShiftRight(2, 4, [new WhiteSpaceTrivia(1, 2)]),
+                new NameLiteralNode(5, 6, new PyName(5, 6, "b", [new WhiteSpaceTrivia(4, 5)]))
+            ),
+            new PyShiftLeft(7, 9, [new WhiteSpaceTrivia(6, 7)]),
+            new NameLiteralNode(10, 11, new PyName(10, 11, "c", [new WhiteSpaceTrivia(9, 10)]))
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
 }
