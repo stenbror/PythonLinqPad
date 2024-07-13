@@ -375,4 +375,59 @@ public class TestPythonCoreParserExpression
 
         Assert.Equivalent(required, res, strict: true);
     }
+
+    [Fact]
+    public void TestExpressionRulePlusExpressionSingle()
+    {
+        var parser = new PythonCoreParser("a + b\r\n");
+        parser.Advance();
+        var res = parser.ParseSumExpression();
+
+        var required = new PlusExpressionNode(
+            0, 5,
+            new NameLiteralNode(0, 1, new PyName(0, 1, "a", [])),
+            new PyPlus(2, 3, [new WhiteSpaceTrivia(1, 2)]),
+            new NameLiteralNode(4, 5, new PyName(4, 5, "b", [new WhiteSpaceTrivia(3, 4)]))
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
+
+    [Fact]
+    public void TestExpressionRuleMinusExpressionSingle()
+    {
+        var parser = new PythonCoreParser("a - b\r\n");
+        parser.Advance();
+        var res = parser.ParseSumExpression();
+
+        var required = new MinusExpressionNode(
+            0, 5,
+            new NameLiteralNode(0, 1, new PyName(0, 1, "a", [])),
+            new PyMinus(2, 3, [new WhiteSpaceTrivia(1, 2)]),
+            new NameLiteralNode(4, 5, new PyName(4, 5, "b", [new WhiteSpaceTrivia(3, 4)]))
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
+
+    [Fact]
+    public void TestExpressionRuleMinusPlusExpression()
+    {
+        var parser = new PythonCoreParser("a - b + c\r\n");
+        parser.Advance();
+        var res = parser.ParseSumExpression();
+
+        var required = new PlusExpressionNode(
+            0, 9,
+            new MinusExpressionNode(0, 6,
+                new NameLiteralNode(0, 1, new PyName(0, 1, "a", [])),
+                new PyMinus(2, 3, [new WhiteSpaceTrivia(1, 2)]),
+                new NameLiteralNode(4, 5, new PyName(4, 5, "b", [new WhiteSpaceTrivia(3, 4)]))
+            ),
+            new PyPlus(6, 7, [new WhiteSpaceTrivia(5, 6)]),
+            new NameLiteralNode(8, 9, new PyName(8, 9, "c", [new WhiteSpaceTrivia(7, 8)]))
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
 }

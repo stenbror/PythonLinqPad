@@ -1265,6 +1265,32 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
         return res;
     }
 
+    // Grammar rule: sum expression ////////////////////////////////////////////////////////////////////////////////////
+    public ExpressionNode ParseSumExpression()
+    {
+        var pos = Position;
+        var res = ParseTermExpression();
+
+        while (Symbol is PyPlus || Symbol is PyMinus)
+        {
+            if (Symbol is PyPlus)
+            {
+                var symbol = Symbol;
+                Advance();
+                var right = ParseTermExpression();
+                res = new PlusExpressionNode(pos.Item1, Position.Item1, res, symbol, right);
+            }
+            else
+            {
+                var symbol = Symbol;
+                Advance();
+                var right = ParseTermExpression();
+                res = new MinusExpressionNode(pos.Item1, Position.Item1, res, symbol, right);
+            }
+        }
+
+        return res;
+    }
 
 
 
