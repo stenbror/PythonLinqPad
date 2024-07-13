@@ -41,6 +41,16 @@ public sealed record ShiftRightExpressionNode(int StartPos, int EndPos, Expressi
 public sealed record BitwiseAndExpressionNode(int StartPos, int EndPos, ExpressionNode Left, Symbol Symbol1, ExpressionNode Right) : ExpressionNode(StartPos, EndPos);
 public sealed record BitwiseXorExpressionNode(int StartPos, int EndPos, ExpressionNode Left, Symbol Symbol1, ExpressionNode Right) : ExpressionNode(StartPos, EndPos);
 public sealed record BitwiseOrExpressionNode(int StartPos, int EndPos, ExpressionNode Left, Symbol Symbol1, ExpressionNode Right) : ExpressionNode(StartPos, EndPos);
+public sealed record NotInExpressionNode(int StartPos, int EndPos, ExpressionNode Left, Symbol Symbol1, Symbol Symbol2, ExpressionNode Right) : ExpressionNode(StartPos, EndPos);
+public sealed record IsNotExpressionNode(int StartPos, int EndPos, ExpressionNode Left, Symbol Symbol1, Symbol Symbol2, ExpressionNode Right) : ExpressionNode(StartPos, EndPos);
+public sealed record IsExpressionNode(int StartPos, int EndPos, ExpressionNode Left, Symbol Symbol1, ExpressionNode Right) : ExpressionNode(StartPos, EndPos);
+public sealed record LessExpressionNode(int StartPos, int EndPos, ExpressionNode Left, Symbol Symbol1, ExpressionNode Right) : ExpressionNode(StartPos, EndPos);
+public sealed record LessEqualExpressionNode(int StartPos, int EndPos, ExpressionNode Left, Symbol Symbol1, ExpressionNode Right) : ExpressionNode(StartPos, EndPos);
+public sealed record EqualExpressionNode(int StartPos, int EndPos, ExpressionNode Left, Symbol Symbol1, ExpressionNode Right) : ExpressionNode(StartPos, EndPos);
+public sealed record GreaterEqualExpressionNode(int StartPos, int EndPos, ExpressionNode Left, Symbol Symbol1, ExpressionNode Right) : ExpressionNode(StartPos, EndPos);
+public sealed record GreaterExpressionNode(int StartPos, int EndPos, ExpressionNode Left, Symbol Symbol1, ExpressionNode Right) : ExpressionNode(StartPos, EndPos);
+public sealed record NotEqualExpressionNode(int StartPos, int EndPos, ExpressionNode Left, Symbol Symbol1, ExpressionNode Right) : ExpressionNode(StartPos, EndPos);
+
 
 
 

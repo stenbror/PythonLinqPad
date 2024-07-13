@@ -1370,6 +1370,103 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
         return res;
     }
 
+    // Grammar rule: comparison ////////////////////////////////////////////////////////////////////////////////////////
+    public ExpressionNode ParseComparisonExpression()
+    {
+        var pos = Position;
+        var res = ParseBitwiseOrExpression();
+
+        while (Symbol is PyLess || Symbol is PyLessEqual || Symbol is PyEqual || Symbol is PyGreater || Symbol is PyGreaterEqual || Symbol is PyNotEqual || Symbol is PyNot || Symbol is PyIs)
+        {
+            if (Symbol is PyLess)
+            {
+                var symbol1 = Symbol;
+                Advance();
+
+                var right = ParseBitwiseOrExpression();
+
+                res = new LessExpressionNode(pos.Item1, Position.Item1, res, symbol1, right);
+            }
+            else if (Symbol is PyLessEqual)
+            {
+                var symbol1 = Symbol;
+                Advance();
+
+                var right = ParseBitwiseOrExpression();
+
+                res = new LessEqualExpressionNode(pos.Item1, Position.Item1, res, symbol1, right);
+            }
+            else if (Symbol is PyEqual)
+            {
+                var symbol1 = Symbol;
+                Advance();
+
+                var right = ParseBitwiseOrExpression();
+
+                res = new EqualExpressionNode(pos.Item1, Position.Item1, res, symbol1, right);
+            }
+            else if (Symbol is PyGreaterEqual)
+            {
+                var symbol1 = Symbol;
+                Advance();
+
+                var right = ParseBitwiseOrExpression();
+
+                res = new GreaterEqualExpressionNode(pos.Item1, Position.Item1, res, symbol1, right);
+            }
+            else if (Symbol is PyGreater)
+            {
+                var symbol1 = Symbol;
+                Advance();
+
+                var right = ParseBitwiseOrExpression();
+
+                res = new GreaterExpressionNode(pos.Item1, Position.Item1, res, symbol1, right);
+            }
+            else if (Symbol is PyNotEqual)
+            {
+                var symbol1 = Symbol;
+                Advance();
+
+                var right = ParseBitwiseOrExpression();
+
+                res = new NotEqualExpressionNode(pos.Item1, Position.Item1, res, symbol1, right);
+            }
+            else if (Symbol is PyNot)
+            {
+                var symbol1  = Symbol;
+                Advance();
+                if (Symbol is not PyIn) throw new SyntaxError(Position.Item1, "Missing 'in' in 'not in' expression!");
+                var symbol2 = Symbol;
+                Advance();
+                var right = ParseBitwiseOrExpression();
+
+                res = new NotInExpressionNode(pos.Item1, Position.Item1, res, symbol1, symbol2, right);
+            }
+            else
+            {
+                var symbol1 = Symbol;
+                Advance();
+                if (Symbol is PyNot)
+                {
+                    var symbol2 = Symbol;
+                    Advance();
+                    var right = ParseBitwiseOrExpression();
+
+                    res = new IsNotExpressionNode(pos.Item1, Position.Item1, res, symbol1, symbol2, right);
+                }
+                else
+                {
+                    var right = ParseBitwiseOrExpression();
+
+                    res = new IsExpressionNode(pos.Item1, Position.Item1, res, symbol1, right);
+                }
+            }
+        }
+
+        return res;
+    }
+
 
 
     // Later! //////////////////////////////////////////////////////////////////////////////////////////////////////////

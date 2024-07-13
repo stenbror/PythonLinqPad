@@ -599,4 +599,180 @@ public class TestPythonCoreParserExpression
 
         Assert.Equivalent(required, res, strict: true);
     }
+
+    [Fact]
+    public void TestExpressionRuleLessExpressionSingle()
+    {
+        var parser = new PythonCoreParser("a < b\r\n");
+        parser.Advance();
+        var res = parser.ParseComparisonExpression();
+
+        var required = new LessExpressionNode(
+            0, 5,
+            new NameLiteralNode(0, 1, new PyName(0, 1, "a", [])),
+            new PyLess(2, 3, [new WhiteSpaceTrivia(1, 2)]),
+            new NameLiteralNode(4, 5, new PyName(4, 5, "b", [new WhiteSpaceTrivia(3, 4)]))
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
+
+    [Fact]
+    public void TestExpressionRuleLessEqualExpressionSingle()
+    {
+        var parser = new PythonCoreParser("a <= b\r\n");
+        parser.Advance();
+        var res = parser.ParseComparisonExpression();
+
+        var required = new LessEqualExpressionNode(
+            0, 6,
+            new NameLiteralNode(0, 1, new PyName(0, 1, "a", [])),
+            new PyLessEqual(2, 4, [new WhiteSpaceTrivia(1, 2)]),
+            new NameLiteralNode(5, 6, new PyName(5, 6, "b", [new WhiteSpaceTrivia(4, 5)]))
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
+
+    [Fact]
+    public void TestExpressionRuleGreaterExpressionSingle()
+    {
+        var parser = new PythonCoreParser("a > b\r\n");
+        parser.Advance();
+        var res = parser.ParseComparisonExpression();
+
+        var required = new GreaterExpressionNode(
+            0, 5,
+            new NameLiteralNode(0, 1, new PyName(0, 1, "a", [])),
+            new PyGreater(2, 3, [new WhiteSpaceTrivia(1, 2)]),
+            new NameLiteralNode(4, 5, new PyName(4, 5, "b", [new WhiteSpaceTrivia(3, 4)]))
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
+
+    [Fact]
+    public void TestExpressionRuleGreaterEqualExpressionSingle()
+    {
+        var parser = new PythonCoreParser("a >= b\r\n");
+        parser.Advance();
+        var res = parser.ParseComparisonExpression();
+
+        var required = new GreaterEqualExpressionNode(
+            0, 6,
+            new NameLiteralNode(0, 1, new PyName(0, 1, "a", [])),
+            new PyGreaterEqual(2, 4, [new WhiteSpaceTrivia(1, 2)]),
+            new NameLiteralNode(5, 6, new PyName(5, 6, "b", [new WhiteSpaceTrivia(4, 5)]))
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
+
+    [Fact]
+    public void TestExpressionRuleNotEqualExpressionSingle()
+    {
+        var parser = new PythonCoreParser("a != b\r\n");
+        parser.Advance();
+        var res = parser.ParseComparisonExpression();
+
+        var required = new NotEqualExpressionNode(
+            0, 6,
+            new NameLiteralNode(0, 1, new PyName(0, 1, "a", [])),
+            new PyNotEqual(2, 4, [new WhiteSpaceTrivia(1, 2)]),
+            new NameLiteralNode(5, 6, new PyName(5, 6, "b", [new WhiteSpaceTrivia(4, 5)]))
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
+
+    [Fact]
+    public void TestExpressionRuleEqualExpressionSingle()
+    {
+        var parser = new PythonCoreParser("a == b\r\n");
+        parser.Advance();
+        var res = parser.ParseComparisonExpression();
+
+        var required = new EqualExpressionNode(
+            0, 6,
+            new NameLiteralNode(0, 1, new PyName(0, 1, "a", [])),
+            new PyEqual(2, 4, [new WhiteSpaceTrivia(1, 2)]),
+            new NameLiteralNode(5, 6, new PyName(5, 6, "b", [new WhiteSpaceTrivia(4, 5)]))
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
+
+    [Fact]
+    public void TestExpressionRuleIsExpressionSingle()
+    {
+        var parser = new PythonCoreParser("a is b\r\n");
+        parser.Advance();
+        var res = parser.ParseComparisonExpression();
+
+        var required = new IsExpressionNode(
+            0, 6,
+            new NameLiteralNode(0, 1, new PyName(0, 1, "a", [])),
+            new PyIs(2, 4, [new WhiteSpaceTrivia(1, 2)]),
+            new NameLiteralNode(5, 6, new PyName(5, 6, "b", [new WhiteSpaceTrivia(4, 5)]))
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
+
+    [Fact]
+    public void TestExpressionRuleIsNotExpressionSingle()
+    {
+        var parser = new PythonCoreParser("a is not b\r\n");
+        parser.Advance();
+        var res = parser.ParseComparisonExpression();
+
+        var required = new IsNotExpressionNode(
+            0, 10,
+            new NameLiteralNode(0, 1, new PyName(0, 1, "a", [])),
+            new PyIs(2, 4, [new WhiteSpaceTrivia(1, 2)]),
+            new PyNot(5, 8, [new WhiteSpaceTrivia(4, 5)]),
+            new NameLiteralNode(9, 10, new PyName(9, 10, "b", [new WhiteSpaceTrivia(8, 9)]))
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
+
+    [Fact]
+    public void TestExpressionRuleNotInExpressionSingle()
+    {
+        var parser = new PythonCoreParser("a not in b\r\n");
+        parser.Advance();
+        var res = parser.ParseComparisonExpression();
+
+        var required = new NotInExpressionNode(
+            0, 10,
+            new NameLiteralNode(0, 1, new PyName(0, 1, "a", [])),
+            new PyNot(2, 5, [new WhiteSpaceTrivia(1, 2)]),
+            new PyIn(6, 8, [new WhiteSpaceTrivia(5, 6)]),
+            new NameLiteralNode(9, 10, new PyName(9, 10, "b", [new WhiteSpaceTrivia(8, 9)]))
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
+
+    [Fact]
+    public void TestExpressionRuleLessGreaterExpression()
+    {
+        var parser = new PythonCoreParser("a < b > c\r\n");
+        parser.Advance();
+        var res = parser.ParseComparisonExpression();
+
+        var required = new GreaterExpressionNode(
+            0, 9,
+            new LessExpressionNode(0, 6,
+                new NameLiteralNode(0, 1, new PyName(0, 1, "a", [])),
+                new PyLess(2, 3, [new WhiteSpaceTrivia(1, 2)]),
+                new NameLiteralNode(4, 5, new PyName(4, 5, "b", [new WhiteSpaceTrivia(3, 4)]))
+            ),
+            new PyGreater(6, 7, [new WhiteSpaceTrivia(5, 6)]),
+            new NameLiteralNode(8, 9, new PyName(8, 9, "c", [new WhiteSpaceTrivia(7, 8)]))
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
 }
