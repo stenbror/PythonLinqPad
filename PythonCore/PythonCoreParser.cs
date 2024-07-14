@@ -1749,6 +1749,84 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
 
 
 
+    // Grammar rule: if clause /////////////////////////////////////////////////////////////////////////////////////////
+    public ExpressionNode ParseIfClauseExpression()
+    {
+        var pos = Position;
+        if (Symbol is not PyIf) throw new SyntaxError(Position.Item1, "Expecting 'if' in generator expression!");
+        var symbol1 = Symbol;
+        Advance();
+        var right = ParseDisjunctionExpression();
+
+        return new GeneratorIfExpressionNode(pos.Item1, Position.Item1, symbol1, right);
+    }
+
+    // Grammar rule: for clause ////////////////////////////////////////////////////////////////////////////////////////
+    public ExpressionNode ParseForClauseExpression()
+    {
+        var pos = Position;
+
+        if (Symbol is PyFor)
+        {
+            var symbol1 = Symbol;
+            Advance();
+            var left = ParseStarTargetsExpression();
+            if (Symbol is not PyIn) throw new SyntaxError(Position.Item1, "Expecting 'in' in generator expression!");
+            var symbol2 = Symbol;
+            Advance();
+            var right = ParseDisjunctionExpression();
+            var nodes = new List<ExpressionNode>();
+
+            while (Symbol is PyIf) nodes.Add(ParseIfClauseExpression());
+
+            return new GeneratorForExpressionNode(pos.Item1, Position.Item1, symbol1, left, symbol2, right, nodes.ToArray());
+        }
+        else if (Symbol is PyAsync)
+        {
+            var symbol0 = Symbol;
+            Advance();
+
+            var symbol1 = Symbol;
+            Advance();
+            var left = ParseStarTargetsExpression();
+            if (Symbol is not PyIn) throw new SyntaxError(Position.Item1, "Expecting 'in' in generator expression!");
+            var symbol2 = Symbol;
+            Advance();
+            var right = ParseDisjunctionExpression();
+            var nodes = new List<ExpressionNode>();
+
+            while (Symbol is PyIf) nodes.Add(ParseIfClauseExpression());
+
+            return new GeneratorAsyncForExpressionNode(pos.Item1, Position.Item1, symbol0, symbol1, left, symbol2, right, nodes.ToArray());
+        }
+        else throw new SyntaxError(Position.Item1, "Expecting 'for' or 'async' in generator expression!");
+    }
+
+    // Grammar rule: clauses ///////////////////////////////////////////////////////////////////////////////////////////
+    public ExpressionNode ParseClausesExpression()
+    {
+        var pos = Position;
+        
+        if (Symbol is not PyFor && Symbol is not PyAsync) throw new SyntaxError(Position.Item1, "Expecting 'for' or 'async' in generator expression!");
+        
+        var element = ParseForClauseExpression();
+
+        if (Symbol is not PyFor && Symbol is not PyAsync)
+        {
+            var nodes = new List<ExpressionNode>();
+            
+            while (Symbol is not PyFor && Symbol is not PyAsync) nodes.Add(ParseForClauseExpression());
+
+            return new GeneratorGroupExpressionNode(pos.Item1, Position.Item1, nodes.ToArray());
+        }
+
+        return element;
+    }
+
+    private ExpressionNode ParseStarTargetsExpression()
+    {
+        throw new NotImplementedException();
+    }
 
 
 

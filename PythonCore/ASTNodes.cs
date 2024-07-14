@@ -63,3 +63,7 @@ public sealed record TestExpressionNode(int StartPos, int EndPos, ExpressionNode
 public sealed record ExpressionsNode(int StartPos, int EndPos, ExpressionNode[] Elements, Symbol[] Separators) : ExpressionNode(StartPos, EndPos);
 public sealed record NamedExpression(int StartPos, int EndPos, NameLiteralNode Left, Symbol Symbol1, ExpressionNode Right) : ExpressionNode(StartPos, EndPos);
 public sealed record LambdaExpressionNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode? Args, Symbol Symbol2, ExpressionNode Right) : ExpressionNode(StartPos, EndPos);
+public sealed record GeneratorGroupExpressionNode(int StartPos, int EndPos, ExpressionNode[] Elements) : ExpressionNode(StartPos, EndPos);
+public sealed record GeneratorForExpressionNode(int StartPos, int EndPos, Symbol For, ExpressionNode Left, Symbol In, ExpressionNode Right, ExpressionNode[] Elements) : ExpressionNode(StartPos, EndPos);
+public sealed record GeneratorAsyncForExpressionNode(int StartPos, int EndPos, Symbol Async, Symbol For, ExpressionNode Left, Symbol In, ExpressionNode Right, ExpressionNode[] Elements) : ExpressionNode(StartPos, EndPos);
+public sealed record GeneratorIfExpressionNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode Right) : ExpressionNode(StartPos, EndPos);
