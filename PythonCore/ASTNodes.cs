@@ -59,8 +59,7 @@ public sealed record StarExpressionsNode(int StartPos, int EndPos, ExpressionNod
 public sealed record StarExpressionNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode Right) : ExpressionNode(StartPos, EndPos);
 public sealed record NamedExpressionNode(int StartPos, int EndPos, Symbol Name, Symbol Symbol1, ExpressionNode Right) : ExpressionNode(StartPos, EndPos);
 public sealed record StarNamedExpressionsNode(int StartPos, int EndPos, ExpressionNode[] Elements, Symbol[] Separators) : ExpressionNode(StartPos, EndPos);
-
 public sealed record TestExpressionNode(int StartPos, int EndPos, ExpressionNode Left, Symbol Symbol1, ExpressionNode Right, Symbol Symbol2, ExpressionNode Next) : ExpressionNode(StartPos, EndPos);
 public sealed record ExpressionsNode(int StartPos, int EndPos, ExpressionNode[] Elements, Symbol[] Separators) : ExpressionNode(StartPos, EndPos);
-
 public sealed record NamedExpression(int StartPos, int EndPos, NameLiteralNode Left, Symbol Symbol1, ExpressionNode Right) : ExpressionNode(StartPos, EndPos);
+public sealed record LambdaExpressionNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode? Args, Symbol Symbol2, ExpressionNode Right) : ExpressionNode(StartPos, EndPos);

@@ -1717,7 +1717,32 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
         return element;
     }
 
+    // Grammar rule: lambda definition /////////////////////////////////////////////////////////////////////////////////
+    public LambdaExpressionNode ParseLambDefExpression()
+    {
+        var pos = Position;
+        var symbol1 = Symbol;
+        Advance();
 
+        ExpressionNode? args = Symbol switch
+        {
+            PyColon => null,
+            _ => ParseLambdaParams()
+        };
+
+        if (Symbol is not PyColon) throw new SyntaxError(Position.Item1,  "Missing ':' in 'lambda' expression!");
+        var symbol2 = Symbol;
+        Advance();
+
+        var right = ParseExpression();
+
+        return new LambdaExpressionNode(pos.Item1, Position.Item1, symbol1, args, symbol2, right);
+    }
+
+    private ExpressionNode ParseLambdaParams()
+    {
+        throw new NotImplementedException();
+    }
 
 
 
@@ -1730,11 +1755,6 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
     // Later! //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public ExpressionNode? ParseArguments()
-    {
-        return null;
-    }
-
-    public ExpressionNode ParseLambDefExpression()
     {
         return null;
     }

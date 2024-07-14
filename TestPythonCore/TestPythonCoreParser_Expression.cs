@@ -1045,4 +1045,25 @@ public class TestPythonCoreParserExpression
 
         Assert.Equivalent(required, res, strict: true);
     }
+
+    [Fact]
+    public void TestExpressionRuleLambdaExpressionWithoutArguments()
+    {
+        var parser = new PythonCoreParser("lambda: a + b\r\n");
+        parser.Advance();
+        var res = parser.ParseExpression();
+
+        var required = new LambdaExpressionNode(0, 13,
+                new PyLambda(0, 6, []),
+                null,
+                new PyColon(6, 7, []),
+                new PlusExpressionNode(8, 13,
+                    new NameLiteralNode(8, 9, new PyName(8, 9, "a", [new WhiteSpaceTrivia(7, 8) ])),
+                    new PyPlus(10, 11, [ new WhiteSpaceTrivia(9, 10) ]),
+                    new NameLiteralNode(12, 13, new PyName(12, 13, "b", [new WhiteSpaceTrivia(11, 12) ]))
+                    )
+            );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
 }
