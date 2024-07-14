@@ -1,6 +1,4 @@
 ﻿
-using System.Runtime.InteropServices;
-
 namespace PythonCore;
 
 public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool isInteractive = false)
@@ -1524,19 +1522,73 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
     // Grammar rule: stared expression /////////////////////////////////////////////////////////////////////////////////
     public ExpressionNode ParseNamedExpression()
     {
-        throw new NotImplementedException();
+        if (Symbol is PyName)
+        {
+            var pos = Position;
+            var symbol1 = Symbol;
+            Advance();
+
+            if (Symbol is PyColonAssign)
+            {
+                var symbol2 = Symbol;
+                Advance();
+                var right = ParseExpression();
+
+                return new NamedExpressionNode(pos.Item1, Position.Item1, symbol1, symbol2, right);
+            }
+
+            return new NameLiteralNode(pos.Item1, Position.Item1, symbol1);
+        }
+
+        return ParseExpression();
     }
 
     // Grammar rule: stared expression /////////////////////////////////////////////////////////////////////////////////
     public ExpressionNode ParseStarNamedExpression()
     {
-        throw new NotImplementedException();
+        if (Symbol is PyMul)
+        {
+            var pos = Position;
+            var symbol1 = Symbol;
+            Advance();
+
+            var right = ParseBitwiseOrExpression();
+
+            return new StarExpressionNode(pos.Item1, Position.Item1, symbol1, right);
+        }
+
+        return ParseNamedExpression();
     }
 
     // Grammar rule: stared name expressions /////////////////////////////////////////////////////////////////////////
     public ExpressionNode ParseStaredNameExpressions()
     {
-        throw new NotImplementedException();
+        var pos = Position;
+        var element = ParseStarNamedExpression();
+
+        if (Symbol is PyComma)
+        {
+            var nodes = new List<ExpressionNode>();
+            var separators = new List<Symbol>();
+
+            nodes.Add(element);
+
+            while (Symbol is PyComma)
+            {
+                separators.Add(Symbol);
+                Advance();
+
+                if (Symbol is PyComma) throw new SyntaxError(Position.Item1, "Missing element in expression list!");
+
+                if (Symbol is PyIn) continue; // Check later, what should be checked here!
+
+                nodes.Add(ParseStarNamedExpression());
+            }
+
+            return new StarNamedExpressionsNode(pos.Item1, Position.Item1, nodes.ToArray(), separators.ToArray());
+        }
+
+        return element;
     }
 
     // Grammar rule: star expressions //////////////////////////////////////////////////////////////////////////////////
