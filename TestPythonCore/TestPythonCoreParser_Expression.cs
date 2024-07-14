@@ -1004,4 +1004,45 @@ public class TestPythonCoreParserExpression
 
         Assert.Equivalent(required, res, strict: true);
     }
+
+    [Fact]
+    public void TestExpressionRuleSingleNamedExpression()
+    {
+        var parser = new PythonCoreParser("a := b\r\n");
+        parser.Advance();
+        var res = parser.ParseStaredNameExpressions();
+
+        var required = new NamedExpressionNode(0, 6,
+            new PyName(0, 1, "a", []),
+            new PyColonAssign(2, 4, [ new WhiteSpaceTrivia(1, 2) ]),
+            new NameLiteralNode(5, 6, new PyName(5, 6, "b", [new WhiteSpaceTrivia(4, 5)]))
+            );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
+
+    [Fact]
+    public void TestExpressionRuleMultipleNamedExpressionWithStarExpr()
+    {
+        var parser = new PythonCoreParser("a := b, *c\r\n");
+        parser.Advance();
+        var res = parser.ParseStaredNameExpressions();
+
+        var required = new StarNamedExpressionsNode(0, 10,
+                [
+                    new NamedExpressionNode(0, 6,
+                        new PyName(0, 1, "a", []),
+                        new PyColonAssign(2, 4, [new WhiteSpaceTrivia(1, 2)]),
+                        new NameLiteralNode(5, 6, new PyName(5, 6, "b", [new WhiteSpaceTrivia(4, 5)]))
+                    ),
+                    new StarExpressionNode(8, 10,
+                        new PyMul(8, 9, [ new WhiteSpaceTrivia(7, 8) ]),
+                        new NameLiteralNode(9, 10, new PyName(9, 10, "c", []))
+                    )
+                ],
+                [ new PyComma(6, 7, []) ]
+            );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
 }
