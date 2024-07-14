@@ -1066,4 +1066,20 @@ public class TestPythonCoreParserExpression
 
         Assert.Equivalent(required, res, strict: true);
     }
+
+    [Fact]
+    public void TestExpressionRuleDictionaryEmpty()
+    {
+        var parser = new PythonCoreParser("{}\r\n");
+        parser.Advance();
+        var res = parser.ParseExpression();
+
+        var required = new DictionaryExpressionNode(0, 2,
+                new PyLeftCurly(0, 1, []),
+                [],
+                new PyRightCurly(1, 2, [])
+            );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
 }

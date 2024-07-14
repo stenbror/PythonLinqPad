@@ -67,3 +67,6 @@ public sealed record GeneratorGroupExpressionNode(int StartPos, int EndPos, Expr
 public sealed record GeneratorForExpressionNode(int StartPos, int EndPos, Symbol For, ExpressionNode Left, Symbol In, ExpressionNode Right, ExpressionNode[] Elements) : ExpressionNode(StartPos, EndPos);
 public sealed record GeneratorAsyncForExpressionNode(int StartPos, int EndPos, Symbol Async, Symbol For, ExpressionNode Left, Symbol In, ExpressionNode Right, ExpressionNode[] Elements) : ExpressionNode(StartPos, EndPos);
 public sealed record GeneratorIfExpressionNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode Right) : ExpressionNode(StartPos, EndPos);
+public sealed record KeyValueElementExpressionNode(int StartPos, int EndPos, ExpressionNode Key, Symbol Colon, ExpressionNode Value) : ExpressionNode(StartPos, EndPos);
+public sealed record DoubleStarDictionaryExpressionNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode Right) : ExpressionNode(StartPos, EndPos);
+public sealed record DictionaryExpressionNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode[] Elements, Symbol Symbol2) : ExpressionNode(StartPos, EndPos);

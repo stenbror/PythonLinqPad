@@ -1008,13 +1008,50 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
         return res;
     }
 
-    private ElipsisLiteralNode ParseAtomSetOrDictionary()
+    private ExpressionNode ParseAtomSetOrDictionary()
     {
         var pos = Position;
-        var res = new ElipsisLiteralNode(pos.Item1, pos.Item2, Symbol);
+        if (Symbol is not PyLeftCurly) throw new SyntaxError(Position.Item1, "Expecting '{' in dictionary or set!");
+        var symbol1 = Symbol;
         Advance();
-        return res;
+        if (Symbol is PyRightCurly)
+        {
+            var symbol2 = Symbol;
+            Advance();
+
+            return new DictionaryExpressionNode(pos.Item1, Position.Item1, symbol1, [], symbol2);
+        }
+
+        throw new NotImplementedException();
     }
+
+    private ExpressionNode ParseDoubleStarKeyValuePairExpressionNode()
+    {
+        if (Symbol is PyPower)
+        {
+            var pos = Position;
+            var symbol1 = Symbol;
+            Advance();
+            var right = ParseBitwiseOrExpression();
+
+            return new DoubleStarDictionaryExpressionNode(pos.Item1, Position.Item1, symbol1, right);
+        }
+
+        return ParseKeyValueExpression();
+    }
+
+    private ExpressionNode ParseKeyValueExpression()
+    {
+        var pos = Position;
+        var left = ParseExpression();
+        if (Symbol is not PyColon) throw new SyntaxError(Position.Item1, "Expecting ':' in dictionary element!");
+        var symbol1 = Symbol;
+        Advance();
+        var right = ParseExpression();
+
+        return new KeyValueElementExpressionNode(pos.Item1, Position.Item1, left, symbol1, right);
+    }
+
 
     // Grammar rule: primary ///////////////////////////////////////////////////////////////////////////////////////////
 
