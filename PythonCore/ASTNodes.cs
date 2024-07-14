@@ -15,9 +15,7 @@ public sealed record TrueLiteralNode(int StartPos, int EndPos, Symbol Element) :
 public sealed record ElipsisLiteralNode(int StartPos, int EndPos, Symbol Element) : ExpressionNode(StartPos, EndPos);
 public sealed record TupleLiteralNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode[] Elements, Symbol[] Separators, Node? Generator, Symbol Symbol2) : ExpressionNode(StartPos, EndPos);
 public sealed record ListLiteralNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode[] Elements, Symbol[] Separators, Node? Generator, Symbol Symbol2) : ExpressionNode(StartPos, EndPos);
-public sealed record SetLiteralNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode[] Elements, Symbol[] Separators, Node? Generator, Symbol Symbol2) : ExpressionNode(StartPos, EndPos);
-public sealed record DictionaryLiteralNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode[] Elements, Symbol[] Separators, Node? Generator, Symbol Symbol2) : ExpressionNode(StartPos, EndPos);
-public sealed record DictionaryElementNode(int StartPos, int EndPos, ExpressionNode Key, Symbol Separator, ExpressionNode Value) : ExpressionNode(StartPos, EndPos);
+public sealed record DictionaryLiteralNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode[] Elements, Symbol[] Separators, Symbol Symbol2) : ExpressionNode(StartPos, EndPos);
 public sealed record PrimaryExpressionNode(int StartPos, int EndPos, ExpressionNode Left, ExpressionNode[] Nodes) : ExpressionNode(StartPos, EndPos);
 public sealed record DotNameNode(int StartPos, int EndPos, Symbol Dot, Symbol Name) : ExpressionNode(StartPos, EndPos);
 public sealed record CallNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode? Right, Symbol Symbol2) : ExpressionNode(StartPos, EndPos);
@@ -69,5 +67,11 @@ public sealed record GeneratorAsyncForExpressionNode(int StartPos, int EndPos, S
 public sealed record GeneratorIfExpressionNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode Right) : ExpressionNode(StartPos, EndPos);
 public sealed record KeyValueElementExpressionNode(int StartPos, int EndPos, ExpressionNode Key, Symbol Colon, ExpressionNode Value) : ExpressionNode(StartPos, EndPos);
 public sealed record DoubleStarDictionaryExpressionNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode Right) : ExpressionNode(StartPos, EndPos);
-public sealed record DictionaryExpressionNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode[] Elements, Symbol[] Separators, Symbol Symbol2) : ExpressionNode(StartPos, EndPos);
-public sealed record SetExpressionNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode[] Elements, Symbol[] Separators, Symbol Symbol2) : ExpressionNode(StartPos, EndPos);
+public sealed record SetLiteralExpressionNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode[] Elements, Symbol[] Separators, Symbol Symbol2) : ExpressionNode(StartPos, EndPos);
+
+
+
+
+
+public sealed record StmtsNode(int StartPos, int EndPos, StatementNode[] Elements) : StatementNode(StartPos, EndPos);
+public sealed record SimpleStmtsNode(int StartPos, int EndPos, StatementNode[] Elements, Symbol[] Separators, Symbol Newline) : StatementNode(StartPos, EndPos);

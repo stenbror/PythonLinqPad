@@ -1019,7 +1019,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
             var symbol2 = Symbol;
             Advance();
 
-            return new DictionaryExpressionNode(pos.Item1, Position.Item1, symbol1, [], [], symbol2);
+            return new DictionaryLiteralNode(pos.Item1, Position.Item1, symbol1, [], [], symbol2);
         }
 
         var isDict = true;
@@ -1040,9 +1040,9 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
             {
                 var symbol3 = Symbol;
                 Advance();
-                var value = ParseExpression();
+                var value2 = ParseExpression();
 
-                var tmp = new KeyValueElementExpressionNode(pos2.Item1, Position.Item1, key, symbol3, value);
+                var tmp = new KeyValueElementExpressionNode(pos2.Item1, Position.Item1, key, symbol3, value2);
                 elements.Add(tmp);
             }
             else
@@ -1074,10 +1074,15 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
         var symbol4 = Symbol;
         Advance();
 
-        return isDict
-            ? new DictionaryExpressionNode(pos.Item1, Position.Item1, symbol1, elements.ToArray(), separators.ToArray(),
-                symbol4)
-            : new SetExpressionNode(pos.Item1, Position.Item1, symbol1, elements.ToArray(), separators.ToArray(), symbol4);
+        if (isDict)
+        {
+            return new DictionaryLiteralNode(pos.Item1, Position.Item1, symbol1, elements.ToArray(),
+                separators.ToArray(), symbol4);
+        }
+        else
+        {
+            return new SetLiteralExpressionNode(pos.Item1, Position.Item1, symbol1, elements.ToArray(), separators.ToArray(), symbol4);
+        }
     }
 
     private ExpressionNode ParseDoubleStarKeyValuePairExpressionNode()
@@ -1928,4 +1933,180 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
         return null;
     }
 
+
+
+
+
+
+
+    // Grammar rule: stmts /////////////////////////////////////////////////////////////////////////////////////////////
+    public StatementNode ParseStmts()
+    {
+        var pos = Position;
+        var elements = new List<StatementNode>();
+
+        while (Symbol is not PyEOF) elements.Add(ParseStmt());
+
+        return new StmtsNode(pos.Item1, Position.Item1, elements.ToArray());
+    }
+
+    // Grammar rule: stmt //////////////////////////////////////////////////////////////////////////////////////////////
+    public StatementNode ParseStmt()
+    {
+        if (Symbol is PyName)
+        {
+            if ((Symbol as PyName)?.Id == "match") return ParseCompoundStmt();
+            return ParseSimpleStmts();
+        }
+
+        return Symbol switch
+        {
+            PyDef => ParseCompoundStmt(),
+            PyMatrice => ParseCompoundStmt(),
+            PyIf => ParseCompoundStmt(),
+            PyClass => ParseCompoundStmt(),
+            PyWith => ParseCompoundStmt(),
+            PyFor => ParseCompoundStmt(),
+            PyTry => ParseCompoundStmt(),
+            PyWhile => ParseCompoundStmt(),
+            _ => ParseSimpleStmts()
+        };
+    }
+        
+    // Grammar rule: simple stmts //////////////////////////////////////////////////////////////////////////////////////
+    public StatementNode ParseSimpleStmts()
+    {
+        var pos = Position;
+        var elements = new List<StatementNode>();
+        var separators = new List<Symbol>();
+        elements.Add(ParseSimpleStmt());
+
+        while (Symbol is PySemiColon)
+        {
+            separators.Add(Symbol);
+            Advance();
+            if (Symbol is PySemiColon) throw new SyntaxError(Position.Item1, "Missing statement!");
+            if (Symbol is not PyNewline && Symbol is not PyEOF) elements.Add(ParseSimpleStmt());
+        }
+
+        if (Symbol is not PyNewline) throw new SyntaxError(Position.Item1, "Expecting NEWLINE after statement!");
+        var symbol1 = Symbol;
+        Advance();
+
+        return new SimpleStmtsNode(pos.Item1, Position.Item1, elements.ToArray(), separators.ToArray(), symbol1);
+    }
+
+    // Grammar rule: simple stmt ///////////////////////////////////////////////////////////////////////////////////////
+    public StatementNode ParseSimpleStmt()
+    {
+        if ((Symbol as PyName)?.Id == "type") return ParseTypeAliasStmt();
+
+        return Symbol switch
+        {
+            PyMul => ParseStarExpressionStmt(),
+            PyReturn => ParseReturnStmt(),
+            PyImport => ParseImportStmt(),
+            PyFrom => ParseImportStmt(),
+            PyRaise => ParseRaiseStmt(),
+            PyPass => ParsePassStmt(),
+            PyDel => ParseDelStmt(),
+            PyYield => ParseYieldStmt(),
+            PyAssert => ParseAssertStmt(),
+            PyBreak => ParseBreakStmt(),
+            PyContinue => ParseContinueStmt(),
+            PyGlobal => ParseGlobalStmt(),
+            PyNonlocal => ParseNonlocalStmt(),
+            _ => ParseAssignmentStmt()
+        };
+    }
+
+    // Grammar rule: assignment stmt //////////////////////////////////////////////////////////////////////////////////
+    public StatementNode ParseAssignmentStmt()
+    {
+        throw new NotImplementedException();
+    }
+
+    // Grammar rule: star expressions //////////////////////////////////////////////////////////////////////////////////
+    public StatementNode ParseStarExpressionStmt()
+    {
+        throw new NotImplementedException();
+    }
+
+    // Grammar rule: return stmts //////////////////////////////////////////////////////////////////////////////////////
+    public StatementNode ParseReturnStmt()
+    {
+        throw new NotImplementedException();
+    }
+
+    // Grammar rule: import stmt ///////////////////////////////////////////////////////////////////////////////////////
+    public StatementNode ParseImportStmt()
+    {
+        throw new NotImplementedException();
+    }
+
+    // Grammar rule: raise stmt ////////////////////////////////////////////////////////////////////////////////////////
+    public StatementNode ParseRaiseStmt()
+    {
+        throw new NotImplementedException();
+    }
+
+    // Grammar rule: pass stmt /////////////////////////////////////////////////////////////////////////////////////////
+    public StatementNode ParsePassStmt()
+    {
+        throw new NotImplementedException();
+    }
+
+    // Grammar rule: del stmt //////////////////////////////////////////////////////////////////////////////////////////
+    public StatementNode ParseDelStmt()
+    {
+        throw new NotImplementedException();
+    }
+
+    // Grammar rule: yield stmt ////////////////////////////////////////////////////////////////////////////////////////
+    public StatementNode ParseYieldStmt()
+    {
+        throw new NotImplementedException();
+    }
+
+    // Grammar rule: assert stmt ///////////////////////////////////////////////////////////////////////////////////////
+    public StatementNode ParseAssertStmt()
+    {
+        throw new NotImplementedException();
+    }
+
+    // Grammar rule: break stmt ////////////////////////////////////////////////////////////////////////////////////////
+    public StatementNode ParseBreakStmt()
+    {
+        throw new NotImplementedException();
+    }
+
+    // Grammar rule: continue stmt /////////////////////////////////////////////////////////////////////////////////////
+    public StatementNode ParseContinueStmt()
+    {
+        throw new NotImplementedException();
+    }
+
+    // Grammar rule: global stmt ///////////////////////////////////////////////////////////////////////////////////////
+    public StatementNode ParseGlobalStmt()
+    {
+        throw new NotImplementedException();
+    }
+
+    // Grammar rule: nonlocal stmt /////////////////////////////////////////////////////////////////////////////////////
+    public StatementNode ParseNonlocalStmt()
+    {
+        throw new NotImplementedException();
+    }
+
+    // Grammar rule: type alias stmt ///////////////////////////////////////////////////////////////////////////////////
+    public StatementNode ParseTypeAliasStmt()
+    {
+        throw new NotImplementedException();
+    }
+
+    // Grammar rule: compound stmts //////////////////////////////////////////////////////////////////////////////////////
+    public StatementNode ParseCompoundStmt()
+    {
+        throw new NotImplementedException();
+    }
 }

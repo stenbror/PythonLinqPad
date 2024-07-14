@@ -1074,7 +1074,7 @@ public class TestPythonCoreParserExpression
         parser.Advance();
         var res = parser.ParseExpression();
 
-        var required = new DictionaryExpressionNode(0, 2,
+        var required = new DictionaryLiteralNode(0, 2,
                 new PyLeftCurly(0, 1, []),
                 [],
                 [],
@@ -1083,4 +1083,44 @@ public class TestPythonCoreParserExpression
 
         Assert.Equivalent(required, res, strict: true);
     }
+
+    //[Fact]
+    //public void TestExpressionRuleDictionarySingle()
+    //{
+    //    var parser = new PythonCoreParser("{ a: b }\r\n");
+    //    parser.Advance();
+    //    var res = parser.ParseExpression();
+
+    //    var required = new DictionaryLiteralNode(0, 8,
+    //            new PyLeftCurly(0, 1, []),
+    //            [
+    //                new KeyValueElementExpressionNode(2, 7,
+    //                    new NameLiteralNode(2, 3, new PyName(2, 3, "a", [] )),
+    //                        new PyColon(3, 4, []),
+    //                        new NameLiteralNode(5, 6, new PyName(5, 6, "b", [] ))
+    //                    )
+    //            ],
+    //            [],
+    //            new PyRightCurly(7, 8, [])
+    //        );
+
+    //    Assert.Equivalent(required, res, strict: true);
+    //}
+
+    //[Fact]
+    //public void TestExpressionRuleSetSingle()
+    //{
+    //    var parser = new PythonCoreParser("{ a }\r\n");
+    //    parser.Advance();
+    //    var res = parser.ParseExpression();
+
+    //    var required = new DictionaryLiteralNode(0, 2,
+    //        new PyLeftCurly(0, 1, []),
+    //        [ new NameLiteralNode(2, 3, new PyName(2, 3, "a", []))],
+    //        [],
+    //        new PyRightCurly(4, 5, [])
+    //    );
+
+    //    Assert.Equivalent(required, res, strict: true);
+    //}
 }
