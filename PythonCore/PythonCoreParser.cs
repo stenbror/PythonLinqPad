@@ -1095,7 +1095,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
             separators.Add(Symbol);
             Advance();
             if (Symbol is PyRightBracket) break;
-            nodes.Add( Symbol is PyMul ? ParseStaredExpression() : ParseSlice() );
+            nodes.Add( Symbol is PyMul ? ParseStarNamedExpression() : ParseSlice() );
         }
 
         return new SlicesNode(pos.Item1, Position.Item1, nodes.ToArray(), separators.ToArray());
@@ -1522,13 +1522,19 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
     }
 
     // Grammar rule: stared expression /////////////////////////////////////////////////////////////////////////////////
-    public ExpressionNode ParseStaredExpression()
+    public ExpressionNode ParseNamedExpression()
     {
         throw new NotImplementedException();
     }
 
-    // Grammar rule: stared expressions ////////////////////////////////////////////////////////////////////////////////
-    public ExpressionNode ParseStaredExpressions()
+    // Grammar rule: stared expression /////////////////////////////////////////////////////////////////////////////////
+    public ExpressionNode ParseStarNamedExpression()
+    {
+        throw new NotImplementedException();
+    }
+
+    // Grammar rule: stared name expressions /////////////////////////////////////////////////////////////////////////
+    public ExpressionNode ParseStaredNameExpressions()
     {
         throw new NotImplementedException();
     }
