@@ -1947,7 +1947,8 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
 
         while (Symbol is not PyEOF) elements.Add(ParseStmt());
 
-        return new StmtsNode(pos.Item1, Position.Item1, elements.ToArray());
+        return elements.Count == 1 ? elements[0] :
+            new StmtsNode(pos.Item1, Position.Item1, elements.ToArray());
     }
 
     // Grammar rule: stmt //////////////////////////////////////////////////////////////////////////////////////////////
@@ -2077,7 +2078,11 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
     // Grammar rule: break stmt ////////////////////////////////////////////////////////////////////////////////////////
     public StatementNode ParseBreakStmt()
     {
-        throw new NotImplementedException();
+        var pos = Position;
+        var symbol1 = Symbol;
+        Advance();
+
+        return new BreakStmtNode(pos.Item1, Position.Item1, symbol1);
     }
 
     // Grammar rule: continue stmt /////////////////////////////////////////////////////////////////////////////////////

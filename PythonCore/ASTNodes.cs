@@ -75,3 +75,6 @@ public sealed record SetLiteralExpressionNode(int StartPos, int EndPos, Symbol S
 
 public sealed record StmtsNode(int StartPos, int EndPos, StatementNode[] Elements) : StatementNode(StartPos, EndPos);
 public sealed record SimpleStmtsNode(int StartPos, int EndPos, StatementNode[] Elements, Symbol[] Separators, Symbol Newline) : StatementNode(StartPos, EndPos);
+
+public sealed record BreakStmtNode(int StartPos, int EndPos, Symbol Symbol1) : StatementNode(StartPos, EndPos);
+
