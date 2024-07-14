@@ -922,4 +922,86 @@ public class TestPythonCoreParserExpression
 
         Assert.Equivalent(required, res, strict: true);
     }
+
+    [Fact]
+    public void TestExpressionRuleYieldFromExpression()
+    {
+        var parser = new PythonCoreParser("yield from a\r\n");
+        parser.Advance();
+        var res = parser.ParseYieldExpression();
+
+        var required = new YieldFromExpressionNode(0, 12,
+                new PyYield(0, 5, []),
+                new PyFrom(6, 10, [ new WhiteSpaceTrivia(5, 6) ]),
+                new NameLiteralNode(11, 12, new PyName(11, 12, "a", [ new WhiteSpaceTrivia(10, 11) ]))
+            );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
+
+    [Fact]
+    public void TestExpressionRuleYieldExpression()
+    {
+        var parser = new PythonCoreParser("yield *a\r\n");
+        parser.Advance();
+        var res = parser.ParseYieldExpression();
+
+        var required = new YieldExpressionNode(0, 8,
+            new PyYield(0, 5, []),
+            new StarExpressionNode(6, 8, 
+                    new PyMul(6, 7, [ new WhiteSpaceTrivia(5, 6) ]),
+                    new NameLiteralNode(7, 8, new PyName(7, 8, "a", []))
+                )
+
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
+
+    [Fact]
+    public void TestExpressionRuleYieldExpressionWithExtraComma()
+    {
+        var parser = new PythonCoreParser("yield *a, in\r\n");
+        parser.Advance();
+        var res = parser.ParseYieldExpression();
+
+        var required = new YieldExpressionNode(0, 10,
+            new PyYield(0, 5, []),
+            new StarExpressionsNode(6, 10,
+                [
+                    new StarExpressionNode(6, 8,
+                    new PyMul(6, 7, [ new WhiteSpaceTrivia(5, 6) ]),
+                    new NameLiteralNode(7, 8, new PyName(7, 8, "a", []))
+                    )
+                ],
+                [ new PyComma(8, 9, []) ]
+                )
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
+
+    [Fact]
+    public void TestExpressionRuleYieldExpressionWithMultipleElements()
+    {
+        var parser = new PythonCoreParser("yield *a, b\r\n");
+        parser.Advance();
+        var res = parser.ParseYieldExpression();
+
+        var required = new YieldExpressionNode(0, 11,
+            new PyYield(0, 5, []),
+            new StarExpressionsNode(6, 11,
+                [
+                    new StarExpressionNode(6, 8,
+                        new PyMul(6, 7, [ new WhiteSpaceTrivia(5, 6) ]),
+                        new NameLiteralNode(7, 8, new PyName(7, 8, "a", []))
+                    ),
+                    new NameLiteralNode(10, 11, new PyName(10, 11, "b", [ new WhiteSpaceTrivia(9, 10) ]))
+                ],
+                [new PyComma(8, 9, [])]
+            )
+        );
+
+        Assert.Equivalent(required, res, strict: true);
+    }
 }

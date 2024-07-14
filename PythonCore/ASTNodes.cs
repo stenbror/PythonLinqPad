@@ -55,7 +55,10 @@ public sealed record NotEqualExpressionNode(int StartPos, int EndPos, Expression
 public sealed record NotExpressionNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode Right) : ExpressionNode(StartPos, EndPos);
 public sealed record AndExpressionNode(int StartPos, int EndPos, ExpressionNode Left, Symbol Symbol1, ExpressionNode Right) : ExpressionNode(StartPos, EndPos);
 public sealed record OrExpressionNode(int StartPos, int EndPos, ExpressionNode Left, Symbol Symbol1, ExpressionNode Right) : ExpressionNode(StartPos, EndPos);
-
+public sealed record YieldExpressionNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode Right) : ExpressionNode(StartPos, EndPos);
+public sealed record YieldFromExpressionNode(int StartPos, int EndPos, Symbol Symbol1, Symbol Symbol2, ExpressionNode Right) : ExpressionNode(StartPos, EndPos);
+public sealed record StarExpressionsNode(int StartPos, int EndPos, ExpressionNode[] Elements, Symbol[] Separators) : ExpressionNode(StartPos, EndPos);
+public sealed record StarExpressionNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode Right) : ExpressionNode(StartPos, EndPos);
 
 public sealed record TestExpressionNode(int StartPos, int EndPos, ExpressionNode Left, Symbol Symbol1, ExpressionNode Right, Symbol Symbol2, ExpressionNode Next) : ExpressionNode(StartPos, EndPos);
 public sealed record ExpressionsNode(int StartPos, int EndPos, ExpressionNode[] Elements, Symbol[] Separators) : ExpressionNode(StartPos, EndPos);

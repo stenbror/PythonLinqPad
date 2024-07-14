@@ -1,4 +1,6 @@
 ﻿
+using System.Runtime.InteropServices;
+
 namespace PythonCore;
 
 public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool isInteractive = false)
@@ -1519,15 +1521,87 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
         return res;
     }
 
+    // Grammar rule: stared expression /////////////////////////////////////////////////////////////////////////////////
+    public ExpressionNode ParseStaredExpression()
+    {
+        throw new NotImplementedException();
+    }
 
+    // Grammar rule: stared expressions ////////////////////////////////////////////////////////////////////////////////
+    public ExpressionNode ParseStaredExpressions()
+    {
+        throw new NotImplementedException();
+    }
 
+    // Grammar rule: star expressions //////////////////////////////////////////////////////////////////////////////////
+    public ExpressionNode ParseStarExpression()
+    {
+        if (Symbol is PyMul)
+        {
+            var pos = Position;
+            var symbol1 = Symbol;
+            Advance();
 
+            var right = ParseBitwiseOrExpression();
 
+            return new StarExpressionNode(pos.Item1, Position.Item1, symbol1, right);
+        }
 
+        return ParseExpression();
+    }
 
+    // Grammar rule: star expressions //////////////////////////////////////////////////////////////////////////////////
+    public ExpressionNode ParseStarExpressions()
+    {
+        var pos = Position;
+        var element = ParseStarExpression();
 
+        if (Symbol is PyComma)
+        {
+            var nodes = new List<ExpressionNode>();
+            var separators = new List<Symbol>();
 
+            nodes.Add(element);
 
+            while (Symbol is PyComma)
+            {
+                separators.Add(Symbol);
+                Advance();
+
+                if (Symbol is PyComma) throw new SyntaxError(Position.Item1, "Missing element in expression list!");
+
+                if (Symbol is PyIn) continue;
+
+                nodes.Add(ParseStarExpression());
+            }
+
+            return new StarExpressionsNode(pos.Item1, Position.Item1, nodes.ToArray(), separators.ToArray());
+        }
+
+        return element;
+    }
+
+    // Grammar rule: Yield expression //////////////////////////////////////////////////////////////////////////////////
+    public ExpressionNode ParseYieldExpression()
+    {
+        var pos = Position;
+        if (Symbol is not PyYield) throw new SyntaxError(Position.Item1, "Expecting 'yield' in yield expression!");
+        var symbol1 = Symbol;
+        Advance();
+
+        if (Symbol is PyFrom)
+        {
+            var symbol2 = Symbol;
+            Advance();
+            var right = ParseExpression();
+
+            return new YieldFromExpressionNode(pos.Item1, Position.Item1, symbol1, symbol2, right);
+        }
+
+        var right2 = ParseStarExpressions();
+
+        return new YieldExpressionNode(pos.Item1, Position.Item1, symbol1, right2);
+    }
 
     // Grammar Rule: Expression ////////////////////////////////////////////////////////////////////////////////////////
     public ExpressionNode ParseExpression()
@@ -1598,11 +1672,6 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
     // Later! //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public ExpressionNode? ParseArguments()
-    {
-        return null;
-    }
-
-    public ExpressionNode ParseStaredExpression()
     {
         return null;
     }
