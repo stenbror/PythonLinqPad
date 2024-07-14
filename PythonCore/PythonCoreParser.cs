@@ -1019,10 +1019,65 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
             var symbol2 = Symbol;
             Advance();
 
-            return new DictionaryExpressionNode(pos.Item1, Position.Item1, symbol1, [], symbol2);
+            return new DictionaryExpressionNode(pos.Item1, Position.Item1, symbol1, [], [], symbol2);
         }
 
-        throw new NotImplementedException();
+        var isDict = true;
+        var elements = new List<ExpressionNode>();
+        var separators = new List<Symbol>();
+        var pos2 = Position;
+
+        if (Symbol is PyMul)
+        {
+            isDict = false;
+            elements.Add(ParseStaredNameExpressions());
+        }
+        else if (Symbol is PyPower) elements.Add(ParseDoubleStarKeyValuePairExpressionNode());
+        else
+        {
+            var key = ParseExpression();
+            if (Symbol is PyColon)
+            {
+                var symbol3 = Symbol;
+                Advance();
+                var value = ParseExpression();
+
+                var tmp = new KeyValueElementExpressionNode(pos2.Item1, Position.Item1, key, symbol3, value);
+                elements.Add(tmp);
+            }
+            else
+            {
+                isDict = false;
+                elements.Add(key);
+            }
+        }
+
+        if (Symbol is PyAsync || Symbol is PyFor)
+        {
+            while (Symbol is PyAsync || Symbol is PyFor) elements.Add(ParseForClauseExpression());
+        }
+        else
+        {
+            while (Symbol is PyComma)
+            {
+                separators.Add(Symbol);
+                Advance();
+                if (Symbol is PyComma) throw new SyntaxError(Position.Item1, "Expecting element in dictionary or set!");
+                if (Symbol is not PyRightCurly)
+                {
+                    elements.Add( isDict ? ParseDoubleStarKeyValuePairExpressionNode() : ParseStaredNameExpressions() );
+                }
+            }
+        }
+
+        if (Symbol is not PyRightCurly) throw new SyntaxError(Position.Item1, "Expecting '}' in dictionary or set!");
+        var symbol4 = Symbol;
+        Advance();
+
+        return isDict
+            ? new DictionaryExpressionNode(pos.Item1, Position.Item1, symbol1, elements.ToArray(), separators.ToArray(),
+                symbol4)
+            : new SetExpressionNode(pos.Item1, Position.Item1, symbol1, elements.ToArray(), separators.ToArray(), symbol4);
     }
 
     private ExpressionNode ParseDoubleStarKeyValuePairExpressionNode()
@@ -1051,7 +1106,6 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
 
         return new KeyValueElementExpressionNode(pos.Item1, Position.Item1, left, symbol1, right);
     }
-
 
     // Grammar rule: primary ///////////////////////////////////////////////////////////////////////////////////////////
 

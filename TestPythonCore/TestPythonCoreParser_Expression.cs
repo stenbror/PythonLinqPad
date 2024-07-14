@@ -1077,6 +1077,7 @@ public class TestPythonCoreParserExpression
         var required = new DictionaryExpressionNode(0, 2,
                 new PyLeftCurly(0, 1, []),
                 [],
+                [],
                 new PyRightCurly(1, 2, [])
             );
 
