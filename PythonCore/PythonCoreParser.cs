@@ -2074,7 +2074,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
     private StatementNode ParseImportNameStmt()
     {
         var pos = Position;
-        if (Symbol is PyImport) throw new SyntaxError(Position.Item1, "Expecting 'import' in import statement!");
+        if (Symbol is not PyImport) throw new SyntaxError(Position.Item1, "Expecting 'import' in import statement!");
         var symbol1 = Symbol;
         Advance();
         var right = ParseDottedAsNames();

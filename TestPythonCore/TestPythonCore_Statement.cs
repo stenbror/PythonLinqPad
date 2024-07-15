@@ -430,5 +430,54 @@ namespace TestPythonCore
 
             Assert.Equivalent(required, res, strict: true);
         }
+
+        [Fact]
+        public void TestStatementImportName()
+        {
+            var parser = new PythonCoreParser("import a\r\n\r\n");
+            parser.Advance();
+            var res = parser.ParseStmts();
+
+            var required = new SimpleStmtsNode(0, 10,
+                [
+                    new ImportNameNode(0, 8,
+                        new PyImport(0, 6, []),
+                        new DottedNameNode(7, 8, [
+                            new PyName(7, 8, "a", [ new WhiteSpaceTrivia(6, 7) ])
+                        ], [])
+                    )
+                ],
+                [],
+                new PyNewline(8, 10, '\r', '\n', [])
+            );
+
+            Assert.Equivalent(required, res, strict: true);
+        }
+
+        [Fact]
+        public void TestStatementImportNameDouble()
+        {
+            var parser = new PythonCoreParser("import a,b\r\n\r\n");
+            parser.Advance();
+            var res = parser.ParseStmts();
+
+            var required = new SimpleStmtsNode(0, 12,
+                [
+                    new ImportNameNode(0, 10,
+                        new PyImport(0, 6, []),
+                        new DottedAsNamesNode(7, 10, [
+                            new DottedNameNode(7, 8, [ new PyName(7, 8, "a", [ new WhiteSpaceTrivia(6, 7) ]) ], []),
+                            new DottedNameNode(9, 10, [ new PyName(9, 10, "b", []) ], [])
+                        ], [
+                            new PyComma(8, 9, [])
+                        ])
+                    )
+                ],
+                [],
+                new PyNewline(10, 12, '\r', '\n', [])
+            );
+
+            Assert.Equivalent(required, res, strict: true);
+        }
     }
 }
