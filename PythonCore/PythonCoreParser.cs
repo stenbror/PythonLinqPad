@@ -2049,7 +2049,14 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
     // Grammar rule: return stmts //////////////////////////////////////////////////////////////////////////////////////
     public StatementNode ParseReturnStmt()
     {
-        throw new NotImplementedException();
+        var pos = Position;
+        if (Symbol is not PyReturn) throw new SyntaxError(Position.Item1, "Expecting 'return' in return statement!");
+        var symbol1 = Symbol;
+        Advance();
+
+        var right = Symbol is PySemiColon || Symbol is PyNewline ? null : ParseStarExpressions();
+
+        return new ReturnNode(pos.Item1, Position.Item1, symbol1, right);
     }
 
     // Grammar rule: import stmt ///////////////////////////////////////////////////////////////////////////////////////

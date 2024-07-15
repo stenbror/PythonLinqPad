@@ -89,4 +89,7 @@ public sealed record TypeParamsNode(int StartPos, int EndPos, Symbol Symbol1, St
 public sealed record TypeAliasNode(int StartPos, int EndPos, Symbol Symbol1, Symbol Name, StatementNode? Parameters, Symbol Symbol2, ExpressionNode Right) : StatementNode(StartPos, EndPos);
 public sealed record GlobalNode(int StartPos, int EndPos, Symbol Symbol1, Symbol[] Elements, Symbol[] Separators) : StatementNode(StartPos, EndPos);
 public sealed record NonlocalNode(int StartPos, int EndPos, Symbol Symbol1, Symbol[] Elements, Symbol[] Separators) : StatementNode(StartPos, EndPos);
+public sealed record ReturnNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode Right) : StatementNode(StartPos, EndPos);
+
+
 

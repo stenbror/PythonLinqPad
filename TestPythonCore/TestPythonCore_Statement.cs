@@ -260,5 +260,47 @@ namespace TestPythonCore
 
             Assert.Equivalent(required, res, strict: true);
         }
+
+        [Fact]
+        public void TestStatementReturnEmpty()
+        {
+            var parser = new PythonCoreParser("return\r\n\r\n");
+            parser.Advance();
+            var res = parser.ParseStmts();
+
+            var required = new SimpleStmtsNode(0, 8,
+                [
+                    new ReturnNode(0, 6,
+                        new PyReturn(0, 6, []),
+                        null
+                    )
+                ],
+                [],
+                new PyNewline(6, 8, '\r', '\n', [])
+            );
+
+            Assert.Equivalent(required, res, strict: true);
+        }
+
+        [Fact]
+        public void TestStatementReturn()
+        {
+            var parser = new PythonCoreParser("return a\r\n\r\n");
+            parser.Advance();
+            var res = parser.ParseStmts();
+
+            var required = new SimpleStmtsNode(0, 10,
+                [
+                    new ReturnNode(0, 8,
+                        new PyReturn(0, 6, []),
+                        new NameLiteralNode(7, 8, new PyName(7,8, "a", [ new WhiteSpaceTrivia(6, 7) ]))
+                    )
+                ],
+                [],
+                new PyNewline(8, 10, '\r', '\n', [])
+            );
+
+            Assert.Equivalent(required, res, strict: true);
+        }
     }
 }
