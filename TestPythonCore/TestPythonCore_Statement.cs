@@ -302,5 +302,69 @@ namespace TestPythonCore
 
             Assert.Equivalent(required, res, strict: true);
         }
+
+        [Fact]
+        public void TestStatementRaiseEmpty()
+        {
+            var parser = new PythonCoreParser("raise\r\n\r\n");
+            parser.Advance();
+            var res = parser.ParseStmts();
+
+            var required = new SimpleStmtsNode(0, 7,
+                [
+                    new RaiseNode(0, 5,
+                        new PyRaise(0, 5, [])
+                    )
+                ],
+                [],
+                new PyNewline(5, 7, '\r', '\n', [])
+            );
+
+            Assert.Equivalent(required, res, strict: true);
+        }
+
+        [Fact]
+        public void TestStatementRaiseElement()
+        {
+            var parser = new PythonCoreParser("raise a\r\n\r\n");
+            parser.Advance();
+            var res = parser.ParseStmts();
+
+            var required = new SimpleStmtsNode(0, 9,
+                [
+                    new RaiseElementNode(0, 7,
+                        new PyRaise(0, 5, []),
+                        new NameLiteralNode(6, 7, new PyName(6, 7, "a", [ new WhiteSpaceTrivia(5, 6) ]))
+                    )
+                ],
+                [],
+                new PyNewline(7, 9, '\r', '\n', [])
+            );
+
+            Assert.Equivalent(required, res, strict: true);
+        }
+
+        [Fact]
+        public void TestStatementRaiseFrom()
+        {
+            var parser = new PythonCoreParser("raise a from b\r\n\r\n");
+            parser.Advance();
+            var res = parser.ParseStmts();
+
+            var required = new SimpleStmtsNode(0, 16,
+                [
+                    new RaiseFromNode(0, 14,
+                        new PyRaise(0, 5, []),
+                        new NameLiteralNode(6, 7, new PyName(6, 7, "a", [ new WhiteSpaceTrivia(5, 6) ])),
+                        new PyFrom(8, 12, [ new WhiteSpaceTrivia(7, 8) ]),
+                        new NameLiteralNode(13, 14, new PyName(13, 14, "b", [ new WhiteSpaceTrivia(12, 13) ]))
+                    )
+                ],
+                [],
+                new PyNewline(14, 16, '\r', '\n', [])
+            );
+
+            Assert.Equivalent(required, res, strict: true);
+        }
     }
 }

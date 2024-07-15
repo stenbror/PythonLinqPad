@@ -2068,7 +2068,25 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
     // Grammar rule: raise stmt ////////////////////////////////////////////////////////////////////////////////////////
     public StatementNode ParseRaiseStmt()
     {
-        throw new NotImplementedException();
+        var pos = Position;
+        if (Symbol is not PyRaise) throw new SyntaxError(Position.Item1, "Expecting 'raise' in raise statement!");
+        var symbol1 = Symbol;
+        Advance();
+
+        if (Symbol is PyNewline || Symbol is PySemiColon) return new RaiseNode(pos.Item1, Position.Item1, symbol1);
+
+        var left = ParseExpression();
+
+        if (Symbol is PyFrom)
+        {
+            var symbol2 = Symbol;
+            Advance();
+            var right = ParseExpression();
+
+            return new RaiseFromNode(pos.Item1, Position.Item1, symbol1, left, symbol2, right);
+        }
+
+        return new RaiseElementNode(pos.Item1, Position.Item1, symbol1, left);
     }
 
     // Grammar rule: pass stmt /////////////////////////////////////////////////////////////////////////////////////////

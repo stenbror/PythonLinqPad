@@ -90,6 +90,7 @@ public sealed record TypeAliasNode(int StartPos, int EndPos, Symbol Symbol1, Sym
 public sealed record GlobalNode(int StartPos, int EndPos, Symbol Symbol1, Symbol[] Elements, Symbol[] Separators) : StatementNode(StartPos, EndPos);
 public sealed record NonlocalNode(int StartPos, int EndPos, Symbol Symbol1, Symbol[] Elements, Symbol[] Separators) : StatementNode(StartPos, EndPos);
 public sealed record ReturnNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode Right) : StatementNode(StartPos, EndPos);
-
-
+public sealed record RaiseNode(int StartPos, int EndPos, Symbol Symbol1) : StatementNode(StartPos, EndPos);
+public sealed record RaiseElementNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode Left) : StatementNode(StartPos, EndPos);
+public sealed record RaiseFromNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode Left, Symbol Symbol2, ExpressionNode Right) : StatementNode(StartPos, EndPos);
 
