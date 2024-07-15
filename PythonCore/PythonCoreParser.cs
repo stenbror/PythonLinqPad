@@ -1970,6 +1970,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
             PyFor => ParseCompoundStmt(),
             PyTry => ParseCompoundStmt(),
             PyWhile => ParseCompoundStmt(),
+            PyAsync => ParseCompoundStmt(),
             _ => ParseSimpleStmts()
         };
     }
@@ -2114,7 +2115,104 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
     // Grammar rule: type alias stmt ///////////////////////////////////////////////////////////////////////////////////
     public StatementNode ParseTypeAliasStmt()
     {
-        throw new NotImplementedException();
+        var pos = Position;
+        if (Symbol is not PyType) throw new SyntaxError(Position.Item1, "Expecting 'type' in type alias statement!");
+        var symbol1 = Symbol;
+        Advance();
+
+        if (Symbol is not PyName) throw new SyntaxError(Position.Item1, "Expecting NAME literal in type alias statement!");
+        var name = Symbol;
+        Advance();
+
+        StatementNode? param = Symbol switch
+                                        {
+                                            PyLeftBracket => ParseTypeParams(),
+                                            _ => null
+                                        };
+        if (Symbol is not PyAssign) throw new SyntaxError(Position.Item1, "Expecting '=' in type alias statement!");
+        var symbol2 = Symbol;
+        Advance();
+
+        var right = ParseExpression();
+
+        return new TypeAliasNode(pos.Item1, Position.Item1, symbol1, name, param, symbol2, right);
+    }
+
+    private StatementNode ParseTypeParams()
+    {
+        var pos = Position;
+        Symbol symbol1, symbol2;
+        
+        if (Symbol is not PyLeftBracket) throw new SyntaxError(Position.Item1, "Expecting '[' in type alias!");
+        symbol1 = Symbol;
+        Advance();
+     
+        var right = ParseTypeParamSeq();
+
+        if (Symbol is not PyRightBracket) throw new SyntaxError(Position.Item1, "Expecting ']' in type alias!");
+        symbol2 = Symbol;
+        Advance();
+
+        return new TypeParamsNode(pos.Item1, Position.Item1, symbol1, right, symbol2);
+    }
+
+    private StatementNode ParseTypeParamSeq()
+    {
+        var pos = Position;
+        var nodes = new List<StatementNode>();
+        var separators = new List<Symbol>();
+
+        nodes.Add(ParseTypeParam());
+
+        while (Symbol is PyComma)
+        {
+            separators.Add(Symbol);
+            Advance();
+            if (Symbol is not PyRightBracket) nodes.Add(ParseTypeParam());
+        }
+
+        return new TypeParamSequenceNode(pos.Item1, Position.Item1, nodes.ToArray(), separators.ToArray());
+    }
+
+    private StatementNode ParseTypeParam()
+    {
+        var pos = Position;
+        if (Symbol is PyName)
+        {
+            var symbol1 = Symbol;
+            Advance();
+            if (Symbol is PyColon)
+            {
+                var symbol2 = Symbol;
+                Advance();
+                var right = ParseExpression();
+
+                return new TypeParameterTypedNode(pos.Item1, Position.Item1, symbol1, symbol2, right);
+            }
+
+            return new TypeParameterNode(pos.Item1, Position.Item1, symbol1);
+        }
+        else if (Symbol is PyMul)
+        {
+            var symbol1 = Symbol;
+            Advance();
+            if (Symbol is not PyName) throw new SyntaxError(Position.Item1, "Expecting NAME literal after '*' in parameter!");
+            var symbol2 = Symbol;
+            Advance();
+
+            return new TypeStarParameterNode(pos.Item1, Position.Item1, symbol1, symbol2);
+        }
+        else if (Symbol is PyPower)
+        {
+            var symbol1 = Symbol;
+            Advance();
+            if (Symbol is not PyName) throw new SyntaxError(Position.Item1, "Expecting NAME literal after '**' in parameter!");
+            var symbol2 = Symbol;
+            Advance();
+
+            return new TypePowerParameterNode(pos.Item1, Position.Item1, symbol1, symbol2);
+        }
+        else throw new SyntaxError(Position.Item1, "Expecting parameters like NAME, '*' or '**'!");
     }
 
     // Grammar rule: compound stmts //////////////////////////////////////////////////////////////////////////////////////

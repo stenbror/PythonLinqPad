@@ -80,3 +80,12 @@ public sealed record ContinueStmtNode(int StartPos, int EndPos, Symbol Symbol1) 
 public sealed record PassStmtNode(int StartPos, int EndPos, Symbol Symbol1) : StatementNode(StartPos, EndPos);
 
 
+public sealed record TypeParameterTypedNode(int StartPos, int EndPos, Symbol Name, Symbol Colon, ExpressionNode Right) : StatementNode(StartPos, EndPos);
+public sealed record TypeParameterNode(int StartPos, int EndPos, Symbol Name) : StatementNode(StartPos, EndPos);
+public sealed record TypeStarParameterNode(int StartPos, int EndPos, Symbol Mul, Symbol Name) : StatementNode(StartPos, EndPos);
+public sealed record TypePowerParameterNode(int StartPos, int EndPos, Symbol Power, Symbol Name) : StatementNode(StartPos, EndPos);
+public sealed record TypeParamSequenceNode(int StartPos, int EndPos, StatementNode[] Elements, Symbol[] Separators) : StatementNode(StartPos, EndPos);
+public sealed record TypeParamsNode(int StartPos, int EndPos, Symbol Symbol1, StatementNode Right, Symbol Symbol2) : StatementNode(StartPos, EndPos);
+public sealed record TypeAliasNode(int StartPos, int EndPos, Symbol Symbol1, Symbol Name, StatementNode? Parameters, Symbol Symbol2, ExpressionNode Right) : StatementNode(StartPos, EndPos);
+
+
