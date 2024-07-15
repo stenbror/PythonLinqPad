@@ -2054,7 +2054,11 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
     // Grammar rule: pass stmt /////////////////////////////////////////////////////////////////////////////////////////
     public StatementNode ParsePassStmt()
     {
-        throw new NotImplementedException();
+        var pos = Position;
+        var symbol1 = Symbol;
+        Advance();
+
+        return new PassStmtNode(pos.Item1, Position.Item1, symbol1);
     }
 
     // Grammar rule: del stmt //////////////////////////////////////////////////////////////////////////////////////////
@@ -2088,7 +2092,11 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
     // Grammar rule: continue stmt /////////////////////////////////////////////////////////////////////////////////////
     public StatementNode ParseContinueStmt()
     {
-        throw new NotImplementedException();
+        var pos = Position;
+        var symbol1 = Symbol;
+        Advance();
+
+        return new ContinueStmtNode(pos.Item1, Position.Item1, symbol1);
     }
 
     // Grammar rule: global stmt ///////////////////////////////////////////////////////////////////////////////////////
