@@ -75,5 +75,38 @@ namespace TestPythonCore
 
             Assert.Equivalent(required, res, strict: true);
         }
+
+        [Fact]
+        public void TestStatementTypeAliasSingle()
+        {
+            var parser = new PythonCoreParser("type test[a] = run\r\n\r\n");
+            parser.Advance();
+            var res = parser.ParseStmts();
+
+            var required = new SimpleStmtsNode(0, 20,
+                [
+                    new TypeAliasNode(0, 18,
+                        new PyType(0, 4, []),
+                        new PyName(5, 9, "test", [ new WhiteSpaceTrivia(4, 5) ]),
+                        new TypeParamsNode(9, 13,
+                                new PyLeftBracket(9, 10, []),
+                                new TypeParamSequenceNode(10, 11, 
+                                    [
+                                        new TypeParameterNode(10, 11, new PyName(10, 11, "a", []))
+                                    ], 
+                                    []
+                                    ),
+                                new PyRightBracket(11, 12, [])
+                            ),
+                        new PyAssign(13, 14, [ new WhiteSpaceTrivia(12, 13) ]),
+                        new NameLiteralNode(15, 18, new PyName(15, 18, "run", [ new WhiteSpaceTrivia(14, 15) ]))
+                    )
+                ],
+                [],
+                new PyNewline(18, 20, '\r', '\n', [])
+            );
+
+            Assert.Equivalent(required, res, strict: true);
+        }
     }
 }
