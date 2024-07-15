@@ -97,3 +97,9 @@ public sealed record YieldStmtNode(int StartPos, int EndPos, ExpressionNode Righ
 public sealed record AssertSingleNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode Left) : StatementNode(StartPos, EndPos);
 public sealed record AssertNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode Left, Symbol Symbol2, ExpressionNode Right) : StatementNode(StartPos, EndPos);
 
+
+public sealed record DottedNameNode(int StartPos, int EndPos, Symbol[] Elements, Symbol[] Separators) : StatementNode(StartPos, EndPos);
+public sealed record DottedAsNameNode(int StartPos, int EndPos, StatementNode Left, Symbol As, Symbol Name) : StatementNode(StartPos, EndPos);
+
+
+

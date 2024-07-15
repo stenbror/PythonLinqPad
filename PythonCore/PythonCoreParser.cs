@@ -2060,9 +2060,81 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
     }
 
     // Grammar rule: import stmt ///////////////////////////////////////////////////////////////////////////////////////
-    public StatementNode ParseImportStmt()
+    public StatementNode ParseImportStmt() =>
+        Symbol switch
+        {
+            PyImport => ParseImportNameStmt(),
+            PyFrom => ParseImportFromStmt(),
+            _ => throw new SyntaxError(Position.Item1, "")
+        };
+
+    private StatementNode ParseImportNameStmt()
     {
         throw new NotImplementedException();
+    }
+
+    private StatementNode ParseImportFromStmt()
+    {
+        throw new NotImplementedException();
+    }
+
+    private StatementNode ParseImportFromAsNames()
+    {
+        throw new NotImplementedException();
+    }
+
+    private StatementNode ParseImportFromAsName()
+    {
+        throw new NotImplementedException();
+    }
+
+    private StatementNode ParseDottedAsNames()
+    {
+        throw new NotImplementedException();
+    }
+
+    private StatementNode ParseDottedAsName()
+    {
+        var pos = Position;
+
+        var left = ParseDottedName();
+        
+        if (Symbol is PyAs)
+        {
+            var symbol1 = Symbol;
+            Advance();
+
+            if (Symbol is not PyName) throw new SyntaxError(Position.Item1, "Missing NAME literal in import as statement!");
+            var symbol2 = Symbol;
+            Advance();
+
+            return new DottedAsNameNode(pos.Item1, Position.Item1, left, symbol1, symbol2);
+        }
+
+        return left;
+    }
+
+    private StatementNode ParseDottedName()
+    {
+        var pos = Position;
+        var elements = new List<Symbol>();
+        var separators = new List<Symbol>();
+
+        if (Symbol is not PyName) throw new SyntaxError(Position.Item1, "Missing NAME literal in import statement!");
+        elements.Add(Symbol);
+        Advance();
+
+        while (Symbol is PyDot)
+        {
+            separators.Add(Symbol);
+            Advance();
+
+            if (Symbol is not PyName) throw new SyntaxError(Position.Item1, "Missing NAME literal in import statement!");
+            elements.Add(Symbol);
+            Advance();
+        }
+
+        return new DottedNameNode(pos.Item1, Position.Item1, elements.ToArray(), separators.ToArray());
     }
 
     // Grammar rule: raise stmt ////////////////////////////////////////////////////////////////////////////////////////
