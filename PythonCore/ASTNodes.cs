@@ -94,5 +94,6 @@ public sealed record RaiseNode(int StartPos, int EndPos, Symbol Symbol1) : State
 public sealed record RaiseElementNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode Left) : StatementNode(StartPos, EndPos);
 public sealed record RaiseFromNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode Left, Symbol Symbol2, ExpressionNode Right) : StatementNode(StartPos, EndPos);
 public sealed record YieldStmtNode(int StartPos, int EndPos, ExpressionNode Right) : StatementNode(StartPos, EndPos);
-
+public sealed record AssertSingleNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode Left) : StatementNode(StartPos, EndPos);
+public sealed record AssertNode(int StartPos, int EndPos, Symbol Symbol1, ExpressionNode Left, Symbol Symbol2, ExpressionNode Right) : StatementNode(StartPos, EndPos);
 

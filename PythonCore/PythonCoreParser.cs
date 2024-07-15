@@ -2117,7 +2117,24 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
     // Grammar rule: assert stmt ///////////////////////////////////////////////////////////////////////////////////////
     public StatementNode ParseAssertStmt()
     {
-        throw new NotImplementedException();
+        var pos = Position;
+        if (Symbol is not PyAssert) throw new SyntaxError(Position.Item1, "Expecting 'assert' in assert statement!");
+        var symbol1 = Symbol;
+        Advance();
+
+        var left = ParseExpression();
+
+        if (Symbol is PyComma)
+        {
+            var symbol2 = Symbol;
+            Advance();
+
+            var right = ParseExpression();
+
+            return new AssertNode(pos.Item1, Position.Item1, symbol1, left, symbol2, right);
+        }
+
+        return new AssertSingleNode(pos.Item1, Position.Item1, symbol1, left);
     }
 
     // Grammar rule: break stmt ////////////////////////////////////////////////////////////////////////////////////////
