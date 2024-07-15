@@ -479,5 +479,34 @@ namespace TestPythonCore
 
             Assert.Equivalent(required, res, strict: true);
         }
+
+        [Fact]
+        public void TestStatementImportNameSingleDottedName()
+        {
+            var parser = new PythonCoreParser("import a.b.c\r\n\r\n");
+            parser.Advance();
+            var res = parser.ParseStmts();
+
+            var required = new SimpleStmtsNode(0, 14,
+                [
+                    new ImportNameNode(0, 12,
+                            new PyImport(0, 6, []),
+                            new DottedNameNode(7, 12, 
+                                [ 
+                                    new PyName(7, 8, "a", [ new WhiteSpaceTrivia(6, 7) ]),
+                                    new PyName(9, 10, "b", []),
+                                    new PyName(11, 12, "c", [])
+                            ], [
+                                new PyDot(8, 9, []),
+                                new PyDot(10, 11, [])
+                            ])
+                    )
+                ],
+                [],
+                new PyNewline(12, 14, '\r', '\n', [])
+            );
+
+            Assert.Equivalent(required, res, strict: true);
+        }
     }
 }
