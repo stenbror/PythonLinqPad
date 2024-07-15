@@ -108,5 +108,59 @@ namespace TestPythonCore
 
             Assert.Equivalent(required, res, strict: true);
         }
+
+        [Fact]
+        public void TestStatementTypeAliasMultiple()
+        {
+            var parser = new PythonCoreParser("type test[a, *b, **c, d: e] = run\r\n\r\n");
+            parser.Advance();
+            var res = parser.ParseStmts();
+
+            var node = ((((res as SimpleStmtsNode)?.Elements[0] as TypeAliasNode)?.Parameters as TypeParamsNode)?.Right as TypeParamSequenceNode);
+            Assert.Equal(10, node?.StartPos);
+            Assert.Equal(26, node?.EndPos);
+
+            var elements = node?.Elements;
+            Assert.Equal(4, elements?.Length);
+            Assert.IsType<TypeParameterNode>(elements?[0]);
+            Assert.IsType<TypeStarParameterNode>(elements?[1]);
+            Assert.IsType<TypePowerParameterNode>(elements?[2]);
+            Assert.IsType<TypeParameterTypedNode>(elements?[3]);
+
+            var element1 = elements?[1] as TypeStarParameterNode;
+            Assert.Equivalent( new PyName(14, 15, "b", []), element1?.Name);
+
+            var element2 = elements?[2] as TypePowerParameterNode;
+            Assert.Equivalent(new PyName(19, 20, "c", []), element2?.Name);
+
+            var element3 = elements?[3] as TypeParameterTypedNode;
+            Assert.Equivalent(new PyName(22, 23, "d", [ new WhiteSpaceTrivia(21, 22) ]), element3?.Name);
+            Assert.IsType<NameLiteralNode>(element3?.Right);
+
+            var name = element3?.Right as NameLiteralNode;
+            Assert.Equivalent( new PyName(25, 26, "e", [new WhiteSpaceTrivia(24, 25)]) , name?.Element);
+
+            var separators = node?.Separators;
+            Assert.Equal(3, separators?.Length);
+            Assert.Equivalent( new PyComma(11, 12, []), separators?[0] );
+            Assert.Equivalent(new PyComma(15, 16, []), separators?[1]);
+            Assert.Equivalent(new PyComma(20, 21, []), separators?[2]);
+        }
+
+        [Fact]
+        public void TestStatementTypeAliasSingleWithComma()
+        {
+            var parser = new PythonCoreParser("type test[a,] = run\r\n\r\n");
+            parser.Advance();
+            var res = parser.ParseStmts();
+
+            var node = ((((res as SimpleStmtsNode)?.Elements[0] as TypeAliasNode)?.Parameters as TypeParamsNode)?.Right as TypeParamSequenceNode);
+            Assert.Equal(10, node?.StartPos);
+            Assert.Equal(12, node?.EndPos);
+
+            var separators = node?.Separators;
+            Assert.Equal(1, separators?.Length);
+            Assert.Equivalent(new PyComma(11, 12, []), separators?[0]);
+        }
     }
 }
