@@ -1956,7 +1956,13 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
     {
         if (Symbol is PyName)
         {
-            if ((Symbol as PyName)?.Id == "match") return ParseCompoundStmt();
+            if ((Symbol as PyName)?.Id == "match")
+            {
+                var name = Symbol as PyName;
+                Symbol = new PyMatch(name!.StartPos, name.EndPos, name.Trivias);
+
+                return ParseCompoundStmt();
+            }
             return ParseSimpleStmts();
         }
 
@@ -2001,7 +2007,13 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
     // Grammar rule: simple stmt ///////////////////////////////////////////////////////////////////////////////////////
     public StatementNode ParseSimpleStmt()
     {
-        if ((Symbol as PyName)?.Id == "type") return ParseTypeAliasStmt();
+        if ((Symbol as PyName)?.Id == "type") /* Convert name to type symbol */
+        {
+            var name = Symbol as PyName;
+            Symbol = new PyType(name!.StartPos, name.EndPos, name.Trivias);
+
+            return ParseTypeAliasStmt();
+        }
 
         return Symbol switch
         {
