@@ -87,5 +87,6 @@ public sealed record TypePowerParameterNode(int StartPos, int EndPos, Symbol Pow
 public sealed record TypeParamSequenceNode(int StartPos, int EndPos, StatementNode[] Elements, Symbol[] Separators) : StatementNode(StartPos, EndPos);
 public sealed record TypeParamsNode(int StartPos, int EndPos, Symbol Symbol1, StatementNode Right, Symbol Symbol2) : StatementNode(StartPos, EndPos);
 public sealed record TypeAliasNode(int StartPos, int EndPos, Symbol Symbol1, Symbol Name, StatementNode? Parameters, Symbol Symbol2, ExpressionNode Right) : StatementNode(StartPos, EndPos);
-
+public sealed record GlobalNode(int StartPos, int EndPos, Symbol Symbol1, Symbol[] Elements, Symbol[] Separators) : StatementNode(StartPos, EndPos);
+public sealed record NonlocalNode(int StartPos, int EndPos, Symbol Symbol1, Symbol[] Elements, Symbol[] Separators) : StatementNode(StartPos, EndPos);
 

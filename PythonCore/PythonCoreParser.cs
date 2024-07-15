@@ -2115,13 +2115,59 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
     // Grammar rule: global stmt ///////////////////////////////////////////////////////////////////////////////////////
     public StatementNode ParseGlobalStmt()
     {
-        throw new NotImplementedException();
+        var pos = Position;
+
+        if (Symbol is not PyGlobal) throw new SyntaxError(Position.Item1, "Expecting 'global' in global statement!");
+        var symbol1 = Symbol;
+        Advance();
+
+        var nodes = new List<Symbol>();
+        var separators = new List<Symbol>();
+
+        if (Symbol is not PyName) throw new SyntaxError(Position.Item1, "Expecting NAME literal in global statement!");
+        nodes.Add(Symbol);
+        Advance();
+
+        while (Symbol is PyComma)
+        {
+            separators.Add(Symbol);
+            Advance();
+
+            if (Symbol is not PyName) throw new SyntaxError(Position.Item1, "Expecting NAME literal in global statement!");
+            nodes.Add(Symbol);
+            Advance();
+        }
+
+        return new GlobalNode(pos.Item1, Position.Item1, symbol1, nodes.ToArray(), separators.ToArray());
     }
 
     // Grammar rule: nonlocal stmt /////////////////////////////////////////////////////////////////////////////////////
     public StatementNode ParseNonlocalStmt()
     {
-        throw new NotImplementedException();
+        var pos = Position;
+
+        if (Symbol is not PyNonlocal) throw new SyntaxError(Position.Item1, "Expecting 'nonlocal' in global statement!");
+        var symbol1 = Symbol;
+        Advance();
+
+        var nodes = new List<Symbol>();
+        var separators = new List<Symbol>();
+
+        if (Symbol is not PyName) throw new SyntaxError(Position.Item1, "Expecting NAME literal in nonlocal statement!");
+        nodes.Add(Symbol);
+        Advance();
+
+        while (Symbol is PyComma)
+        {
+            separators.Add(Symbol);
+            Advance();
+
+            if (Symbol is not PyName) throw new SyntaxError(Position.Item1, "Expecting NAME literal in nonlocal statement!");
+            nodes.Add(Symbol);
+            Advance();
+        }
+
+        return new NonlocalNode(pos.Item1, Position.Item1, symbol1, nodes.ToArray(), separators.ToArray());
     }
 
     // Grammar rule: type alias stmt ///////////////////////////////////////////////////////////////////////////////////

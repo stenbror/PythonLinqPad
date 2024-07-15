@@ -162,5 +162,103 @@ namespace TestPythonCore
             Assert.Equal(1, separators?.Length);
             Assert.Equivalent(new PyComma(11, 12, []), separators?[0]);
         }
+
+        [Fact]
+        public void TestStatementGlobalSingle()
+        {
+            var parser = new PythonCoreParser("global a\r\n\r\n");
+            parser.Advance();
+            var res = parser.ParseStmts();
+
+            var required = new SimpleStmtsNode(0, 10,
+                [
+                    new GlobalNode(0, 8,
+                            new PyGlobal(0, 6, []),
+                            [ new PyName(7, 8, "a", [ new WhiteSpaceTrivia(6, 7) ]) ], 
+                            []
+                        )
+                ],
+                [],
+                new PyNewline(8, 10, '\r', '\n', [])
+            );
+
+            Assert.Equivalent(required, res, strict: true);
+        }
+
+        [Fact]
+        public void TestStatementGlobalMulti()
+        {
+            var parser = new PythonCoreParser("global a,b\r\n\r\n");
+            parser.Advance();
+            var res = parser.ParseStmts();
+
+            var required = new SimpleStmtsNode(0, 12,
+                [
+                    new GlobalNode(0, 10,
+                        new PyGlobal(0, 6, []),
+                        [ 
+                            new PyName(7, 8, "a", [ new WhiteSpaceTrivia(6, 7) ]),
+                            new PyName(9, 10, "b", [])
+                        ],
+                        [
+                            new PyComma(8, 9, [])
+                        ]
+                    )
+                ],
+                [],
+                new PyNewline(10, 12, '\r', '\n', [])
+            );
+
+            Assert.Equivalent(required, res, strict: true);
+        }
+
+        [Fact]
+        public void TestStatementNonlocalSingle()
+        {
+            var parser = new PythonCoreParser("nonlocal a\r\n\r\n");
+            parser.Advance();
+            var res = parser.ParseStmts();
+
+            var required = new SimpleStmtsNode(0, 12,
+                [
+                    new NonlocalNode(0, 10,
+                        new PyNonlocal(0, 8, []),
+                        [ new PyName(9, 10, "a", [ new WhiteSpaceTrivia(8, 9) ]) ],
+                        []
+                    )
+                ],
+                [],
+                new PyNewline(10, 12, '\r', '\n', [])
+            );
+
+            Assert.Equivalent(required, res, strict: true);
+        }
+
+        [Fact]
+        public void TestStatementNonlocalMulti()
+        {
+            var parser = new PythonCoreParser("nonlocal a,b\r\n\r\n");
+            parser.Advance();
+            var res = parser.ParseStmts();
+
+            var required = new SimpleStmtsNode(0, 14,
+                [
+                    new NonlocalNode(0, 12,
+                        new PyNonlocal(0, 8, []),
+                        [
+                            new PyName(9, 10, "a", [ new WhiteSpaceTrivia(8, 9) ]),
+                            new PyName(11, 12, "b", [])
+                        ],
+                        [
+                            new PyComma(10, 11, [])
+                        ]
+                    )
+                ],
+                [],
+                new PyNewline(12, 14, '\r', '\n', [])
+            );
+
+            Assert.Equivalent(required, res, strict: true);
+        }
     }
 }
