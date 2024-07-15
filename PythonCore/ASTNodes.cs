@@ -100,6 +100,10 @@ public sealed record AssertNode(int StartPos, int EndPos, Symbol Symbol1, Expres
 
 public sealed record DottedNameNode(int StartPos, int EndPos, Symbol[] Elements, Symbol[] Separators) : StatementNode(StartPos, EndPos);
 public sealed record DottedAsNameNode(int StartPos, int EndPos, StatementNode Left, Symbol As, Symbol Name) : StatementNode(StartPos, EndPos);
-
-
+public sealed record DottedAsNamesNode(int StartPos, int EndPos, StatementNode[] Elements, Symbol[] Separators) : StatementNode(StartPos, EndPos);
+public sealed record ImportFromNode(int StartPos, int EndPos, Symbol Name) : StatementNode(StartPos, EndPos);
+public sealed record ImportFromAsNode(int StartPos, int EndPos, Symbol Left, Symbol As, Symbol Right) : StatementNode(StartPos, EndPos);
+public sealed record ImportFromAsNamesNode(int StartPos, int EndPos, StatementNode[] Elements, Symbol[] Separators) : StatementNode(StartPos, EndPos);
+public sealed record ImportNameNode(int StartPos, int EndPos, Symbol Symbol1, StatementNode Right) : StatementNode(StartPos, EndPos);
+public sealed record ImportFromStmtNode(int StartPos, int EndPos, Symbol From, Symbol[] Dots, StatementNode Left, Symbol Import, Symbol Start, StatementNode Right, Symbol End) : StatementNode(StartPos, EndPos);
 

@@ -1,4 +1,7 @@
 ﻿
+using System.Runtime.InteropServices;
+using System.Xml.Linq;
+
 namespace PythonCore;
 
 public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool isInteractive = false)
@@ -2070,27 +2073,120 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
 
     private StatementNode ParseImportNameStmt()
     {
-        throw new NotImplementedException();
+        var pos = Position;
+        if (Symbol is PyImport) throw new SyntaxError(Position.Item1, "Expecting 'import' in import statement!");
+        var symbol1 = Symbol;
+        Advance();
+        var right = ParseDottedAsNames();
+
+        return new ImportNameNode(pos.Item1, Position.Item1, symbol1, right);
     }
 
     private StatementNode ParseImportFromStmt()
     {
-        throw new NotImplementedException();
+        var pos = Position;
+        if (Symbol is PyFrom) throw new SyntaxError(Position.Item1, "Expecting 'from' in import statement!");
+        var symbol1 = Symbol;
+        Advance();
+        StatementNode left = null;
+        var dots = new List<Symbol>();
+
+        while (Symbol is PyDot || Symbol is PyElipsis)
+        {
+            dots.Add(Symbol);
+            Advance();
+        }
+
+        if (Symbol is PyImport && dots.Count == 0) throw new SyntaxError(Position.Item1, "Missing 'from' part of import statement!");
+        if (Symbol is not PyImport) left = ParseDottedName();
+        if (Symbol is not PyImport && dots.Count == 0) throw new SyntaxError(Position.Item1, "Missing 'import' part of from import statement!");
+
+        var symbol2 = Symbol; /* 'import' */
+        Advance();
+
+        Symbol? symbol3 = null, symbol4 = null;
+        StatementNode? right = null;
+
+        if (Symbol is PyMul)
+        {
+            symbol3 = Symbol;
+            Advance();
+        }
+        else if (Symbol is PyLeftParen)
+        {
+            symbol3 = Symbol;
+            Advance();
+            right = ParseImportFromAsNames();
+
+            if (Symbol is not PyRightParen) throw new SyntaxError(Position.Item1, "Missing ')' in import statement!");
+            symbol4 = Symbol;
+            Advance();
+        }
+        else
+        {
+            right = ParseImportFromAsNames();
+        }
+
+        return new ImportFromStmtNode(pos.Item1, Position.Item1, symbol1, dots.ToArray(), left, symbol2, symbol3, right, symbol4);
     }
 
     private StatementNode ParseImportFromAsNames()
     {
-        throw new NotImplementedException();
+        var pos = Position;
+        var elements = new List<StatementNode>();
+        var separators = new List<Symbol>();
+
+        elements.Add(ParseImportFromAsName());
+
+        while (Symbol is PyComma)
+        {
+            separators.Add(Symbol);
+            Advance();
+            elements.Add(ParseImportFromAsName());
+        }
+
+        return elements.Count == 1 ? elements[0] : new ImportFromAsNamesNode(pos.Item1, Position.Item1, elements.ToArray(), separators.ToArray());
     }
 
     private StatementNode ParseImportFromAsName()
     {
-        throw new NotImplementedException();
+        var pos = Position;
+
+        if (Symbol is not PyName) throw new SyntaxError(Position.Item1, "Missing NAME literal in import from as statement!");
+        var symbol1 = Symbol;
+        Advance();
+
+        if (Symbol is PyAs)
+        {
+            var symbol2 = Symbol;
+            Advance();
+
+            if (Symbol is not PyName) throw new SyntaxError(Position.Item1, "Missing NAME literal in import from as statement!");
+            var symbol3 = Symbol;
+            Advance();
+
+            return new ImportFromAsNode(pos.Item1, Position.Item1, symbol1, symbol2, symbol3);
+        }
+
+        return new ImportFromNode(pos.Item1, Position.Item1, symbol1);
     }
 
     private StatementNode ParseDottedAsNames()
     {
-        throw new NotImplementedException();
+        var pos = Position;
+        var elements = new List<StatementNode>();
+        var separators = new List<Symbol>();
+
+        elements.Add(ParseDottedAsName());
+
+        while (Symbol is PyComma)
+        {
+            separators.Add(Symbol);
+            Advance();
+            elements.Add(ParseDottedAsName());
+        }
+
+        return elements.Count == 1 ? elements[0] : new DottedAsNamesNode(pos.Item1, Position.Item1, elements.ToArray(), separators.ToArray());
     }
 
     private StatementNode ParseDottedAsName()
