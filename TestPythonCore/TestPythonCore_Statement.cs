@@ -366,5 +366,25 @@ namespace TestPythonCore
 
             Assert.Equivalent(required, res, strict: true);
         }
+
+        [Fact]
+        public void TestStatementYield()
+        {
+            var parser = new PythonCoreParser("yield a\r\n\r\n");
+            parser.Advance();
+            var res = parser.ParseStmts();
+
+            var required = new SimpleStmtsNode(0, 9,
+                [
+                    new YieldStmtNode(0, 7,
+                        new YieldExpressionNode(0, 7, new PyYield(0, 5, []), new NameLiteralNode(6, 7, new PyName(6, 7, "a", [ new WhiteSpaceTrivia(5, 6) ])))
+                    )
+                ],
+                [],
+                new PyNewline(7, 9, '\r', '\n', [])
+            );
+
+            Assert.Equivalent(required, res, strict: true);
+        }
     }
 }

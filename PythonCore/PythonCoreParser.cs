@@ -2108,7 +2108,10 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
     // Grammar rule: yield stmt ////////////////////////////////////////////////////////////////////////////////////////
     public StatementNode ParseYieldStmt()
     {
-        throw new NotImplementedException();
+        var pos = Position;
+        var right = ParseYieldExpression();
+
+        return new YieldStmtNode(pos.Item1, Position.Item1, right);
     }
 
     // Grammar rule: assert stmt ///////////////////////////////////////////////////////////////////////////////////////
