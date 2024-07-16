@@ -787,5 +787,36 @@ namespace TestPythonCore
 
             Assert.Equivalent(new PyName(7, 8, "b", [ ]), (left as DottedNameNode)?.Elements[1]);
         }
+
+
+
+
+
+
+
+        [Fact]
+        public void TestStatementIfStatementSimple()
+        {
+            var parser = new PythonCoreParser("if a > 5: pass\r\n\r\n");
+            parser.Advance();
+            var res = parser.ParseStmts();
+
+            var required = new IfStatementNode(0, 16,
+                new PyIf(0, 2, []),
+                new GreaterExpressionNode(3, 8,
+                    new NameLiteralNode(3, 4, new PyName(3, 4, "a", [new WhiteSpaceTrivia(2, 3)])),
+                    new PyGreater(5, 6, [new WhiteSpaceTrivia(4, 5)]),
+                    new NumberLiteralNode(7, 8, new PyNumber(7, 8, "5", [new WhiteSpaceTrivia(6, 7)]))
+                ),
+                new PyColon(8, 9, []),
+                new SimpleStmtsNode(10, 16, [
+                    new PassStmtNode(10, 14, new PyPass(10, 14, [new WhiteSpaceTrivia(9, 10)]))
+                ], [], new PyNewline(14, 16, '\r', '\n', [])),
+                [],
+                null
+            );
+
+            Assert.Equivalent(required, res, strict: true);
+        }
     }
 }

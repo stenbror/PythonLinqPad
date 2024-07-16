@@ -1621,25 +1621,24 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
     // Grammar rule: stared expression /////////////////////////////////////////////////////////////////////////////////
     public ExpressionNode ParseNamedExpression()
     {
-        if (Symbol is PyName)
-        {
-            var pos = Position;
-            var symbol1 = Symbol;
-            Advance();
+        var pos = Position;
+        var left = ParseExpression();
 
+        if (left is NameLiteralNode)
+        {
             if (Symbol is PyColonAssign)
             {
+                var symbol1 = (left as NameLiteralNode)!.Element;
                 var symbol2 = Symbol;
                 Advance();
                 var right = ParseExpression();
 
                 return new NamedExpressionNode(pos.Item1, Position.Item1, symbol1, symbol2, right);
+                
             }
-
-            return new NameLiteralNode(pos.Item1, Position.Item1, symbol1);
         }
 
-        return ParseExpression();
+        return left;
     }
 
     // Grammar rule: stared expression /////////////////////////////////////////////////////////////////////////////////
@@ -2574,13 +2573,13 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
     public StatementNode ParseIfStatement()
     {
         var pos = Position;
-        if (Symbol is PyIf) throw new SyntaxError(Position.Item1, "Expecting 'if' in if statement!");
+        if (Symbol is not PyIf) throw new SyntaxError(Position.Item1, "Expecting 'if' in if statement!");
         var symbol1 = Symbol;
         Advance();
 
         var left = ParseNamedExpression();
 
-        if (Symbol is PyColon) throw new SyntaxError(Position.Item1, "Expecting ':' in if statement!");
+        if (Symbol is not PyColon) throw new SyntaxError(Position.Item1, "Expecting ':' in if statement!");
         var symbol2 = Symbol;
         Advance();
 
@@ -2603,13 +2602,13 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
     private StatementNode ParseElifStatement()
     {
         var pos = Position;
-        if (Symbol is PyElif) throw new SyntaxError(Position.Item1, "Expecting 'elif' in elif statement!");
+        if (Symbol is not PyElif) throw new SyntaxError(Position.Item1, "Expecting 'elif' in elif statement!");
         var symbol1 = Symbol;
         Advance();
 
         var left = ParseNamedExpression();
 
-        if (Symbol is PyColon) throw new SyntaxError(Position.Item1, "Expecting ':' in elif statement!");
+        if (Symbol is not PyColon) throw new SyntaxError(Position.Item1, "Expecting ':' in elif statement!");
         var symbol2 = Symbol;
         Advance();
 
@@ -2621,10 +2620,10 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
     private StatementNode ParseElseStatement()
     {
         var pos = Position;
-        if (Symbol is PyElse) throw new SyntaxError(Position.Item1, "Expecting 'else' in else statement!");
+        if (Symbol is not PyElse) throw new SyntaxError(Position.Item1, "Expecting 'else' in else statement!");
         var symbol1 = Symbol;
         Advance();
-        if (Symbol is PyColon) throw new SyntaxError(Position.Item1, "Expecting ':' in else statement!");
+        if (Symbol is not PyColon) throw new SyntaxError(Position.Item1, "Expecting ':' in else statement!");
         var symbol2 = Symbol;
         Advance();
         var right = ParseBlockStatement();
@@ -2668,7 +2667,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
             return new BlockNode(pos.Item1, Position.Item1, symbol1, right, symbol2);
         }
 
-        return ParseSimpleStmt();
+        return ParseSimpleStmts();
     }
 
 
