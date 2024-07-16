@@ -105,5 +105,5 @@ public sealed record ImportFromNode(int StartPos, int EndPos, Symbol Name) : Sta
 public sealed record ImportFromAsNode(int StartPos, int EndPos, Symbol Left, Symbol As, Symbol Right) : StatementNode(StartPos, EndPos);
 public sealed record ImportFromAsNamesNode(int StartPos, int EndPos, StatementNode[] Elements, Symbol[] Separators) : StatementNode(StartPos, EndPos);
 public sealed record ImportNameNode(int StartPos, int EndPos, Symbol Symbol1, StatementNode Right) : StatementNode(StartPos, EndPos);
-public sealed record ImportFromStmtNode(int StartPos, int EndPos, Symbol From, Symbol[] Dots, StatementNode Left, Symbol Import, Symbol Start, StatementNode Right, Symbol End) : StatementNode(StartPos, EndPos);
+public sealed record ImportFromStmtNode(int StartPos, int EndPos, Symbol From, Symbol[] Dots, StatementNode? Left, Symbol Import, Symbol? Start, StatementNode? Right, Symbol? End) : StatementNode(StartPos, EndPos);
 

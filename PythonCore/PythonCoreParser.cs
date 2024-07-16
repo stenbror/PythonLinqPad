@@ -2085,7 +2085,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
     private StatementNode ParseImportFromStmt()
     {
         var pos = Position;
-        if (Symbol is PyFrom) throw new SyntaxError(Position.Item1, "Expecting 'from' in import statement!");
+        if (Symbol is not PyFrom) throw new SyntaxError(Position.Item1, "Expecting 'from' in import statement!");
         var symbol1 = Symbol;
         Advance();
         StatementNode left = null;
@@ -2099,7 +2099,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
 
         if (Symbol is PyImport && dots.Count == 0) throw new SyntaxError(Position.Item1, "Missing 'from' part of import statement!");
         if (Symbol is not PyImport) left = ParseDottedName();
-        if (Symbol is not PyImport && dots.Count == 0) throw new SyntaxError(Position.Item1, "Missing 'import' part of from import statement!");
+        if (Symbol is not PyImport) throw new SyntaxError(Position.Item1, "Missing 'import' part of from import statement!");
 
         var symbol2 = Symbol; /* 'import' */
         Advance();
