@@ -109,3 +109,9 @@ public sealed record ImportFromStmtNode(int StartPos, int EndPos, Symbol From, S
 public sealed record DelStatementNode(int StartPos, int EndPos, Symbol Symbol1, StatementNode Right) : StatementNode(StartPos, EndPos);
 public sealed record DelTargetsNode(int StartPos, int EndPos, StatementNode[] Elements, Symbol[] Separators) : StatementNode(StartPos, EndPos);
 
+
+
+public sealed record BlockNode(int StartPos, int EndPos, Symbol Indent, StatementNode Right, Symbol Dedent) : StatementNode(StartPos, EndPos);
+public sealed record IfStatementNode(int StartPos, int EndPos, Symbol If, ExpressionNode Left, Symbol Colon, StatementNode Right, StatementNode[] Elif, StatementNode? Else) : StatementNode(StartPos, EndPos);
+public sealed record ElifStatementNode(int StartPos, int EndPos, Symbol Elif, ExpressionNode Left, Symbol Colon, StatementNode Right) : StatementNode(StartPos, EndPos);
+public sealed record ElseStatementNode(int StartPos, int EndPos, Symbol Else, Symbol Colon, StatementNode Right) : StatementNode(StartPos, EndPos);

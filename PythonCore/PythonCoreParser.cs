@@ -2518,8 +2518,169 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
     }
 
     // Grammar rule: compound stmts //////////////////////////////////////////////////////////////////////////////////////
-    public StatementNode ParseCompoundStmt()
+    public StatementNode ParseCompoundStmt() =>
+        Symbol switch
+        {
+            PyMatch => ParseMatchStatement(),
+            PyWhile => ParseWhileStatement(),
+            PyTry => ParseTryStatement(),
+            PyFor => ParseForStatement(),
+            PyWith => ParseWithStatement(),
+            PyClass => ParseClassStatement(),
+            PyIf => ParseIfStatement(),
+            PyAsync => ParseAsyncStatement(),
+            PyDef => ParseDefStatement(),
+            PyMatrice => ParseDecoratedStatement(),
+            _ => throw new SyntaxError(Position.Item1, "Unknown or missing statement!")
+        };
+
+    // Grammar rule: match statement /////////////////////////////////////////////////////////////////////////////////
+    public StatementNode ParseMatchStatement()
     {
         throw new NotImplementedException();
+    }
+
+    // Grammar rule: while statement /////////////////////////////////////////////////////////////////////////////////
+    public StatementNode ParseWhileStatement()
+    {
+        throw new NotImplementedException();
+    }
+
+    // Grammar rule: try statement ///////////////////////////////////////////////////////////////////////////////////
+    public StatementNode ParseTryStatement()
+    {
+        throw new NotImplementedException();
+    }
+
+    // Grammar rule: for statement ///////////////////////////////////////////////////////////////////////////////////
+    public StatementNode ParseForStatement()
+    {
+        throw new NotImplementedException();
+    }
+
+    // Grammar rule: with statement //////////////////////////////////////////////////////////////////////////////////
+    public StatementNode ParseWithStatement()
+    {
+        throw new NotImplementedException();
+    }
+
+    // Grammar rule: class statement /////////////////////////////////////////////////////////////////////////////////
+    public StatementNode ParseClassStatement()
+    {
+        throw new NotImplementedException();
+    }
+
+    // Grammar rule: if statement ////////////////////////////////////////////////////////////////////////////////////
+    public StatementNode ParseIfStatement()
+    {
+        var pos = Position;
+        if (Symbol is PyIf) throw new SyntaxError(Position.Item1, "Expecting 'if' in if statement!");
+        var symbol1 = Symbol;
+        Advance();
+
+        var left = ParseNamedExpression();
+
+        if (Symbol is PyColon) throw new SyntaxError(Position.Item1, "Expecting ':' in if statement!");
+        var symbol2 = Symbol;
+        Advance();
+
+        var right = ParseBlockStatement();
+
+
+        if (Symbol is PyElif || Symbol is PyElse)
+        {
+            var elements = new List<StatementNode>();
+            while (Symbol is PyElif) elements.Add(ParseElifStatement());
+
+            var elsePart = Symbol is PyElse ? ParseElseStatement() : null;
+
+            return new IfStatementNode(pos.Item1, Position.Item1, symbol1, left, symbol2, right, elements.ToArray(), elsePart);
+        }
+
+        return new IfStatementNode(pos.Item1, Position.Item1, symbol1, left, symbol2, right, [], null);
+    }
+
+    private StatementNode ParseElifStatement()
+    {
+        var pos = Position;
+        if (Symbol is PyElif) throw new SyntaxError(Position.Item1, "Expecting 'elif' in elif statement!");
+        var symbol1 = Symbol;
+        Advance();
+
+        var left = ParseNamedExpression();
+
+        if (Symbol is PyColon) throw new SyntaxError(Position.Item1, "Expecting ':' in elif statement!");
+        var symbol2 = Symbol;
+        Advance();
+
+        var right = ParseBlockStatement();
+
+        return new ElifStatementNode(pos.Item1, Position.Item1, symbol1, left, symbol2, right);
+    }
+
+    private StatementNode ParseElseStatement()
+    {
+        var pos = Position;
+        if (Symbol is PyElse) throw new SyntaxError(Position.Item1, "Expecting 'else' in else statement!");
+        var symbol1 = Symbol;
+        Advance();
+        if (Symbol is PyColon) throw new SyntaxError(Position.Item1, "Expecting ':' in else statement!");
+        var symbol2 = Symbol;
+        Advance();
+        var right = ParseBlockStatement();
+
+        return new ElseStatementNode(pos.Item1, Position.Item1, symbol1, symbol2, right);
+    }
+
+    // Grammar rule: async statement /////////////////////////////////////////////////////////////////////////////////
+    public StatementNode ParseAsyncStatement()
+    {
+        throw new NotImplementedException();
+    }
+
+    // Grammar rule: def statement ///////////////////////////////////////////////////////////////////////////////////
+    public StatementNode ParseDefStatement()
+    {
+        throw new NotImplementedException();
+    }
+
+    // Grammar rule: decorated statement /////////////////////////////////////////////////////////////////////////////
+    public StatementNode ParseDecoratedStatement()
+    {
+        throw new NotImplementedException();
+    }
+
+    // Grammar rule: block statement ///////////////////////////////////////////////////////////////////////////////////
+    public StatementNode ParseBlockStatement()
+    {
+        if (Symbol is PyNewline)
+        {
+            var pos = Position;
+            var symbol1 = Symbol;
+            Advance();
+
+            var right = ParseStmts();
+
+            if (Symbol is not PyDedent) throw new SyntaxError(Position.Item1, "Missing Dedent in code block!");
+            var symbol2 = Symbol;
+            Advance();
+
+            return new BlockNode(pos.Item1, Position.Item1, symbol1, right, symbol2);
+        }
+
+        return ParseSimpleStmt();
+    }
+
+
+
+
+
+    // File input as start rule for parsing ////////////////////////////////////////////////////////////////////////////
+    public StatementNode? ParseFileInput()
+    {
+        Advance();
+        if (Symbol is PyEOF) return null; // Empty file returns null.
+
+        return ParseStmts();
     }
 }
