@@ -508,5 +508,32 @@ namespace TestPythonCore
 
             Assert.Equivalent(required, res, strict: true);
         }
+
+        [Fact]
+        public void TestStatementImportNameSingleAs()
+        {
+            var parser = new PythonCoreParser("import a as b\r\n\r\n");
+            parser.Advance();
+            var res = parser.ParseStmts();
+
+            var required = new SimpleStmtsNode(0, 15,
+                [
+                    new ImportNameNode(0, 13,
+                        new PyImport(0, 6, []),
+                        new DottedAsNameNode(7, 13,
+                                new DottedNameNode(7, 9, [
+                                    new PyName(7, 8, "a", [ new WhiteSpaceTrivia(6, 7) ])
+                                ], []),
+                                new PyAs(9, 11, [ new WhiteSpaceTrivia(8, 9) ]),
+                                new PyName(12, 13, "b", [ new WhiteSpaceTrivia(11, 12) ])
+                            )
+                    )
+                ],
+                [],
+                new PyNewline(13, 15, '\r', '\n', [])
+            );
+
+            Assert.Equivalent(required, res, strict: true);
+        }
     }
 }
