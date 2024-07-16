@@ -670,5 +670,122 @@ namespace TestPythonCore
 
             Assert.Equivalent(required, res, strict: true);
         }
+
+        [Fact]
+        public void TestStatementImportFromMul()
+        {
+            var parser = new PythonCoreParser("from . import *\r\n\r\n");
+            parser.Advance();
+            var res = parser.ParseStmts();
+
+            var required = new SimpleStmtsNode(0, 17,
+                [
+                    new ImportFromStmtNode(0, 15,
+                        new PyFrom(0, 4, []),
+                        [
+                            new PyDot(5, 6, [ new WhiteSpaceTrivia(4, 5) ])
+                        ],
+                        null,
+                        new PyImport(7, 13, [ new WhiteSpaceTrivia(6, 7) ]),
+                        new PyMul(14, 15, [ new WhiteSpaceTrivia(13, 14) ]),
+                        null,
+                        null
+                    )
+                ],
+                [],
+                new PyNewline(15, 17, '\r', '\n', [])
+            );
+
+            Assert.Equivalent(required, res, strict: true);
+        }
+
+        [Fact]
+        public void TestStatementImportFromParenthesis()
+        {
+            var parser = new PythonCoreParser("from . import (a)\r\n\r\n");
+            parser.Advance();
+            var res = parser.ParseStmts();
+
+            var start = ((res as SimpleStmtsNode)?.Elements[0] as ImportFromStmtNode)?.Start;
+            var right = ((res as SimpleStmtsNode)?.Elements[0] as ImportFromStmtNode)?.Right;
+            var end = ((res as SimpleStmtsNode)?.Elements[0] as ImportFromStmtNode)?.End;
+
+            Assert.Equivalent( new PyLeftParen(14, 15, [ new WhiteSpaceTrivia(13, 14) ]), start!);
+            Assert.Equivalent(new ImportFromNode(15, 16, new PyName(15, 16, "a", [])), right);
+            Assert.Equivalent(new PyRightParen(16, 17, []), end!);
+        }
+
+        [Fact]
+        public void TestStatementImportFromMulWithMoreDots()
+        {
+            var parser = new PythonCoreParser("from .... import *\r\n\r\n");
+            parser.Advance();
+            var res = parser.ParseStmts();
+
+            var required = new SimpleStmtsNode(0, 20,
+                [
+                    new ImportFromStmtNode(0, 18,
+                        new PyFrom(0, 4, []),
+                        [
+                            new PyElipsis(5, 8, [ new WhiteSpaceTrivia(4, 5) ]),
+                            new PyDot(8, 9, [])
+                        ],
+                        null,
+                        new PyImport(10, 16, [ new WhiteSpaceTrivia(9, 10) ]),
+                        new PyMul(17, 18, [ new WhiteSpaceTrivia(16, 17) ]),
+                        null,
+                        null
+                    )
+                ],
+                [],
+                new PyNewline(18, 20, '\r', '\n', [])
+            );
+
+            Assert.Equivalent(required, res, strict: true);
+        }
+
+        [Fact]
+        public void TestStatementImportFromMulWithName()
+        {
+            var parser = new PythonCoreParser("from a import *\r\n\r\n");
+            parser.Advance();
+            var res = parser.ParseStmts();
+
+            var required = new SimpleStmtsNode(0, 17,
+                [
+                    new ImportFromStmtNode(0, 15,
+                        new PyFrom(0, 4, []),
+                        [],
+                        new DottedNameNode(5, 7, [
+                            new PyName(5, 6, "a", [ new WhiteSpaceTrivia(4, 5) ])
+                        ], []),
+                        new PyImport(7, 13, [ new WhiteSpaceTrivia(6, 7) ]),
+                        new PyMul(14, 15, [ new WhiteSpaceTrivia(13, 14) ]),
+                        null,
+                        null
+                    )
+                ],
+                [],
+                new PyNewline(15, 17, '\r', '\n', [])
+            );
+
+            Assert.Equivalent(required, res, strict: true);
+        }
+
+        [Fact]
+        public void TestStatementImportFromMulWithDottedName()
+        {
+            var parser = new PythonCoreParser("from a.b import *\r\n\r\n");
+            parser.Advance();
+            var res = parser.ParseStmts();
+
+            var left = ((res as SimpleStmtsNode)?.Elements[0] as ImportFromStmtNode)?.Left;
+
+            Assert.IsType<DottedNameNode>(left!);
+
+            Assert.Equivalent(new PyName(5, 6, "a", [ new WhiteSpaceTrivia(4, 5) ]) , (left as DottedNameNode)?.Elements[0]);
+
+            Assert.Equivalent(new PyName(7, 8, "b", [ ]), (left as DottedNameNode)?.Elements[1]);
+        }
     }
 }

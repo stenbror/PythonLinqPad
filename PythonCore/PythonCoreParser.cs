@@ -2270,6 +2270,37 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
     // Grammar rule: del stmt //////////////////////////////////////////////////////////////////////////////////////////
     public StatementNode ParseDelStmt()
     {
+        var pos = Position;
+        if (Symbol is not PyDel) throw new SyntaxError(Position.Item1, "Expecting 'del' in del statement!");
+        var symbol1 = Symbol;
+        Advance();
+
+        var right = ParseDelTargets();
+
+        return new DelStatementNode(pos.Item1, Position.Item1, symbol1, right);
+    }
+
+    private StatementNode ParseDelTargets()
+    {
+        var pos = Position;
+        var elements = new List<StatementNode>();
+        var separators = new List<Symbol>();
+
+        elements.Add(ParseDelTarget());
+
+        while (Symbol is PyComma)
+        {
+            separators.Add(Symbol);
+            Advance();
+
+            elements.Add(ParseDelTarget());
+        }
+
+        return new DelTargetsNode(pos.Item1, Position.Item1, elements.ToArray(), separators.ToArray());
+    }
+
+    private StatementNode ParseDelTarget()
+    {
         throw new NotImplementedException();
     }
 
