@@ -633,5 +633,42 @@ namespace TestPythonCore
 
             Assert.Equivalent(required, res, strict: true);
         }
+
+        [Fact]
+        public void TestStatementImportFromNameAsDouble()
+        {
+            var parser = new PythonCoreParser("from . import a as b, c\r\n\r\n");
+            parser.Advance();
+            var res = parser.ParseStmts();
+
+            var required = new SimpleStmtsNode(0, 25,
+                [
+                    new ImportFromStmtNode(0, 23,
+                        new PyFrom(0, 4, []),
+                        [
+                            new PyDot(5, 6, [ new WhiteSpaceTrivia(4, 5) ])
+                        ],
+                        null,
+                        new PyImport(7, 13, [ new WhiteSpaceTrivia(6, 7) ]),
+                        null,
+                        new ImportFromAsNamesNode(14, 23, [
+                            new ImportFromAsNode(14, 20,
+                                new PyName(14, 15, "a", [ new WhiteSpaceTrivia(13, 14) ]),
+                                new PyAs(16, 18, [ new WhiteSpaceTrivia(15, 16) ]),
+                                new PyName(19, 20, "b", [ new WhiteSpaceTrivia(18, 19) ]) ),
+
+                            new ImportFromNode(22, 23, new PyName(22, 23, "c", [ new WhiteSpaceTrivia(21, 22) ]))
+                        ], [
+                            new PyComma(20, 21, [])
+                        ]),
+                        null
+                    )
+                ],
+                [],
+                new PyNewline(23, 25, '\r', '\n', [])
+            );
+
+            Assert.Equivalent(required, res, strict: true);
+        }
     }
 }
