@@ -17,6 +17,9 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
     private bool _atBOL = true;
     private bool _isBlankLine = false;
 
+    private bool _isStarExcept = false;
+    private bool _seenDefaultExcept = false;
+
     private List<Trivia> triviaList = new List<Trivia>();
 
 
@@ -2565,6 +2568,9 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
     public StatementNode ParseTryStatement()
     {
         var pos = Position;
+        _isStarExcept = false;
+        _seenDefaultExcept = false;
+
         if (Symbol is not PyTry) throw new SyntaxError(Position.Item1, "Expecting 'try' for try statement!");
         var symbol1 = Symbol;
         Advance();
@@ -2596,12 +2602,15 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
     private StatementNode ParseExceptBlock()
     {
         var pos = Position;
+        if (_seenDefaultExcept) throw new SyntaxError(Position.Item1, "Only one default except statement allowed in try statement!");
+
         if (Symbol is not PyExcept) throw new SyntaxError(Position.Item1, "Expecting 'except' for except statement!");
         var symbol1 = Symbol;
         Advance();
 
         if (Symbol is PyMul)
         {
+            _isStarExcept = true;
             var symbol2 = Symbol;
             Advance();
 
@@ -2631,6 +2640,8 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
 
             var right2 = ParseBlockStatement();
 
+            _seenDefaultExcept = true;
+
             return new StarExceptStatementNode(pos.Item1, Position.Item1, symbol1, symbol2, left, null, null, symbol6, right2);
         }
         else if (Symbol is PyColon)
@@ -2644,6 +2655,8 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
         }
         else
         {
+            if (_isStarExcept == true) throw new SyntaxError(Position.Item1, "Mixing star except and except is not allowed!");
+
             var left = ParseExpression();
 
             if (Symbol is PyAs)
