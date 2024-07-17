@@ -850,5 +850,49 @@ namespace TestPythonCore
 
             Assert.Equivalent(required, res, strict: true);
         }
+
+        [Fact]
+        public void TestStatementIfElifElseStatementSimple()
+        {
+            var parser = new PythonCoreParser("if a > 5: pass\r\nelif a < 6: pass\r\nelse: pass\r\n\r\n");
+            parser.Advance();
+            var res = parser.ParseStmts();
+
+            var required = new IfStatementNode(0, 46,
+                new PyIf(0, 2, []),
+                new GreaterExpressionNode(3, 8,
+                    new NameLiteralNode(3, 4, new PyName(3, 4, "a", [new WhiteSpaceTrivia(2, 3)])),
+                    new PyGreater(5, 6, [new WhiteSpaceTrivia(4, 5)]),
+                    new NumberLiteralNode(7, 8, new PyNumber(7, 8, "5", [new WhiteSpaceTrivia(6, 7)]))
+                ),
+                new PyColon(8, 9, []),
+                new SimpleStmtsNode(10, 16, [
+                    new PassStmtNode(10, 14, new PyPass(10, 14, [new WhiteSpaceTrivia(9, 10)]))
+                ], [], new PyNewline(14, 16, '\r', '\n', [])),
+                [
+                    new ElifStatementNode(16, 34,
+                            new PyElif(16, 20, []),
+                            new LessExpressionNode(21, 26,
+                                new NameLiteralNode(21, 22, new PyName(21, 22, "a", [new WhiteSpaceTrivia(20, 21)])),
+                                new PyLess(23, 24, [new WhiteSpaceTrivia(22, 23)]),
+                                new NumberLiteralNode(25, 26, new PyNumber(25, 26, "6", [new WhiteSpaceTrivia(24, 25)]))
+                            ),
+                            new PyColon(26, 27, []),
+                            new SimpleStmtsNode(28, 34, [
+                                new PassStmtNode(28, 32, new PyPass(28, 32, [new WhiteSpaceTrivia(27, 28)]))
+                            ], [], new PyNewline(32, 34, '\r', '\n', []))
+                        )
+                ],
+                new ElseStatementNode(34, 46,
+                    new PyElse(34, 38, []),
+                    new PyColon(38, 39, []),
+                    new SimpleStmtsNode(40, 46, [
+                        new PassStmtNode(40, 44, new PyPass(40, 44, [new WhiteSpaceTrivia(39, 40)]))
+                    ], [], new PyNewline(44, 46, '\r', '\n', []))
+                )
+            );
+
+            Assert.Equivalent(required, res, strict: true);
+        }
     }
 }
