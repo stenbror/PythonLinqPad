@@ -818,5 +818,37 @@ namespace TestPythonCore
 
             Assert.Equivalent(required, res, strict: true);
         }
+
+        [Fact]
+        public void TestStatementIfElseStatementSimple()
+        {
+            var parser = new PythonCoreParser("if a > 5: pass\r\nelse: pass\r\n\r\n");
+            parser.Advance();
+            var res = parser.ParseStmts();
+
+            var required = new IfStatementNode(0, 28,
+                new PyIf(0, 2, []),
+                new GreaterExpressionNode(3, 8,
+                    new NameLiteralNode(3, 4, new PyName(3, 4, "a", [new WhiteSpaceTrivia(2, 3)])),
+                    new PyGreater(5, 6, [new WhiteSpaceTrivia(4, 5)]),
+                    new NumberLiteralNode(7, 8, new PyNumber(7, 8, "5", [new WhiteSpaceTrivia(6, 7)]))
+                ),
+                new PyColon(8, 9, []),
+                new SimpleStmtsNode(10, 16, [
+                    new PassStmtNode(10, 14, new PyPass(10, 14, [new WhiteSpaceTrivia(9, 10)]))
+                ], [], new PyNewline(14, 16, '\r', '\n', [])),
+                [],
+                new ElseStatementNode(16, 28,
+                        new PyElse(16, 20, []),
+                        new PyColon(20, 21, []),
+                        new SimpleStmtsNode(22, 28, [
+                            new PassStmtNode(22, 26, new PyPass(22, 26, [new WhiteSpaceTrivia(21, 22)]))
+                        ], [], new PyNewline(26, 28, '\r', '\n', []))
+                    )
+
+            );
+
+            Assert.Equivalent(required, res, strict: true);
+        }
     }
 }
