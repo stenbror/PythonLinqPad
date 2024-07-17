@@ -2564,7 +2564,130 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
     // Grammar rule: try statement ///////////////////////////////////////////////////////////////////////////////////
     public StatementNode ParseTryStatement()
     {
-        throw new NotImplementedException();
+        var pos = Position;
+        if (Symbol is not PyTry) throw new SyntaxError(Position.Item1, "Expecting 'try' for try statement!");
+        var symbol1 = Symbol;
+        Advance();
+
+        if (Symbol is not PyColon) throw new SyntaxError(Position.Item1, "Expecting ':' for try statement!");
+        var symbol2 = Symbol;
+        Advance();
+
+        var left = ParseBlockStatement();
+
+        if (Symbol is PyFinally)
+        {
+            var right = ParseFinallyBlock();
+
+            return new TryFinallyStatementBlock(pos.Item1, Position.Item1, symbol1, symbol2, left, right);
+        }
+
+        if (Symbol is not PyExcept) throw new SyntaxError(Position.Item1, "Must have one or more 'except' statement, when you dont have 'finally'!");
+        var elements = new List<StatementNode>();
+        while (Symbol is PyExcept) elements.Add(ParseExceptBlock());
+
+        var elsePart = Symbol is PyElse ? ParseElseStatement() : null;
+
+        var finallyPart = Symbol is PyFinally ? ParseFinallyBlock() : null; 
+
+        return new TryExceptFinallyStatementBlock(pos.Item1, Position.Item1, symbol1, symbol2, left, elements.ToArray(), elsePart, finallyPart);
+    }
+
+    private StatementNode ParseExceptBlock()
+    {
+        var pos = Position;
+        if (Symbol is not PyExcept) throw new SyntaxError(Position.Item1, "Expecting 'except' for except statement!");
+        var symbol1 = Symbol;
+        Advance();
+
+        if (Symbol is PyMul)
+        {
+            var symbol2 = Symbol;
+            Advance();
+
+            var left = ParseExpression();
+
+            if (Symbol is PyAs)
+            {
+                var symbol3 = Symbol;
+                Advance();
+
+                if (Symbol is not PyName) throw new SyntaxError(Position.Item1, "Expecting NAME literal for as part of except statement!");
+                var symbol4 = Symbol;
+                Advance();
+
+                if (Symbol is not PyColon) throw new SyntaxError(Position.Item1, "Expecting ':' for except statement!");
+                var symbol5 = Symbol;
+                Advance();
+
+                var right = ParseBlockStatement();
+
+                return new StarExceptStatementNode(pos.Item1, Position.Item1, symbol1, symbol2, left, symbol3, symbol4, symbol5, right);
+            }
+
+            if (Symbol is not PyColon) throw new SyntaxError(Position.Item1, "Expecting ':' for except statement!");
+            var symbol6 = Symbol;
+            Advance();
+
+            var right2 = ParseBlockStatement();
+
+            return new StarExceptStatementNode(pos.Item1, Position.Item1, symbol1, symbol2, left, null, null, symbol6, right2);
+        }
+        else if (Symbol is PyColon)
+        {
+            var symbol2 = Symbol;
+            Advance();
+
+            var right = ParseBlockStatement();
+
+            return new DefaultExceptStatementNode(pos.Item1, Position.Item1, symbol1, symbol2, right );
+        }
+        else
+        {
+            var left = ParseExpression();
+
+            if (Symbol is PyAs)
+            {
+                var symbol3 = Symbol;
+                Advance();
+
+                if (Symbol is not PyName) throw new SyntaxError(Position.Item1, "Expecting NAME literal for as part of except statement!");
+                var symbol4 = Symbol;
+                Advance();
+
+                if (Symbol is not PyColon) throw new SyntaxError(Position.Item1, "Expecting ':' for except statement!");
+                var symbol5 = Symbol;
+                Advance();
+
+                var right = ParseBlockStatement();
+
+                return new ExceptStatementNode(pos.Item1, Position.Item1, symbol1, left, symbol3, symbol4, symbol5, right);
+            }
+
+            if (Symbol is not PyColon) throw new SyntaxError(Position.Item1, "Expecting ':' for except statement!");
+            var symbol6 = Symbol;
+            Advance();
+
+            var right2 = ParseBlockStatement();
+
+            return new ExceptStatementNode(pos.Item1, Position.Item1, symbol1, left, null, null, symbol6, right2);
+        }
+    }
+
+    private StatementNode ParseFinallyBlock()
+    {
+        var pos = Position;
+        if (Symbol is not PyFinally) throw new SyntaxError(Position.Item1, "Expecting 'finally' for finally statement!");
+        var symbol1 = Symbol;
+        Advance();
+
+        if (Symbol is not PyColon) throw new SyntaxError(Position.Item1, "Expecting ':' for finally statement!");
+        var symbol2 = Symbol;
+        Advance();
+
+        var right = ParseBlockStatement();
+
+        return new FinallyStatementNode(pos.Item1, Position.Item1, symbol1, symbol2, right);
     }
 
     // Grammar rule: for statement ///////////////////////////////////////////////////////////////////////////////////

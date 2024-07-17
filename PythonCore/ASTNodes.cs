@@ -118,3 +118,9 @@ public sealed record ElseStatementNode(int StartPos, int EndPos, Symbol Else, Sy
 public sealed record WhileStatementNode(int StartPos, int EndPos, Symbol While, ExpressionNode Left, Symbol Colon, StatementNode Right, StatementNode? Else) : StatementNode(StartPos, EndPos);
 
 
+public sealed record TryFinallyStatementBlock(int StartPos, int EndPos, Symbol Try, Symbol Colon, StatementNode Left, StatementNode Finally) : StatementNode(StartPos, EndPos);
+public sealed record TryExceptFinallyStatementBlock(int StartPos, int EndPos, Symbol Try, Symbol Colon, StatementNode Left, StatementNode[] Excepts, StatementNode? Else, StatementNode? Finally) : StatementNode(StartPos, EndPos);
+public sealed record DefaultExceptStatementNode(int StartPos, int EndPos, Symbol Except, Symbol Colon, StatementNode Right) : StatementNode(StartPos, EndPos);
+public sealed record ExceptStatementNode(int StartPos, int EndPos, Symbol Except, ExpressionNode Left, Symbol? As, Symbol? Name, Symbol Colon, StatementNode Right) : StatementNode(StartPos, EndPos);
+public sealed record StarExceptStatementNode(int StartPos, int EndPos, Symbol Except, Symbol Star, ExpressionNode Left, Symbol? As, Symbol? Name, Symbol Colon, StatementNode Right) : StatementNode(StartPos, EndPos);
+public sealed record FinallyStatementNode(int StartPos, int EndPos, Symbol Finally, Symbol Colon, StatementNode Right) : StatementNode(StartPos, EndPos);
