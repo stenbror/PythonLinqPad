@@ -115,3 +115,6 @@ public sealed record BlockNode(int StartPos, int EndPos, Symbol Indent, Statemen
 public sealed record IfStatementNode(int StartPos, int EndPos, Symbol If, ExpressionNode Left, Symbol Colon, StatementNode Right, StatementNode[] Elif, StatementNode? Else) : StatementNode(StartPos, EndPos);
 public sealed record ElifStatementNode(int StartPos, int EndPos, Symbol Elif, ExpressionNode Left, Symbol Colon, StatementNode Right) : StatementNode(StartPos, EndPos);
 public sealed record ElseStatementNode(int StartPos, int EndPos, Symbol Else, Symbol Colon, StatementNode Right) : StatementNode(StartPos, EndPos);
+public sealed record WhileStatementNode(int StartPos, int EndPos, Symbol While, ExpressionNode Left, Symbol Colon, StatementNode Right, StatementNode? Else) : StatementNode(StartPos, EndPos);
+
+

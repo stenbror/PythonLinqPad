@@ -894,5 +894,29 @@ namespace TestPythonCore
 
             Assert.Equivalent(required, res, strict: true);
         }
+
+        [Fact]
+        public void TestStatementWhileStatementSimple()
+        {
+            var parser = new PythonCoreParser("while a > 5: pass\r\n\r\n");
+            parser.Advance();
+            var res = parser.ParseStmts();
+
+            var required = new WhileStatementNode(0, 19,
+                new PyWhile(0, 5, []),
+                new GreaterExpressionNode(6, 11,
+                    new NameLiteralNode(6, 7, new PyName(6, 7, "a", [new WhiteSpaceTrivia(5, 6)])),
+                    new PyGreater(8, 9, [new WhiteSpaceTrivia(7, 8)]),
+                    new NumberLiteralNode(10, 11, new PyNumber(10, 11, "5", [new WhiteSpaceTrivia(9, 10)]))
+                ),
+                new PyColon(11, 12, []),
+                new SimpleStmtsNode(13, 19, [
+                    new PassStmtNode(13, 17, new PyPass(13, 17, [new WhiteSpaceTrivia(12, 13)]))
+                ], [], new PyNewline(17, 19, '\r', '\n', [])),
+                null
+            );
+
+            Assert.Equivalent(required, res, strict: true);
+        }
     }
 }

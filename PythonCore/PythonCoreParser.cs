@@ -2542,7 +2542,23 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
     // Grammar rule: while statement /////////////////////////////////////////////////////////////////////////////////
     public StatementNode ParseWhileStatement()
     {
-        throw new NotImplementedException();
+        var pos = Position;
+
+        if (Symbol is not PyWhile) throw new SyntaxError(Position.Item1, "Expecting 'while' in while statement!");
+        var symbol1 = Symbol;
+        Advance();
+
+        var left = ParseNamedExpression();
+
+        if (Symbol is not PyColon) throw new SyntaxError(Position.Item1, "Expecting ':' in while statement!");
+        var symbol2 = Symbol;
+        Advance();
+
+        var right = ParseBlockStatement();
+
+        var elsePart = Symbol is PyElse ? ParseElseStatement() : null;
+
+        return new WhileStatementNode(pos.Item1, Position.Item1, symbol1, left, symbol2, right, elsePart);
     }
 
     // Grammar rule: try statement ///////////////////////////////////////////////////////////////////////////////////
