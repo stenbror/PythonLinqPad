@@ -2585,7 +2585,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
         {
             var right = ParseFinallyBlock();
 
-            return new TryFinallyStatementBlock(pos.Item1, Position.Item1, symbol1, symbol2, left, right);
+            return new TryFinallyStatementBlockNode(pos.Item1, Position.Item1, symbol1, symbol2, left, right);
         }
 
         if (Symbol is not PyExcept) throw new SyntaxError(Position.Item1, "Must have one or more 'except' statement, when you dont have 'finally'!");
@@ -2596,7 +2596,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
 
         var finallyPart = Symbol is PyFinally ? ParseFinallyBlock() : null; 
 
-        return new TryExceptFinallyStatementBlock(pos.Item1, Position.Item1, symbol1, symbol2, left, elements.ToArray(), elsePart, finallyPart);
+        return new TryExceptFinallyStatementBlockNode(pos.Item1, Position.Item1, symbol1, symbol2, left, elements.ToArray(), elsePart, finallyPart);
     }
 
     private StatementNode ParseExceptBlock()

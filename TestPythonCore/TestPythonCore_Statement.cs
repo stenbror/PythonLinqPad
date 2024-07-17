@@ -948,5 +948,31 @@ namespace TestPythonCore
 
             Assert.Equivalent(required, res, strict: true);
         }
+
+        [Fact]
+        public void TestStatementTryFinallyStatement()
+        {
+            var parser = new PythonCoreParser("try: pass\r\nfinally: pass\r\n\r\n");
+            parser.Advance();
+            var res = parser.ParseStmts();
+
+            var required = new TryFinallyStatementBlockNode(0, 26,
+                                    new PyTry(0, 3, []),
+                                    new PyColon(3, 4, []),
+                                    new SimpleStmtsNode(5, 11, [
+                                        new PassStmtNode(5, 9, new PyPass(5, 9, [new WhiteSpaceTrivia(4, 5)]))
+                                    ], [], new PyNewline(9, 11, '\r', '\n', [])),
+                                    new FinallyStatementNode(11, 26, 
+                                            new PyFinally(11, 18, []),
+                                            new PyColon(18, 19, []),
+                                            new SimpleStmtsNode(20, 26, [
+                                                new PassStmtNode(20, 24, new PyPass(20, 24, [new WhiteSpaceTrivia(19, 20)]))
+                                            ], [], new PyNewline(24, 26, '\r', '\n', []))
+                                        )
+                
+            );
+
+            Assert.Equivalent(required, res, strict: true);
+        }
     }
 }
