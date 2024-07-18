@@ -1036,5 +1036,45 @@ namespace TestPythonCore
 
             Assert.Equivalent(required, res, strict: true);
         }
+
+        [Fact]
+        public void TestStatementTryExceptElseFinallyStatement()
+        {
+            var parser = new PythonCoreParser("try: pass\r\nexcept: pass\r\nelse: pass\r\nfinally: pass\r\n\r\n");
+            parser.Advance();
+            var res = parser.ParseStmts();
+
+            var required = new TryExceptFinallyStatementBlockNode(0, 52,
+                new PyTry(0, 3, []),
+                new PyColon(3, 4, []),
+                new SimpleStmtsNode(5, 11, [
+                    new PassStmtNode(5, 9, new PyPass(5, 9, [new WhiteSpaceTrivia(4, 5)]))
+                ], [], new PyNewline(9, 11, '\r', '\n', [])),
+                [
+                    new DefaultExceptStatementNode(11, 25,
+                        new PyExcept(11, 17, []),
+                        new PyColon(17, 18, []),
+                        new SimpleStmtsNode(19, 25, [
+                            new PassStmtNode(19, 23, new PyPass(19, 23, [new WhiteSpaceTrivia(18, 19)]))
+                        ], [], new PyNewline(23, 25, '\r', '\n', [])))
+                ],
+                new ElseStatementNode(25, 37,
+                    new PyElse(25, 29, []),
+                    new PyColon(29, 30, []),
+                    new SimpleStmtsNode(31, 37, [
+                        new PassStmtNode(31, 35, new PyPass(31, 35, [new WhiteSpaceTrivia(30, 31)]))
+                    ], [], new PyNewline(35, 37, '\r', '\n', []))
+                ),
+                new FinallyStatementNode(37, 52,
+                    new PyFinally(37, 44, []),
+                    new PyColon(44, 45, []),
+                    new SimpleStmtsNode(46, 52, [
+                        new PassStmtNode(46, 50, new PyPass(46, 50, [new WhiteSpaceTrivia(45, 46)]))
+                    ], [], new PyNewline(50, 52, '\r', '\n', []))
+                )
+            );
+
+            Assert.Equivalent(required, res, strict: true);
+        }
     }
 }
