@@ -1286,5 +1286,41 @@ namespace TestPythonCore
                 null
             );
         }
+
+
+
+
+
+
+        [Fact]
+        public void TestStatementSimpleDefaultMatchStatement()
+        {
+            var parser = new PythonCoreParser("match a:\r\n  case _: pass\r\npass\r\n\r\n");
+            parser.Advance();
+            var res = parser.ParseStmt();
+
+            var required = new MatchStatementNode(0, 26,
+                    new PyMatch(0, 5, []),
+                    new NameLiteralNode(6, 7, new PyName(6, 7, "a" , [ new WhiteSpaceTrivia(5, 6) ])),
+                        new PyColon(7, 8, []),
+                    new PyNewline(8, 10, '\r', '\n', []),
+                    new PyIndent([ new WhiteSpaceTrivia(10, 11), new WhiteSpaceTrivia(11, 12) ]),
+                    [
+                        new MatchCaseStatementNode(12, 24, 
+                                new PyCase(12, 16, []),
+                                new MatchDefaultCasePatternNode(17, 18, new PyDefault(17, 18, [ new WhiteSpaceTrivia(16, 17) ])),
+                                null,
+                                new PyColon(18, 19, []),
+                                new SimpleStmtsNode(20, 24, [
+                                    new PassStmtNode(20, 24, new PyPass(20, 24, [new WhiteSpaceTrivia(19, 20)]))
+                                ], [], new PyNewline(24, 26, '\r', '\n', []))
+                            )
+                    ],
+                    new PyDedent([new WhiteSpaceTrivia(10, 11), new WhiteSpaceTrivia(11, 12) ] )
+                );
+
+            Assert.Equivalent(required, res, strict: true);
+        }
+
     }
 }

@@ -118,7 +118,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
         if (_pending < 0)
         {
             _pending++;
-            Symbol = new PyDedent(triviaList.ToArray());
+            Symbol = new PyDedent([]);
 
             triviaList = new List<Trivia>(); /* Clear after added to symbol */
             return;
@@ -174,6 +174,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                         }
                         Symbol = new PyNewline(_symbolStartPos, _index, '\r', '\n', triviaList.ToArray());
                         _atBOL = true;
+                        triviaList = new List<Trivia>();
                         return;
                     }
 
@@ -184,6 +185,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
                     }
                     Symbol = new PyNewline(_symbolStartPos, _index, '\r', ' ', triviaList.ToArray());
                     _atBOL = true;
+                    triviaList = new List<Trivia>();
                     return;
                 }
 
