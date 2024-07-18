@@ -118,9 +118,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
         if (_pending < 0)
         {
             _pending++;
-            Symbol = new PyDedent([]);
-
-            triviaList = new List<Trivia>(); /* Clear after added to symbol */
+            Symbol = new PyDedent();
             return;
         }
 
@@ -2572,7 +2570,7 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
         var symbol5 = Symbol;
         Advance();
 
-        return new MatchStatementNode(pos.Item1, Position.Item1, symbol1, left, symbol2, symbol3, symbol4, elements.ToArray(), symbol4);
+        return new MatchStatementNode(pos.Item1, Position.Item1, symbol1, left, symbol2, symbol3, symbol4, elements.ToArray(), symbol5);
     }
 
     private StatementNode ParseCaseBlock()

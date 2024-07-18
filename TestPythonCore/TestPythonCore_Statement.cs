@@ -1316,7 +1316,7 @@ namespace TestPythonCore
                                 ], [], new PyNewline(24, 26, '\r', '\n', []))
                             )
                     ],
-                    new PyDedent([new WhiteSpaceTrivia(10, 11), new WhiteSpaceTrivia(11, 12) ] )
+                    new PyDedent()
                 );
 
             Assert.Equivalent(required, res, strict: true);

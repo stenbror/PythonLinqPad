@@ -97,5 +97,5 @@ public sealed record PyString(int StartPos, int EndPos, string Text, Trivia[] Tr
 public sealed record PyEOF(int Position, Trivia[] Trivias) : Symbol(Position, Position);
 public sealed record PyNewline(int StartPos, int EndPos, char Ch1, char Ch2, Trivia[] Trivias) : Symbol(StartPos, EndPos);
 public sealed record PyIndent(Trivia[] Trivias) : Symbol(0, 0);
-public sealed record PyDedent(Trivia[] Trivias) : Symbol(0, 0);
+public sealed record PyDedent() : Symbol(0, 0);
 public sealed record PyTypeString(int StartPos, int EndPos, string Comment, Trivia[] Trivias) : Symbol(StartPos, EndPos);
