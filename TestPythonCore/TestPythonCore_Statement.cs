@@ -12,10 +12,10 @@ namespace TestPythonCore
             var res = parser.ParseStmts();
 
             var required = new SimpleStmtsNode(0, 7,
-                    [ new BreakStmtNode(0, 5, new PyBreak(0, 5, [])) ],
-                    [],
-                    new PyNewline(5, 7, '\r', '\n', [])
-                );
+                [new BreakStmtNode(0, 5, new PyBreak(0, 5, []))],
+                [],
+                new PyNewline(5, 7, '\r', '\n', [])
+            );
 
             Assert.Equivalent(required, res, strict: true);
         }
@@ -62,12 +62,12 @@ namespace TestPythonCore
             var required = new SimpleStmtsNode(0, 17,
                 [
                     new TypeAliasNode(0, 15,
-                            new PyType(0, 4, []),
-                            new PyName(5, 9, "test", [ new WhiteSpaceTrivia(4, 5) ]),
-                            null,
-                            new PyAssign(10, 11, [ new WhiteSpaceTrivia(9, 10) ]),
-                            new NameLiteralNode(12, 15, new PyName(12, 15, "run", [ new WhiteSpaceTrivia(11, 12) ]))
-                        )
+                        new PyType(0, 4, []),
+                        new PyName(5, 9, "test", [new WhiteSpaceTrivia(4, 5)]),
+                        null,
+                        new PyAssign(10, 11, [new WhiteSpaceTrivia(9, 10)]),
+                        new NameLiteralNode(12, 15, new PyName(12, 15, "run", [new WhiteSpaceTrivia(11, 12)]))
+                    )
                 ],
                 [],
                 new PyNewline(15, 17, '\r', '\n', [])
@@ -87,19 +87,19 @@ namespace TestPythonCore
                 [
                     new TypeAliasNode(0, 18,
                         new PyType(0, 4, []),
-                        new PyName(5, 9, "test", [ new WhiteSpaceTrivia(4, 5) ]),
+                        new PyName(5, 9, "test", [new WhiteSpaceTrivia(4, 5)]),
                         new TypeParamsNode(9, 13,
-                                new PyLeftBracket(9, 10, []),
-                                new TypeParamSequenceNode(10, 11, 
-                                    [
-                                        new TypeParameterNode(10, 11, new PyName(10, 11, "a", []))
-                                    ], 
-                                    []
-                                    ),
-                                new PyRightBracket(11, 12, [])
+                            new PyLeftBracket(9, 10, []),
+                            new TypeParamSequenceNode(10, 11,
+                                [
+                                    new TypeParameterNode(10, 11, new PyName(10, 11, "a", []))
+                                ],
+                                []
                             ),
-                        new PyAssign(13, 14, [ new WhiteSpaceTrivia(12, 13) ]),
-                        new NameLiteralNode(15, 18, new PyName(15, 18, "run", [ new WhiteSpaceTrivia(14, 15) ]))
+                            new PyRightBracket(11, 12, [])
+                        ),
+                        new PyAssign(13, 14, [new WhiteSpaceTrivia(12, 13)]),
+                        new NameLiteralNode(15, 18, new PyName(15, 18, "run", [new WhiteSpaceTrivia(14, 15)]))
                     )
                 ],
                 [],
@@ -116,7 +116,9 @@ namespace TestPythonCore
             parser.Advance();
             var res = parser.ParseStmts();
 
-            var node = ((((res as SimpleStmtsNode)?.Elements[0] as TypeAliasNode)?.Parameters as TypeParamsNode)?.Right as TypeParamSequenceNode);
+            var node =
+                ((((res as SimpleStmtsNode)?.Elements[0] as TypeAliasNode)?.Parameters as TypeParamsNode)?.Right as
+                    TypeParamSequenceNode);
             Assert.Equal(10, node?.StartPos);
             Assert.Equal(26, node?.EndPos);
 
@@ -128,21 +130,21 @@ namespace TestPythonCore
             Assert.IsType<TypeParameterTypedNode>(elements?[3]);
 
             var element1 = elements?[1] as TypeStarParameterNode;
-            Assert.Equivalent( new PyName(14, 15, "b", []), element1?.Name);
+            Assert.Equivalent(new PyName(14, 15, "b", []), element1?.Name);
 
             var element2 = elements?[2] as TypePowerParameterNode;
             Assert.Equivalent(new PyName(19, 20, "c", []), element2?.Name);
 
             var element3 = elements?[3] as TypeParameterTypedNode;
-            Assert.Equivalent(new PyName(22, 23, "d", [ new WhiteSpaceTrivia(21, 22) ]), element3?.Name);
+            Assert.Equivalent(new PyName(22, 23, "d", [new WhiteSpaceTrivia(21, 22)]), element3?.Name);
             Assert.IsType<NameLiteralNode>(element3?.Right);
 
             var name = element3?.Right as NameLiteralNode;
-            Assert.Equivalent( new PyName(25, 26, "e", [new WhiteSpaceTrivia(24, 25)]) , name?.Element);
+            Assert.Equivalent(new PyName(25, 26, "e", [new WhiteSpaceTrivia(24, 25)]), name?.Element);
 
             var separators = node?.Separators;
             Assert.Equal(3, separators?.Length);
-            Assert.Equivalent( new PyComma(11, 12, []), separators?[0] );
+            Assert.Equivalent(new PyComma(11, 12, []), separators?[0]);
             Assert.Equivalent(new PyComma(15, 16, []), separators?[1]);
             Assert.Equivalent(new PyComma(20, 21, []), separators?[2]);
         }
@@ -154,7 +156,9 @@ namespace TestPythonCore
             parser.Advance();
             var res = parser.ParseStmts();
 
-            var node = ((((res as SimpleStmtsNode)?.Elements[0] as TypeAliasNode)?.Parameters as TypeParamsNode)?.Right as TypeParamSequenceNode);
+            var node =
+                ((((res as SimpleStmtsNode)?.Elements[0] as TypeAliasNode)?.Parameters as TypeParamsNode)?.Right as
+                    TypeParamSequenceNode);
             Assert.Equal(10, node?.StartPos);
             Assert.Equal(12, node?.EndPos);
 
@@ -173,10 +177,10 @@ namespace TestPythonCore
             var required = new SimpleStmtsNode(0, 10,
                 [
                     new GlobalNode(0, 8,
-                            new PyGlobal(0, 6, []),
-                            [ new PyName(7, 8, "a", [ new WhiteSpaceTrivia(6, 7) ]) ], 
-                            []
-                        )
+                        new PyGlobal(0, 6, []),
+                        [new PyName(7, 8, "a", [new WhiteSpaceTrivia(6, 7)])],
+                        []
+                    )
                 ],
                 [],
                 new PyNewline(8, 10, '\r', '\n', [])
@@ -196,8 +200,8 @@ namespace TestPythonCore
                 [
                     new GlobalNode(0, 10,
                         new PyGlobal(0, 6, []),
-                        [ 
-                            new PyName(7, 8, "a", [ new WhiteSpaceTrivia(6, 7) ]),
+                        [
+                            new PyName(7, 8, "a", [new WhiteSpaceTrivia(6, 7)]),
                             new PyName(9, 10, "b", [])
                         ],
                         [
@@ -223,7 +227,7 @@ namespace TestPythonCore
                 [
                     new NonlocalNode(0, 10,
                         new PyNonlocal(0, 8, []),
-                        [ new PyName(9, 10, "a", [ new WhiteSpaceTrivia(8, 9) ]) ],
+                        [new PyName(9, 10, "a", [new WhiteSpaceTrivia(8, 9)])],
                         []
                     )
                 ],
@@ -246,7 +250,7 @@ namespace TestPythonCore
                     new NonlocalNode(0, 12,
                         new PyNonlocal(0, 8, []),
                         [
-                            new PyName(9, 10, "a", [ new WhiteSpaceTrivia(8, 9) ]),
+                            new PyName(9, 10, "a", [new WhiteSpaceTrivia(8, 9)]),
                             new PyName(11, 12, "b", [])
                         ],
                         [
@@ -293,7 +297,7 @@ namespace TestPythonCore
                 [
                     new ReturnNode(0, 8,
                         new PyReturn(0, 6, []),
-                        new NameLiteralNode(7, 8, new PyName(7,8, "a", [ new WhiteSpaceTrivia(6, 7) ]))
+                        new NameLiteralNode(7, 8, new PyName(7, 8, "a", [new WhiteSpaceTrivia(6, 7)]))
                     )
                 ],
                 [],
@@ -334,7 +338,7 @@ namespace TestPythonCore
                 [
                     new RaiseElementNode(0, 7,
                         new PyRaise(0, 5, []),
-                        new NameLiteralNode(6, 7, new PyName(6, 7, "a", [ new WhiteSpaceTrivia(5, 6) ]))
+                        new NameLiteralNode(6, 7, new PyName(6, 7, "a", [new WhiteSpaceTrivia(5, 6)]))
                     )
                 ],
                 [],
@@ -355,9 +359,9 @@ namespace TestPythonCore
                 [
                     new RaiseFromNode(0, 14,
                         new PyRaise(0, 5, []),
-                        new NameLiteralNode(6, 7, new PyName(6, 7, "a", [ new WhiteSpaceTrivia(5, 6) ])),
-                        new PyFrom(8, 12, [ new WhiteSpaceTrivia(7, 8) ]),
-                        new NameLiteralNode(13, 14, new PyName(13, 14, "b", [ new WhiteSpaceTrivia(12, 13) ]))
+                        new NameLiteralNode(6, 7, new PyName(6, 7, "a", [new WhiteSpaceTrivia(5, 6)])),
+                        new PyFrom(8, 12, [new WhiteSpaceTrivia(7, 8)]),
+                        new NameLiteralNode(13, 14, new PyName(13, 14, "b", [new WhiteSpaceTrivia(12, 13)]))
                     )
                 ],
                 [],
@@ -377,7 +381,8 @@ namespace TestPythonCore
             var required = new SimpleStmtsNode(0, 9,
                 [
                     new YieldStmtNode(0, 7,
-                        new YieldExpressionNode(0, 7, new PyYield(0, 5, []), new NameLiteralNode(6, 7, new PyName(6, 7, "a", [ new WhiteSpaceTrivia(5, 6) ])))
+                        new YieldExpressionNode(0, 7, new PyYield(0, 5, []),
+                            new NameLiteralNode(6, 7, new PyName(6, 7, "a", [new WhiteSpaceTrivia(5, 6)])))
                     )
                 ],
                 [],
@@ -398,7 +403,7 @@ namespace TestPythonCore
                 [
                     new AssertSingleNode(0, 8,
                         new PyAssert(0, 6, []),
-                        new NameLiteralNode(7, 8, new PyName(7, 8, "a", [ new WhiteSpaceTrivia(6, 7) ]))
+                        new NameLiteralNode(7, 8, new PyName(7, 8, "a", [new WhiteSpaceTrivia(6, 7)]))
                     )
                 ],
                 [],
@@ -419,9 +424,9 @@ namespace TestPythonCore
                 [
                     new AssertNode(0, 10,
                         new PyAssert(0, 6, []),
-                        new NameLiteralNode(7, 8, new PyName(7, 8, "a", [ new WhiteSpaceTrivia(6, 7) ])),
+                        new NameLiteralNode(7, 8, new PyName(7, 8, "a", [new WhiteSpaceTrivia(6, 7)])),
                         new PyComma(8, 9, []),
-                        new NameLiteralNode(9, 10, new PyName(9, 10, "b", [] ))
+                        new NameLiteralNode(9, 10, new PyName(9, 10, "b", []))
                     )
                 ],
                 [],
@@ -443,7 +448,7 @@ namespace TestPythonCore
                     new ImportNameNode(0, 8,
                         new PyImport(0, 6, []),
                         new DottedNameNode(7, 8, [
-                            new PyName(7, 8, "a", [ new WhiteSpaceTrivia(6, 7) ])
+                            new PyName(7, 8, "a", [new WhiteSpaceTrivia(6, 7)])
                         ], [])
                     )
                 ],
@@ -466,8 +471,8 @@ namespace TestPythonCore
                     new ImportNameNode(0, 10,
                         new PyImport(0, 6, []),
                         new DottedAsNamesNode(7, 10, [
-                            new DottedNameNode(7, 8, [ new PyName(7, 8, "a", [ new WhiteSpaceTrivia(6, 7) ]) ], []),
-                            new DottedNameNode(9, 10, [ new PyName(9, 10, "b", []) ], [])
+                            new DottedNameNode(7, 8, [new PyName(7, 8, "a", [new WhiteSpaceTrivia(6, 7)])], []),
+                            new DottedNameNode(9, 10, [new PyName(9, 10, "b", [])], [])
                         ], [
                             new PyComma(8, 9, [])
                         ])
@@ -490,16 +495,16 @@ namespace TestPythonCore
             var required = new SimpleStmtsNode(0, 14,
                 [
                     new ImportNameNode(0, 12,
-                            new PyImport(0, 6, []),
-                            new DottedNameNode(7, 12, 
-                                [ 
-                                    new PyName(7, 8, "a", [ new WhiteSpaceTrivia(6, 7) ]),
-                                    new PyName(9, 10, "b", []),
-                                    new PyName(11, 12, "c", [])
-                            ], [
-                                new PyDot(8, 9, []),
-                                new PyDot(10, 11, [])
-                            ])
+                        new PyImport(0, 6, []),
+                        new DottedNameNode(7, 12,
+                        [
+                            new PyName(7, 8, "a", [new WhiteSpaceTrivia(6, 7)]),
+                            new PyName(9, 10, "b", []),
+                            new PyName(11, 12, "c", [])
+                        ], [
+                            new PyDot(8, 9, []),
+                            new PyDot(10, 11, [])
+                        ])
                     )
                 ],
                 [],
@@ -521,12 +526,12 @@ namespace TestPythonCore
                     new ImportNameNode(0, 13,
                         new PyImport(0, 6, []),
                         new DottedAsNameNode(7, 13,
-                                new DottedNameNode(7, 9, [
-                                    new PyName(7, 8, "a", [ new WhiteSpaceTrivia(6, 7) ])
-                                ], []),
-                                new PyAs(9, 11, [ new WhiteSpaceTrivia(8, 9) ]),
-                                new PyName(12, 13, "b", [ new WhiteSpaceTrivia(11, 12) ])
-                            )
+                            new DottedNameNode(7, 9, [
+                                new PyName(7, 8, "a", [new WhiteSpaceTrivia(6, 7)])
+                            ], []),
+                            new PyAs(9, 11, [new WhiteSpaceTrivia(8, 9)]),
+                            new PyName(12, 13, "b", [new WhiteSpaceTrivia(11, 12)])
+                        )
                     )
                 ],
                 [],
@@ -547,22 +552,22 @@ namespace TestPythonCore
                 [
                     new ImportNameNode(0, 16,
                         new PyImport(0, 6, []),
-                            new DottedAsNamesNode(7, 16, [
-                                        new DottedAsNameNode(7, 13,
-                                            new DottedNameNode(7, 9, [
-                                                new PyName(7, 8, "a", [ new WhiteSpaceTrivia(6, 7) ])
-                                            ], []),
-                                            new PyAs(9, 11, [ new WhiteSpaceTrivia(8, 9) ]),
-                                            new PyName(12, 13, "b", [ new WhiteSpaceTrivia(11, 12) ])
-                                        ),
+                        new DottedAsNamesNode(7, 16, [
+                            new DottedAsNameNode(7, 13,
+                                new DottedNameNode(7, 9, [
+                                    new PyName(7, 8, "a", [new WhiteSpaceTrivia(6, 7)])
+                                ], []),
+                                new PyAs(9, 11, [new WhiteSpaceTrivia(8, 9)]),
+                                new PyName(12, 13, "b", [new WhiteSpaceTrivia(11, 12)])
+                            ),
 
-                                        new DottedNameNode(15, 16,
-                                        [
-                                            new PyName(15, 16, "c", [ new WhiteSpaceTrivia(14, 15) ]),
-                                        ], [])
-                            ], [
-                                new PyComma(13, 14, [])
-                            ])
+                            new DottedNameNode(15, 16,
+                            [
+                                new PyName(15, 16, "c", [new WhiteSpaceTrivia(14, 15)]),
+                            ], [])
+                        ], [
+                            new PyComma(13, 14, [])
+                        ])
                     )
                 ],
                 [],
@@ -581,19 +586,19 @@ namespace TestPythonCore
 
             var required = new SimpleStmtsNode(0, 17,
                 [
-                    new ImportFromStmtNode(0, 15, 
-                            new PyFrom(0, 4, []),
-                            [
-                                new PyDot(5, 6, [ new WhiteSpaceTrivia(4, 5) ])
-                            ],
-                            null,
-                            new PyImport(7, 13, [ new WhiteSpaceTrivia(6, 7) ]),
-                            null,
-                            new ImportFromNode(14, 15, 
-                                    new PyName(14, 15, "a", [ new WhiteSpaceTrivia(13, 14) ])
-                                ),
-                            null
-                        )
+                    new ImportFromStmtNode(0, 15,
+                        new PyFrom(0, 4, []),
+                        [
+                            new PyDot(5, 6, [new WhiteSpaceTrivia(4, 5)])
+                        ],
+                        null,
+                        new PyImport(7, 13, [new WhiteSpaceTrivia(6, 7)]),
+                        null,
+                        new ImportFromNode(14, 15,
+                            new PyName(14, 15, "a", [new WhiteSpaceTrivia(13, 14)])
+                        ),
+                        null
+                    )
                 ],
                 [],
                 new PyNewline(15, 17, '\r', '\n', [])
@@ -614,15 +619,15 @@ namespace TestPythonCore
                     new ImportFromStmtNode(0, 20,
                         new PyFrom(0, 4, []),
                         [
-                            new PyDot(5, 6, [ new WhiteSpaceTrivia(4, 5) ])
+                            new PyDot(5, 6, [new WhiteSpaceTrivia(4, 5)])
                         ],
                         null,
-                        new PyImport(7, 13, [ new WhiteSpaceTrivia(6, 7) ]),
+                        new PyImport(7, 13, [new WhiteSpaceTrivia(6, 7)]),
                         null,
                         new ImportFromAsNode(14, 20,
-                            new PyName(14, 15, "a", [ new WhiteSpaceTrivia(13, 14) ]),
-                            new PyAs(16, 18, [ new WhiteSpaceTrivia(15, 16) ]),
-                            new PyName(19, 20, "b", [ new WhiteSpaceTrivia(18, 19) ])
+                            new PyName(14, 15, "a", [new WhiteSpaceTrivia(13, 14)]),
+                            new PyAs(16, 18, [new WhiteSpaceTrivia(15, 16)]),
+                            new PyName(19, 20, "b", [new WhiteSpaceTrivia(18, 19)])
                         ),
                         null
                     )
@@ -646,18 +651,18 @@ namespace TestPythonCore
                     new ImportFromStmtNode(0, 23,
                         new PyFrom(0, 4, []),
                         [
-                            new PyDot(5, 6, [ new WhiteSpaceTrivia(4, 5) ])
+                            new PyDot(5, 6, [new WhiteSpaceTrivia(4, 5)])
                         ],
                         null,
-                        new PyImport(7, 13, [ new WhiteSpaceTrivia(6, 7) ]),
+                        new PyImport(7, 13, [new WhiteSpaceTrivia(6, 7)]),
                         null,
                         new ImportFromAsNamesNode(14, 23, [
                             new ImportFromAsNode(14, 20,
-                                new PyName(14, 15, "a", [ new WhiteSpaceTrivia(13, 14) ]),
-                                new PyAs(16, 18, [ new WhiteSpaceTrivia(15, 16) ]),
-                                new PyName(19, 20, "b", [ new WhiteSpaceTrivia(18, 19) ]) ),
+                                new PyName(14, 15, "a", [new WhiteSpaceTrivia(13, 14)]),
+                                new PyAs(16, 18, [new WhiteSpaceTrivia(15, 16)]),
+                                new PyName(19, 20, "b", [new WhiteSpaceTrivia(18, 19)])),
 
-                            new ImportFromNode(22, 23, new PyName(22, 23, "c", [ new WhiteSpaceTrivia(21, 22) ]))
+                            new ImportFromNode(22, 23, new PyName(22, 23, "c", [new WhiteSpaceTrivia(21, 22)]))
                         ], [
                             new PyComma(20, 21, [])
                         ]),
@@ -683,11 +688,11 @@ namespace TestPythonCore
                     new ImportFromStmtNode(0, 15,
                         new PyFrom(0, 4, []),
                         [
-                            new PyDot(5, 6, [ new WhiteSpaceTrivia(4, 5) ])
+                            new PyDot(5, 6, [new WhiteSpaceTrivia(4, 5)])
                         ],
                         null,
-                        new PyImport(7, 13, [ new WhiteSpaceTrivia(6, 7) ]),
-                        new PyMul(14, 15, [ new WhiteSpaceTrivia(13, 14) ]),
+                        new PyImport(7, 13, [new WhiteSpaceTrivia(6, 7)]),
+                        new PyMul(14, 15, [new WhiteSpaceTrivia(13, 14)]),
                         null,
                         null
                     )
@@ -710,7 +715,7 @@ namespace TestPythonCore
             var right = ((res as SimpleStmtsNode)?.Elements[0] as ImportFromStmtNode)?.Right;
             var end = ((res as SimpleStmtsNode)?.Elements[0] as ImportFromStmtNode)?.End;
 
-            Assert.Equivalent( new PyLeftParen(14, 15, [ new WhiteSpaceTrivia(13, 14) ]), start!);
+            Assert.Equivalent(new PyLeftParen(14, 15, [new WhiteSpaceTrivia(13, 14)]), start!);
             Assert.Equivalent(new ImportFromNode(15, 16, new PyName(15, 16, "a", [])), right);
             Assert.Equivalent(new PyRightParen(16, 17, []), end!);
         }
@@ -727,12 +732,12 @@ namespace TestPythonCore
                     new ImportFromStmtNode(0, 18,
                         new PyFrom(0, 4, []),
                         [
-                            new PyElipsis(5, 8, [ new WhiteSpaceTrivia(4, 5) ]),
+                            new PyElipsis(5, 8, [new WhiteSpaceTrivia(4, 5)]),
                             new PyDot(8, 9, [])
                         ],
                         null,
-                        new PyImport(10, 16, [ new WhiteSpaceTrivia(9, 10) ]),
-                        new PyMul(17, 18, [ new WhiteSpaceTrivia(16, 17) ]),
+                        new PyImport(10, 16, [new WhiteSpaceTrivia(9, 10)]),
+                        new PyMul(17, 18, [new WhiteSpaceTrivia(16, 17)]),
                         null,
                         null
                     )
@@ -757,10 +762,10 @@ namespace TestPythonCore
                         new PyFrom(0, 4, []),
                         [],
                         new DottedNameNode(5, 7, [
-                            new PyName(5, 6, "a", [ new WhiteSpaceTrivia(4, 5) ])
+                            new PyName(5, 6, "a", [new WhiteSpaceTrivia(4, 5)])
                         ], []),
-                        new PyImport(7, 13, [ new WhiteSpaceTrivia(6, 7) ]),
-                        new PyMul(14, 15, [ new WhiteSpaceTrivia(13, 14) ]),
+                        new PyImport(7, 13, [new WhiteSpaceTrivia(6, 7)]),
+                        new PyMul(14, 15, [new WhiteSpaceTrivia(13, 14)]),
                         null,
                         null
                     )
@@ -783,9 +788,10 @@ namespace TestPythonCore
 
             Assert.IsType<DottedNameNode>(left!);
 
-            Assert.Equivalent(new PyName(5, 6, "a", [ new WhiteSpaceTrivia(4, 5) ]) , (left as DottedNameNode)?.Elements[0]);
+            Assert.Equivalent(new PyName(5, 6, "a", [new WhiteSpaceTrivia(4, 5)]),
+                (left as DottedNameNode)?.Elements[0]);
 
-            Assert.Equivalent(new PyName(7, 8, "b", [ ]), (left as DottedNameNode)?.Elements[1]);
+            Assert.Equivalent(new PyName(7, 8, "b", []), (left as DottedNameNode)?.Elements[1]);
         }
 
 
@@ -839,12 +845,12 @@ namespace TestPythonCore
                 ], [], new PyNewline(14, 16, '\r', '\n', [])),
                 [],
                 new ElseStatementNode(16, 28,
-                        new PyElse(16, 20, []),
-                        new PyColon(20, 21, []),
-                        new SimpleStmtsNode(22, 28, [
-                            new PassStmtNode(22, 26, new PyPass(22, 26, [new WhiteSpaceTrivia(21, 22)]))
-                        ], [], new PyNewline(26, 28, '\r', '\n', []))
-                    )
+                    new PyElse(16, 20, []),
+                    new PyColon(20, 21, []),
+                    new SimpleStmtsNode(22, 28, [
+                        new PassStmtNode(22, 26, new PyPass(22, 26, [new WhiteSpaceTrivia(21, 22)]))
+                    ], [], new PyNewline(26, 28, '\r', '\n', []))
+                )
 
             );
 
@@ -871,17 +877,17 @@ namespace TestPythonCore
                 ], [], new PyNewline(14, 16, '\r', '\n', [])),
                 [
                     new ElifStatementNode(16, 34,
-                            new PyElif(16, 20, []),
-                            new LessExpressionNode(21, 26,
-                                new NameLiteralNode(21, 22, new PyName(21, 22, "a", [new WhiteSpaceTrivia(20, 21)])),
-                                new PyLess(23, 24, [new WhiteSpaceTrivia(22, 23)]),
-                                new NumberLiteralNode(25, 26, new PyNumber(25, 26, "6", [new WhiteSpaceTrivia(24, 25)]))
-                            ),
-                            new PyColon(26, 27, []),
-                            new SimpleStmtsNode(28, 34, [
-                                new PassStmtNode(28, 32, new PyPass(28, 32, [new WhiteSpaceTrivia(27, 28)]))
-                            ], [], new PyNewline(32, 34, '\r', '\n', []))
-                        )
+                        new PyElif(16, 20, []),
+                        new LessExpressionNode(21, 26,
+                            new NameLiteralNode(21, 22, new PyName(21, 22, "a", [new WhiteSpaceTrivia(20, 21)])),
+                            new PyLess(23, 24, [new WhiteSpaceTrivia(22, 23)]),
+                            new NumberLiteralNode(25, 26, new PyNumber(25, 26, "6", [new WhiteSpaceTrivia(24, 25)]))
+                        ),
+                        new PyColon(26, 27, []),
+                        new SimpleStmtsNode(28, 34, [
+                            new PassStmtNode(28, 32, new PyPass(28, 32, [new WhiteSpaceTrivia(27, 28)]))
+                        ], [], new PyNewline(32, 34, '\r', '\n', []))
+                    )
                 ],
                 new ElseStatementNode(34, 46,
                     new PyElse(34, 38, []),
@@ -943,7 +949,7 @@ namespace TestPythonCore
                     new SimpleStmtsNode(25, 31, [
                         new PassStmtNode(25, 29, new PyPass(25, 29, [new WhiteSpaceTrivia(24, 25)]))
                     ], [], new PyNewline(29, 31, '\r', '\n', []))
-                    )
+                )
             );
 
             Assert.Equivalent(required, res, strict: true);
@@ -957,19 +963,19 @@ namespace TestPythonCore
             var res = parser.ParseStmts();
 
             var required = new TryFinallyStatementBlockNode(0, 26,
-                                    new PyTry(0, 3, []),
-                                    new PyColon(3, 4, []),
-                                    new SimpleStmtsNode(5, 11, [
-                                        new PassStmtNode(5, 9, new PyPass(5, 9, [new WhiteSpaceTrivia(4, 5)]))
-                                    ], [], new PyNewline(9, 11, '\r', '\n', [])),
-                                    new FinallyStatementNode(11, 26, 
-                                            new PyFinally(11, 18, []),
-                                            new PyColon(18, 19, []),
-                                            new SimpleStmtsNode(20, 26, [
-                                                new PassStmtNode(20, 24, new PyPass(20, 24, [new WhiteSpaceTrivia(19, 20)]))
-                                            ], [], new PyNewline(24, 26, '\r', '\n', []))
-                                        )
-                
+                new PyTry(0, 3, []),
+                new PyColon(3, 4, []),
+                new SimpleStmtsNode(5, 11, [
+                    new PassStmtNode(5, 9, new PyPass(5, 9, [new WhiteSpaceTrivia(4, 5)]))
+                ], [], new PyNewline(9, 11, '\r', '\n', [])),
+                new FinallyStatementNode(11, 26,
+                    new PyFinally(11, 18, []),
+                    new PyColon(18, 19, []),
+                    new SimpleStmtsNode(20, 26, [
+                        new PassStmtNode(20, 24, new PyPass(20, 24, [new WhiteSpaceTrivia(19, 20)]))
+                    ], [], new PyNewline(24, 26, '\r', '\n', []))
+                )
+
             );
 
             Assert.Equivalent(required, res, strict: true);
@@ -1025,12 +1031,12 @@ namespace TestPythonCore
                         ], [], new PyNewline(23, 25, '\r', '\n', [])))
                 ],
                 new ElseStatementNode(25, 37,
-                        new PyElse(25, 29, []),
-                        new PyColon(29, 30, []),
-                        new SimpleStmtsNode(31, 37, [
-                            new PassStmtNode(31, 35, new PyPass(31, 35, [new WhiteSpaceTrivia(30, 31)]))
-                        ], [], new PyNewline(35, 37, '\r', '\n', []))
-                    ),
+                    new PyElse(25, 29, []),
+                    new PyColon(29, 30, []),
+                    new SimpleStmtsNode(31, 37, [
+                        new PassStmtNode(31, 35, new PyPass(31, 35, [new WhiteSpaceTrivia(30, 31)]))
+                    ], [], new PyNewline(35, 37, '\r', '\n', []))
+                ),
                 null
             );
 
@@ -1127,7 +1133,7 @@ namespace TestPythonCore
                 [
                     new ExceptStatementNode(11, 27,
                         new PyExcept(11, 17, []),
-                        new NameLiteralNode(18, 19, new PyName(18, 19, "a", [ new WhiteSpaceTrivia(17, 18) ])),
+                        new NameLiteralNode(18, 19, new PyName(18, 19, "a", [new WhiteSpaceTrivia(17, 18)])),
                         null,
                         null,
                         new PyColon(19, 20, []),
@@ -1160,9 +1166,9 @@ namespace TestPythonCore
                 [
                     new ExceptStatementNode(11, 32,
                         new PyExcept(11, 17, []),
-                        new NameLiteralNode(18, 19, new PyName(18, 19, "a", [ new WhiteSpaceTrivia(17, 18) ])),
-                        new PyAs(20, 22, [ new WhiteSpaceTrivia(19, 20) ]),
-                        new PyName(23, 24, "b", [ new WhiteSpaceTrivia(22, 23) ]),
+                        new NameLiteralNode(18, 19, new PyName(18, 19, "a", [new WhiteSpaceTrivia(17, 18)])),
+                        new PyAs(20, 22, [new WhiteSpaceTrivia(19, 20)]),
+                        new PyName(23, 24, "b", [new WhiteSpaceTrivia(22, 23)]),
                         new PyColon(24, 25, []),
                         new SimpleStmtsNode(26, 32, [
                             new PassStmtNode(26, 30, new PyPass(26, 30, [new WhiteSpaceTrivia(25, 26)]))
@@ -1193,7 +1199,7 @@ namespace TestPythonCore
                 [
                     new StarExceptStatementNode(11, 28,
                         new PyExcept(11, 17, []),
-                        new PyMul(18, 19, [ new WhiteSpaceTrivia(17, 18) ]),
+                        new PyMul(18, 19, [new WhiteSpaceTrivia(17, 18)]),
                         new NameLiteralNode(19, 20, new PyName(19, 20, "a", [])),
                         null,
                         null,
@@ -1227,10 +1233,10 @@ namespace TestPythonCore
                 [
                     new StarExceptStatementNode(11, 33,
                         new PyExcept(11, 17, []),
-                        new PyMul(18, 19, [ new WhiteSpaceTrivia(17, 18) ]),
+                        new PyMul(18, 19, [new WhiteSpaceTrivia(17, 18)]),
                         new NameLiteralNode(19, 20, new PyName(19, 20, "a", [])),
-                        new PyAs(21, 23, [ new WhiteSpaceTrivia(20, 21) ]),
-                        new PyName(24, 25, "b", [ new WhiteSpaceTrivia(23, 24) ]),
+                        new PyAs(21, 23, [new WhiteSpaceTrivia(20, 21)]),
+                        new PyName(24, 25, "b", [new WhiteSpaceTrivia(23, 24)]),
                         new PyColon(25, 26, []),
                         new SimpleStmtsNode(27, 33, [
                             new PassStmtNode(27, 31, new PyPass(27, 31, [new WhiteSpaceTrivia(26, 27)]))
@@ -1245,6 +1251,40 @@ namespace TestPythonCore
             Assert.Equivalent(required, res, strict: true);
         }
 
+        [Fact]
+        public void TestStatementTryExceptMultipleStatement()
+        {
+            var parser = new PythonCoreParser("try: pass\r\nexcept a: pass\r\nexcept: pass\r\n\r\n");
+            parser.Advance();
+            var res = parser.ParseStmts();
 
+            var required = new TryExceptFinallyStatementBlockNode(0, 42,
+                new PyTry(0, 3, []),
+                new PyColon(3, 4, []),
+                new SimpleStmtsNode(5, 11, [
+                    new PassStmtNode(5, 9, new PyPass(5, 9, [new WhiteSpaceTrivia(4, 5)]))
+                ], [], new PyNewline(9, 11, '\r', '\n', [])),
+                [
+                    new ExceptStatementNode(11, 27,
+                        new PyExcept(11, 17, []),
+                        new NameLiteralNode(18, 19, new PyName(18, 19, "a", [new WhiteSpaceTrivia(17, 18)])),
+                        null,
+                        null,
+                        new PyColon(19, 20, []),
+                        new SimpleStmtsNode(21, 27, [
+                            new PassStmtNode(21, 25, new PyPass(21, 25, [new WhiteSpaceTrivia(20, 21)]))
+                        ], [], new PyNewline(25, 27, '\r', '\n', []))),
+
+                    new DefaultExceptStatementNode(27, 42,
+                        new PyExcept(27, 32, []),
+                        new PyColon(33, 34, []),
+                        new SimpleStmtsNode(36, 41, [
+                            new PassStmtNode(36, 40, new PyPass(36, 40, [new WhiteSpaceTrivia(35, 36)]))
+                        ], [], new PyNewline(40, 42, '\r', '\n', [])))
+                ],
+                null,
+                null
+            );
+        }
     }
 }
