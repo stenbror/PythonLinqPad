@@ -2776,13 +2776,181 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
         }
         else if (Symbol is PyLeftCurly) // Mappings
         {
+            var symbol80 = Symbol;
+            Advance();
 
+            if (Symbol is PyRightCurly)
+            {
+                var symbol81 = Symbol;
+                Advance();
+
+                return new MatchMappingCasePatternNode(pos.Item1, Position.Item1, symbol80, [], [], symbol81);
+            }
+
+            var elements = new List<StatementNode>();
+            var separators = new List<Symbol>();
+
+            if (Symbol is PyPower)
+            {
+                elements.Add(ParseDoubleStarPattern());
+                if (Symbol is PyComma)
+                {
+                    separators.Add(Symbol);
+                    Advance();
+                }
+            }
+            else
+            {
+                elements.Add(ParseItemsPattern());
+
+                while (Symbol is PyComma)
+                {
+                    separators.Add(Symbol);
+                    Advance();
+
+                    if (Symbol is PyRightCurly) break;
+                    if (Symbol is PyPower)
+                    {
+                        elements.Add(ParseDoubleStarPattern());
+                        if (Symbol is PyComma)
+                        {
+                            separators.Add(Symbol);
+                            Advance();
+                        }
+
+                        break;
+                    }
+
+                    elements.Add(ParseItemsPattern());
+                }
+            }
+
+            if (Symbol is not PyRightCurly) throw new SyntaxError(Position.Item1, "Expecting '}' in mapping pattern!");
+            var symbol82 = Symbol;
+            Advance();
+
+            return new MatchMappingCasePatternNode(pos.Item1, Position.Item1, symbol80, elements.ToArray(), separators.ToArray(), symbol82);
         }
 
         throw new SyntaxError(Position.Item1, "Unknown pattern!");
     }
 
+    private StatementNode ParseDoubleStarPattern()
+    {
+        var pos = Position;
+        var symbol1 = Symbol;
+        Advance();
 
+        if (Symbol is not PyName) throw new SyntaxError(Position.Item1, "Expecting NAME literal after '**' in pattern!");
+        var symbol2 = Symbol;
+        Advance();
+
+        if (Symbol is PyDot || Symbol is PyLeftParen || Symbol is PyAssign) throw new SyntaxError(Position.Item1, "Pattern '**' NAME is followed by illegal symbols!");
+
+        return new DoubleStarPatternNode(pos.Item1, Position.Item1, symbol1, symbol2);
+    }
+
+    private StatementNode ParseItemsPattern()
+    {
+        var pos = Position;
+        var left = ParseLiteralExpr();
+
+        if (Symbol is not PyColon) throw new SyntaxError(Position.Item1, "Expecting ':' in key/value pattern!");
+        var symbol1 = Symbol;
+        Advance();
+
+        var right = ParsePatterns();
+
+        return new KeyValuePatternNode(pos.Item1, Position.Item1, left, symbol1, right);
+    }
+
+    private StatementNode ParseLiteralExpr()
+    {
+        var pos = Position;
+
+        if (Symbol is PyString)
+        {
+            var symbol10 = Symbol;
+            Advance();
+
+            return new MatchStringCasePatternNode(pos.Item1, Position.Item1, symbol10);
+        }
+        else if (Symbol is PyNone)
+        {
+            var symbol20 = Symbol;
+            Advance();
+
+            return new MatchNoneCasePatternNode(pos.Item1, Position.Item1, symbol20);
+        }
+        else if (Symbol is PyTrue)
+        {
+            var symbol30 = Symbol;
+            Advance();
+
+            return new MatchTrueCasePatternNode(pos.Item1, Position.Item1, symbol30);
+        }
+        else if (Symbol is PyFalse)
+        {
+            var symbol40 = Symbol;
+            Advance();
+
+            return new MatchFalseCasePatternNode(pos.Item1, Position.Item1, symbol40);
+        }
+        else if (Symbol is PyNumber || Symbol is PyMinus)
+        {
+            if (Symbol is PyMinus)
+            {
+                var symbol50 = Symbol;
+                Advance();
+                if (Symbol is not PyNumber) throw new SyntaxError(Position.Item1, "Expecting number after '-' in number pattern!");
+
+                var symbol51 = Symbol;
+                Advance();
+
+                return new MatchSignedNumberCasePatternNode(pos.Item1, Position.Item1, symbol50, symbol51);
+            }
+
+            var symbol52 = Symbol;
+            Advance();
+
+            if (Symbol is PyPlus || Symbol is PyMinus)
+            {
+                var symbol53 = Symbol;
+                Advance();
+
+                if (Symbol is not PyNumber) throw new SyntaxError(Position.Item1, "Expecting number in number pattern after '+' or '-'");
+
+                var symbol54 = Symbol;
+                Advance();
+
+                return new MatchImaginaryNumberCasePatternNode(pos.Item1, Position.Item1, symbol52, symbol53, symbol54);
+            }
+
+            return new MatchNumberCasePatternNode(pos.Item1, Position.Item1, symbol52);
+        }
+        else if (Symbol is PyName)
+        {
+            var elements = new List<Symbol>();
+            var separators = new List<Symbol>();
+
+            var symbol60 = Symbol;
+            Advance();
+
+            while (Symbol is PyDot)
+            {
+                separators.Add(Symbol);
+                Advance();
+
+                if (Symbol is not PyName) throw new SyntaxError(Position.Item1, "Expecting NAME literal after '.' in pattern!");
+                elements.Add(Symbol);
+                Advance();
+            }
+
+            return new MatchDottedNameCasePatternNode(pos.Item1, Position.Item1, symbol60, elements.ToArray(), separators.ToArray());
+        }
+
+        throw new SyntaxError(Position.Item1, "Illegal pattern!");
+    }
 
 
 

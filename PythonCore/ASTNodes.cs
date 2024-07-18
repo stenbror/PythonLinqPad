@@ -144,4 +144,8 @@ public sealed record MatchSignedNumberCasePatternNode(int StartPos, int EndPos, 
 public sealed record MatchImaginaryNumberCasePatternNode(int StartPos, int EndPos, Symbol Real, Symbol Signed, Symbol Imiginary) : StatementNode(StartPos, EndPos);
 public sealed record MatchCaptureTargetCasePatternNode(int StartPos, int EndPos, Symbol Nane) : StatementNode(StartPos, EndPos);
 public sealed record MatchDottedNameCasePatternNode(int StartPos, int EndPos, Symbol Name, Symbol[] Names, Symbol[] Separators) : StatementNode(StartPos, EndPos);
+public sealed record MatchMappingCasePatternNode(int StartPos, int EndPos, Symbol Start, StatementNode[] Elements, Symbol[] Separators, Symbol End) : StatementNode(StartPos, EndPos);
+public sealed record DoubleStarPatternNode(int StartPos, int EndPos, Symbol DoubleStar, Symbol Name) : StatementNode(StartPos, EndPos);
+public sealed record KeyValuePatternNode(int StartPos, int EndPos, StatementNode Left, Symbol Colon, StatementNode Right) : StatementNode(StartPos, EndPos);
+
 
