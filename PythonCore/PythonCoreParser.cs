@@ -2539,6 +2539,81 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
     // Grammar rule: match statement /////////////////////////////////////////////////////////////////////////////////
     public StatementNode ParseMatchStatement()
     {
+        var pos = Position;
+        if (Symbol is not PyMatch) throw new SyntaxError(Position.Item1, "Expecting 'match' in match statement!");
+        var symbol1 = Symbol;
+        Advance();
+
+        var left = ParseStaredNameExpressions();
+
+        if (Symbol is not PyColon) throw new SyntaxError(Position.Item1, "Expecting ':' in match statement!");
+        var symbol2 = Symbol;
+        Advance();
+
+        if (Symbol is not PyNewline) throw new SyntaxError(Position.Item1, "Expecting block start in match statement!");
+        var symbol3 = Symbol;
+        Advance();
+
+        if (Symbol is not PyIndent) throw new SyntaxError(Position.Item1, "Expecting block start in match statement!");
+        var symbol4 = Symbol;
+        Advance();
+
+        var elements = new List<StatementNode>();
+
+        do
+        {
+            elements.Add(ParseCaseBlock());
+        } while (Symbol is PyName && (Symbol as PyName)!.Id == "case");
+
+        if (Symbol is not PyDedent) throw new SyntaxError(Position.Item1, "Expecting block end in match statement!");
+        var symbol5 = Symbol;
+        Advance();
+
+        return new MatchStatementNode(pos.Item1, Position.Item1, symbol1, left, symbol2, symbol3, symbol4, elements.ToArray(), symbol4);
+    }
+
+    private StatementNode ParseCaseBlock()
+    {
+        var pos = Position;
+        if (Symbol is not PyName) throw new SyntaxError(Position.Item1, "Expecting 'case' in match statement!");
+        if ((Symbol as PyName)!.Id != "case") throw new SyntaxError(Position.Item1, "Expecting 'case' in match statement!");
+
+        var symbol1 = Symbol;
+        Advance();
+
+        var left = ParsePatterns();
+
+        var guard = Symbol is PyIf ? ParseGuard() : null;
+
+        if (Symbol is not PyColon) throw new SyntaxError(Position.Item1, "Expecting ':' in case element of match statement!");
+        var symbol2 = Symbol;
+        Advance();
+
+        var right = ParseBlockStatement();
+
+        return new MatchCaseStatementNode(pos.Item1, Position.Item1, 
+                new PyCase(symbol1.StartPos, symbol1.EndPos, (symbol1 as PyName)!.Trivias), // Convert name with 'case' to a case symbol.
+                left,
+                guard,
+                symbol2,
+                right
+            );
+    }
+
+    private StatementNode ParseGuard()
+    {
+        var pos = Position;
+        if (Symbol is not PyIf) throw new SyntaxError(Position.Item1, "Expecting 'if' in guard statement!");
+        var symbol1 = Symbol;
+        Advance();
+
+        var right = ParseNamedExpression();
+
+        return new GuardStatementNode(pos.Item1, Position.Item1, symbol1, right);
+    }
+
+    private StatementNode ParsePatterns()
+    {
         throw new NotImplementedException();
     }
 

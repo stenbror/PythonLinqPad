@@ -124,3 +124,9 @@ public sealed record DefaultExceptStatementNode(int StartPos, int EndPos, Symbol
 public sealed record ExceptStatementNode(int StartPos, int EndPos, Symbol Except, ExpressionNode Left, Symbol? As, Symbol? Name, Symbol Colon, StatementNode Right) : StatementNode(StartPos, EndPos);
 public sealed record StarExceptStatementNode(int StartPos, int EndPos, Symbol Except, Symbol Star, ExpressionNode Left, Symbol? As, Symbol? Name, Symbol Colon, StatementNode Right) : StatementNode(StartPos, EndPos);
 public sealed record FinallyStatementNode(int StartPos, int EndPos, Symbol Finally, Symbol Colon, StatementNode Right) : StatementNode(StartPos, EndPos);
+
+public sealed record MatchStatementNode(int StartPos, int EndPos, Symbol Match, ExpressionNode Left, Symbol Colon, Symbol Newline, Symbol Indent, StatementNode[] Elements, Symbol Dedents) : StatementNode(StartPos, EndPos);
+public sealed record GuardStatementNode(int StartPos, int EndPos, Symbol If, ExpressionNode Right) : StatementNode(StartPos, EndPos);
+public sealed record MatchCaseStatementNode(int StartPos, int EndPos, Symbol Case, StatementNode Pattern, StatementNode? Guard, Symbol Colon, StatementNode Right) : StatementNode(StartPos, EndPos);
+
+
