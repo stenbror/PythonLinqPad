@@ -1177,6 +1177,74 @@ namespace TestPythonCore
             Assert.Equivalent(required, res, strict: true);
         }
 
+        [Fact]
+        public void TestStatementTryStarExceptSingleStatement()
+        {
+            var parser = new PythonCoreParser("try: pass\r\nexcept *a: pass\r\n\r\n");
+            parser.Advance();
+            var res = parser.ParseStmts();
+
+            var required = new TryExceptFinallyStatementBlockNode(0, 28,
+                new PyTry(0, 3, []),
+                new PyColon(3, 4, []),
+                new SimpleStmtsNode(5, 11, [
+                    new PassStmtNode(5, 9, new PyPass(5, 9, [new WhiteSpaceTrivia(4, 5)]))
+                ], [], new PyNewline(9, 11, '\r', '\n', [])),
+                [
+                    new StarExceptStatementNode(11, 28,
+                        new PyExcept(11, 17, []),
+                        new PyMul(18, 19, [ new WhiteSpaceTrivia(17, 18) ]),
+                        new NameLiteralNode(19, 20, new PyName(19, 20, "a", [])),
+                        null,
+                        null,
+                        new PyColon(20, 21, []),
+                        new SimpleStmtsNode(22, 28, [
+                            new PassStmtNode(22, 26, new PyPass(22, 26, [new WhiteSpaceTrivia(21, 22)]))
+                        ], [], new PyNewline(26, 28, '\r', '\n', [])))
+
+
+                ],
+                null,
+                null
+            );
+
+            Assert.Equivalent(required, res, strict: true);
+        }
+
+        [Fact]
+        public void TestStatementTryStarExceptSingleAsStatement()
+        {
+            var parser = new PythonCoreParser("try: pass\r\nexcept *a as b: pass\r\n\r\n");
+            parser.Advance();
+            var res = parser.ParseStmts();
+
+            var required = new TryExceptFinallyStatementBlockNode(0, 33,
+                new PyTry(0, 3, []),
+                new PyColon(3, 4, []),
+                new SimpleStmtsNode(5, 11, [
+                    new PassStmtNode(5, 9, new PyPass(5, 9, [new WhiteSpaceTrivia(4, 5)]))
+                ], [], new PyNewline(9, 11, '\r', '\n', [])),
+                [
+                    new StarExceptStatementNode(11, 33,
+                        new PyExcept(11, 17, []),
+                        new PyMul(18, 19, [ new WhiteSpaceTrivia(17, 18) ]),
+                        new NameLiteralNode(19, 20, new PyName(19, 20, "a", [])),
+                        new PyAs(21, 23, [ new WhiteSpaceTrivia(20, 21) ]),
+                        new PyName(24, 25, "b", [ new WhiteSpaceTrivia(23, 24) ]),
+                        new PyColon(25, 26, []),
+                        new SimpleStmtsNode(27, 33, [
+                            new PassStmtNode(27, 31, new PyPass(27, 31, [new WhiteSpaceTrivia(26, 27)]))
+                        ], [], new PyNewline(31, 33, '\r', '\n', [])))
+
+
+                ],
+                null,
+                null
+            );
+
+            Assert.Equivalent(required, res, strict: true);
+        }
+
 
     }
 }
