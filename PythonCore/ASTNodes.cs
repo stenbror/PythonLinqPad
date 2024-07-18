@@ -129,4 +129,19 @@ public sealed record MatchStatementNode(int StartPos, int EndPos, Symbol Match, 
 public sealed record GuardStatementNode(int StartPos, int EndPos, Symbol If, ExpressionNode Right) : StatementNode(StartPos, EndPos);
 public sealed record MatchCaseStatementNode(int StartPos, int EndPos, Symbol Case, StatementNode Pattern, StatementNode? Guard, Symbol Colon, StatementNode Right) : StatementNode(StartPos, EndPos);
 
+public sealed record MatchAsPatternNode(int StartPos, int EndPos, StatementNode Left, Symbol As, Symbol Name) : StatementNode(StartPos, EndPos);
+public sealed record MatchOrPatternsNode(int StartPos, int EndPos, StatementNode[] Elements, Symbol[] Separators) : StatementNode(StartPos, EndPos);
+
+
+
+public sealed record MatchDefaultCasePatternNode(int StartPos, int EndPos, Symbol Default) : StatementNode(StartPos, EndPos);
+public sealed record MatchStringCasePatternNode(int StartPos, int EndPos, Symbol String) : StatementNode(StartPos, EndPos);
+public sealed record MatchNoneCasePatternNode(int StartPos, int EndPos, Symbol None) : StatementNode(StartPos, EndPos);
+public sealed record MatchTrueCasePatternNode(int StartPos, int EndPos, Symbol True) : StatementNode(StartPos, EndPos);
+public sealed record MatchFalseCasePatternNode(int StartPos, int EndPos, Symbol False) : StatementNode(StartPos, EndPos);
+public sealed record MatchNumberCasePatternNode(int StartPos, int EndPos, Symbol Number) : StatementNode(StartPos, EndPos);
+public sealed record MatchSignedNumberCasePatternNode(int StartPos, int EndPos, Symbol Signed, Symbol Number) : StatementNode(StartPos, EndPos);
+public sealed record MatchImaginaryNumberCasePatternNode(int StartPos, int EndPos, Symbol Real, Symbol Signed, Symbol Imiginary) : StatementNode(StartPos, EndPos);
+public sealed record MatchCaptureTargetCasePatternNode(int StartPos, int EndPos, Symbol Nane) : StatementNode(StartPos, EndPos);
+public sealed record MatchDottedNameCasePatternNode(int StartPos, int EndPos, Symbol Name, Symbol[] Names, Symbol[] Separators) : StatementNode(StartPos, EndPos);
 

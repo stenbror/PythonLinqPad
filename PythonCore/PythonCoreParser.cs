@@ -1,6 +1,7 @@
 ﻿
 using System.Runtime.InteropServices;
 using System.Xml.Linq;
+using Microsoft.VisualBasic;
 
 namespace PythonCore;
 
@@ -2614,8 +2615,177 @@ public sealed class PythonCoreParser(string sourceBuffer, int tabSize = 8, bool 
 
     private StatementNode ParsePatterns()
     {
-        throw new NotImplementedException();
+        var pos = Position;
+
+        if (Symbol is PyMul) ; // Fix here
+
+        var left = ParseOrPatterns();
+
+        if (Symbol is PyAs)
+        {
+            var symbol1 = Symbol;
+            Advance();
+
+            if (Symbol is PyName && (Symbol as PyName)!.Id != "_")
+            {
+                var symbol2 = Symbol;
+                Advance();
+                if (Symbol is PyDot || Symbol is PyLeftParen || Symbol is PyAssign)
+                    throw new SyntaxError(Position.Item1, "Only a single name literal after 'as' in pattern!");
+
+                return new MatchAsPatternNode(pos.Item1, Position.Item1, left, symbol1, symbol2);
+            }
+
+            throw new SyntaxError(Position.Item1, "Expecting name literal for 'as' part in pattern!");
+        }
+
+        return left;
     }
+
+    private StatementNode ParseOrPatterns()
+    {
+        var pos = Position;
+        var elements = new List<StatementNode>();
+        var separators = new List<Symbol>();
+
+        elements.Add(ParseClosedPattern());
+
+        while (Symbol is PyBitOr)
+        {
+            separators.Add(Symbol);
+            Advance();
+
+            elements.Add(ParseClosedPattern());
+        }
+
+        return elements.Count == 1 ? elements[0] : new MatchOrPatternsNode(pos.Item1, Position.Item1, elements.ToArray(), separators.ToArray());
+    }
+
+    private StatementNode ParseClosedPattern()
+    {
+        var pos = Position;
+
+        if (Symbol is PyString)
+        {
+            var symbol10 = Symbol;
+            Advance();
+
+            return new MatchStringCasePatternNode(pos.Item1, Position.Item1, symbol10);
+        }
+        else if (Symbol is PyNone)
+        {
+            var symbol20 = Symbol;
+            Advance();
+
+            return new MatchNoneCasePatternNode(pos.Item1, Position.Item1, symbol20);
+        }
+        else if (Symbol is PyTrue)
+        {
+            var symbol30 = Symbol;
+            Advance();
+
+            return new MatchTrueCasePatternNode(pos.Item1, Position.Item1, symbol30);
+        }
+        else if (Symbol is PyFalse)
+        {
+            var symbol40 = Symbol;
+            Advance();
+
+            return new MatchFalseCasePatternNode(pos.Item1, Position.Item1, symbol40);
+        }
+        else if (Symbol is PyNumber || Symbol is PyMinus)
+        {
+            if (Symbol is PyMinus)
+            {
+                var symbol50 = Symbol;
+                Advance();
+                if (Symbol is not PyNumber) throw new SyntaxError(Position.Item1, "Expecting number after '-' in number pattern!");
+
+                var symbol51 = Symbol;
+                Advance();
+
+                return new MatchSignedNumberCasePatternNode(pos.Item1, Position.Item1, symbol50, symbol51);
+            }
+
+            var symbol52 = Symbol;
+            Advance();
+
+            if (Symbol is PyPlus || Symbol is PyMinus)
+            {
+                var symbol53 = Symbol;
+                Advance();
+
+                if (Symbol is not PyNumber) throw new SyntaxError(Position.Item1, "Expecting number in number pattern after '+' or '-'");
+
+                var symbol54 = Symbol;
+                Advance();
+
+                return new MatchImaginaryNumberCasePatternNode(pos.Item1, Position.Item1, symbol52, symbol53, symbol54);
+            }
+
+            return new MatchNumberCasePatternNode(pos.Item1, Position.Item1, symbol52);
+        }
+        else if (Symbol is PyName)
+        {
+            if ((Symbol as PyName)!.Id == "_")
+            {
+                var symbolDefault = new PyDefault(Symbol.StartPos, Symbol.EndPos, (Symbol as PyName)!.Trivias);
+                Advance();
+
+                return new MatchDefaultCasePatternNode(pos.Item1, Position.Item1, symbolDefault);
+            }
+
+            var symbol60 = Symbol;
+            Advance();
+
+            if (Symbol is not PyDot && Symbol is not PyAssign && Symbol is not PyLeftParen)
+            {
+                return new MatchCaptureTargetCasePatternNode(pos.Item1, Position.Item1, symbol60);
+            }
+
+            StatementNode? left = null;
+
+            if (Symbol is PyDot)
+            {
+                var elements = new List<Symbol>();
+                var separators = new List<Symbol>();
+
+                while (Symbol is PyDot)
+                {
+                    separators.Add(Symbol);
+                    Advance();
+
+                    if (Symbol is not PyName) throw new SyntaxError(Position.Item1, "Expecting NAME literaø after '.' in pattern!");
+                    elements.Add(Symbol);
+                    Advance();
+                }
+
+                left = new MatchDottedNameCasePatternNode(pos.Item1, Position.Item1, symbol60, elements.ToArray(), separators.ToArray());
+            }
+
+            if (Symbol is PyLeftParen) // Class pattern
+            {
+
+            }
+
+            return left!;
+        }
+        else if (Symbol is PyLeftBracket || Symbol is PyLeftParen) // Sequence '(' can be group
+        {
+
+        }
+        else if (Symbol is PyLeftCurly) // Mappings
+        {
+
+        }
+
+        throw new SyntaxError(Position.Item1, "Unknown pattern!");
+    }
+
+
+
+
+
 
     // Grammar rule: while statement /////////////////////////////////////////////////////////////////////////////////
     public StatementNode ParseWhileStatement()
