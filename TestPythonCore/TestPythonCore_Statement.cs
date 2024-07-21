@@ -1322,5 +1322,45 @@ namespace TestPythonCore
             Assert.Equivalent(required, res, strict: true);
         }
 
+        [Fact]
+        public void TestStatementSimpleMatchOrStatement()
+        {
+            var parser = new PythonCoreParser("match a:\r\n  case 1 | 2 | 3: pass\r\npass\r\n\r\n");
+            parser.Advance();
+            var res = parser.ParseStmt();
+            
+            var root = ((res as MatchStatementNode)!.Elements[0] as MatchCaseStatementNode)!.Pattern as MatchOrPatternsNode;
+            
+            Assert.IsType<MatchOrPatternsNode>(root);
+
+            var required = new MatchOrPatternsNode(17, 26, [
+                new MatchNumberCasePatternNode(17, 19, new PyNumber(17, 18, "1", [new WhiteSpaceTrivia(16, 17)])),
+                new MatchNumberCasePatternNode(21, 23, new PyNumber(21, 22, "2", [new WhiteSpaceTrivia(20, 21)])),
+                new MatchNumberCasePatternNode(25, 26, new PyNumber(25, 26, "3", [new WhiteSpaceTrivia(24, 25)]))
+            ], [
+                new PyBitOr(19, 20, [new WhiteSpaceTrivia(18, 19)]),
+                new PyBitOr(23, 24, [new WhiteSpaceTrivia(22, 23)])
+            ]);
+            
+            Assert.Equivalent(required, root, strict: true);
+        }
+        
+        [Fact]
+        public void TestStatementSimpleMatchOrAsStatement()
+        {
+            var parser = new PythonCoreParser("match a:\r\n  case 1 | 2 | 3 as b: pass\r\npass\r\n\r\n");
+            parser.Advance();
+            var res = parser.ParseStmt();
+            
+            var root = ((res as MatchStatementNode)!.Elements[0] as MatchCaseStatementNode)!.Pattern as MatchAsPatternNode;
+            
+            Assert.IsType<MatchAsPatternNode>(root);
+            
+            Assert.Equivalent((root.As as PyAs), new PyAs(27, 29, [ new WhiteSpaceTrivia(26, 27) ]));
+            Assert.Equivalent((root.Name as PyName), new PyName(30, 31, "b", [ new WhiteSpaceTrivia(29, 30) ]));
+
+            Assert.IsType<MatchOrPatternsNode>(root.Left);
+        }
+
     }
 }
